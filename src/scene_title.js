@@ -45,8 +45,10 @@
     // 오른쪽: 로고와 메뉴
     var lx = 430;
     var lw = G.embossMeasure('주사위', 3);
-    G.embossText(G.getLang() === 'en' ? 'Dice' : '주사위', lx, 46, 3, [4, 3, 11], 'g11b', 12);
-    G.embossText(G.getLang() === 'en' ? 'Orrery' : '성계', lx + 34, 86, 3, [8, 7, 10], 'g11b', 12);
+    var l1 = G.getLang() === 'en' ? 'Dice' : '주사위', l2 = G.getLang() === 'en' ? 'Orrery' : '성계', o2 = G.getLang() === 'en' ? 10 : 46;
+    G.embossText(l1, lx + 3, 33, 3, [18, 18, 18], 'g14', 12); G.embossText(l2, lx + o2 + 3, 83, 3, [21, 21, 21], 'g14', 12);
+    G.embossText(l1, lx, 30, 3, [4, 3, 11], 'g14', 12);
+    G.embossText(l2, lx + o2, 80, 3, [8, 7, 10], 'g14', 12);
     var sub = G.getLang() === 'en' ? '주사위 성계' : 'D I C E   O R R E R Y';
     F.drawOutlined(sub, lx + 2, 130, 3, 'g11b', 12);
     gx.setClip(0, 0, 640, 135); F.draw(sub, lx + 2, 130, 4, 'g11b'); gx.resetClip();
@@ -61,7 +63,7 @@
       if (h.over) { sel = i; anyHit = true; }
       var on = sel === i;
       if (on) gx.blit(G.spr.menuDie, lx, y + 2);
-      F.drawOutlined(m[1], lx + 14 + (on ? 2 : 0), y, on ? 4 : 8, 'g11b', 12);
+      F.drawOutlined(m[1], lx + 14, y, on ? 4 : 8, 'g11b', 12);
       if (h.clicked) act(m[0]);
     });
     if (!A.overlay) {

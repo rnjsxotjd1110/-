@@ -1,7 +1,7 @@
 // 갈무리 BDF 비트맵 글자를 그대로 찍는다 (안티앨리어싱 없음).
 (function () {
   var cache = {};
-  var LH = { g11: 13, g11b: 13, g9: 11, g7: 9 };
+  var LH = { g11: 13, g11b: 13, g9: 11, g7: 9, g14: 16 };
   function glyph(font, code) {
     var key = font + ':' + code;
     if (cache[key] !== undefined) return cache[key];

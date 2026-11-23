@@ -5,7 +5,7 @@
 
   function costLine(x, y, cost, ok, icon) {
     gx.blit(icon || G.spr.icDust, x, y + 2);
-    F.draw(isFinite(cost) ? G.fmt(cost) : '-', x + 12, y, ok ? 3 : 15, 'g11b', 12);
+    F.draw(isFinite(cost) ? G.fmt(cost) : '-', x + 12, y, ok ? 3 : 8, 'g11b', 12);
   }
   function btn(id, x, y, w, h, label, en, style) { return U.button(id, x, y, w, h, label, { enabled: en, font: 'g11b', style: style, sfx: 'buy' }); }
 
@@ -39,7 +39,7 @@
     // 최근 합
     var ry = Y0 + 262;
     U.groove(X0, ry - 6, W0);
-    F.draw(G.T('recent'), X0 + 2, ry + 3, 15, 'g9');
+    F.draw(G.T('recent'), X0 + 2, ry + 3, 8, 'g9');
     for (var i = 0; i < 7; i++) {
       var x = X0 + 48 + i * 23;
       G.nine(G.spr.inset, x, ry, 21, 17);
@@ -49,12 +49,12 @@
     var pa = 0; Object.keys(d.al).forEach(function (k) { pa += d.al[k]; });
     var alh = U.hitArea('alignline', X0, ry + 22, W0, 12);
     if (alh.over) U.tip([{ t: G.T('tip_align'), c: 12 }], U.inp.x, U.inp.y);
-    F.draw(G.T('align_pop').replace('!', '') + ' ' + (pa * 100 >= 1 ? (pa * 100).toFixed(1) : (pa * 100).toFixed(2)) + '% · ×' + G.fmt(d.alignMult, true), X0 + 2, ry + 24, 15, 'g9');
+    F.draw(G.T('align_pop').replace('!', '') + ' ' + (pa * 100 >= 1 ? (pa * 100).toFixed(1) : (pa * 100).toFixed(2)) + '% · ×' + G.fmt(d.alignMult, true), X0 + 2, ry + 24, 8, 'g9');
   }
 
   // 분포 그래프. carved=true면 깎지 않은 분포 눈금도 표시
   function histogram(s, d, x, y, w, h, withStd) {
-    F.draw(G.T('dist'), x + 2, y, 15, 'g9');
+    F.draw(G.T('dist'), x + 2, y, 8, 'g9');
     var orb = d.orbits.filter(function (o) { return d.dist[o] > 0 || (withStd && d.std[o] > 0); }), n = orb.length;
     var cw = Math.max(3, Math.floor(w / n)), tw = cw * n, bx = x + Math.floor((w - tw) / 2);
     var by = y + 12 + h;
@@ -103,6 +103,7 @@
       if (own) { gx.hline(x + 1, y + 1, 22, 12); }
       var ic = G.spr.cat[u.cat] || G.spr.cat.lens;
       gx.blit(ic, x + 5, y + 5, false, own || ok ? null : SIL);
+      for (var tp = 0; tp <= ti; tp++) gx.pset(x + 20 - tp * 2, y + 20, fc[0]);
       if (ok && Math.floor(A.t * 2) % 2 === 0) { gx.rect(x + 19, y + 2, 2, 2, 3); }
       if (sel && sel.id === u.id) { gx.hline(x - 1, y - 2, 26, 4); gx.hline(x - 1, y + 25, 26, 4); gx.vline(x - 2, y - 1, 26, 4); gx.vline(x + 25, y - 1, 26, 4); }
       if (h.over && !A.selUpgLock) A.selUpg = u.id;
@@ -232,8 +233,9 @@
       F.draw(G.T('nova_need'), X0 + 2, y + 2, 8, F.measure(G.T('nova_need'), 'g11') > W0 - 4 ? 'g9' : 'g11');
       var mt = C.maxTier(s), best = 0;
       Object.keys(s.bodies).forEach(function (k) { best = Math.max(best, s.bodies[k].m); });
-      var need = d.th[G.DATA.novaTier - 2];
-      var frac = best > 0 ? Math.log(best) / Math.log(need) : 0;
+      var need = d.th[G.DATA.novaTier - 2], prev = d.th[G.DATA.novaTier - 3];
+      var frac = best > prev ? (Math.log(best) - Math.log(prev)) / (Math.log(need) - Math.log(prev)) : 0;
+      frac = Math.min(0.97, frac);
       bigBar(X0, y + 18, W0, frac, [8, 7]);
       F.draw(G.nm('tiers', Math.max(1, mt)) + ' → ' + G.nm('tiers', 8), X0 + 2, y + 29, 15, 'g9');
     }
@@ -305,8 +307,8 @@
       var cn = s.chal ? G.nm('chal', s.chal) : G.T('col_need');
       F.draw(cn, X0 + 2, y + 2, 8, F.measure(cn, 'g11') > W0 - 4 ? 'g9' : 'g11');
       var best = 0; Object.keys(s.bodies).forEach(function (k) { best = Math.max(best, s.bodies[k].m); });
-      var need = C.derive(s).th[G.DATA.collapseTier - 2];
-      bigBar(X0, y + 18, W0, best > 0 ? Math.log(best) / Math.log(need) : 0, [19, 16]);
+      var thc = C.derive(s).th, need = thc[G.DATA.collapseTier - 2], prev = thc[G.DATA.collapseTier - 3];
+      bigBar(X0, y + 18, W0, best > prev ? Math.min(0.97, (Math.log(best) - Math.log(prev)) / (Math.log(need) - Math.log(prev))) : 0, [19, 16]);
       F.draw(G.nm('tiers', Math.max(1, C.maxTier(s))) + ' → ' + G.nm('tiers', 10), X0 + 2, y + 29, 15, 'g9');
     }
     var heavy = G.DATA.collapseHeavy;

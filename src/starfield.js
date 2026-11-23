@@ -5,11 +5,11 @@
   var far = [], mid = [], near = [], galaxies = [];
   var STAGES = [
     // 진행 단계별 성운 색 (어두움 -> 밝음)
-    { base: 0, bands: [6, 16, 19], th: [0.52, 0.66, 0.8], density: 1 },
-    { base: 0, bands: [21, 18, 10, 5], th: [0.5, 0.62, 0.74, 0.85], density: 1.2 },
-    { base: 0, bands: [23, 22, 20, 17], th: [0.5, 0.62, 0.74, 0.86], density: 1.4 },
-    { base: 12, bands: [6, 16, 19, 4], th: [0.5, 0.63, 0.76, 0.88], density: 1.6 },
-    { base: 0, bands: [6, 16, 19, 4], th: [0.48, 0.6, 0.72, 0.84], density: 1.9 }
+    { base: 0, bands: [6, 16], th: [0.6, 0.74], density: 1 },
+    { base: 0, bands: [21, 18, 10], th: [0.58, 0.7, 0.8], density: 1.2 },
+    { base: 0, bands: [23, 22, 20], th: [0.57, 0.68, 0.8], density: 1.4 },
+    { base: 12, bands: [6, 16, 19], th: [0.57, 0.69, 0.82], density: 1.6 },
+    { base: 0, bands: [6, 16, 19], th: [0.55, 0.67, 0.8], density: 1.9 }
   ];
   function rnd(seed) { var s = seed >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 

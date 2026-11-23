@@ -113,7 +113,7 @@
     var hot = opts.leverHot;
     var lw = G.embossMeasure(lab, 1, 'g11b');
     G.font.draw(lab, x + 38 - (lw >> 1), y + 62, hot ? 4 : 3, 'g11b', 12);
-    G.font.drawCenter('Space', x + 38, y + 75, 14, 'g7');
+    G.font.drawCenter('Space', x + 38, y + 75, 15, 'g7');
   }
   // 합 배지: 펠트 오른쪽 끝 고정 자리
   function drawBadge(sum, batch) {

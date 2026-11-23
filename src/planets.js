@@ -169,7 +169,7 @@
   function ring(s, cx, cy, r, front, seed, LT) {
     var S = s.w;
     var R1 = r * 1.55, R2 = r * ([2.15, 1.9, 2.3][seed % 3]);
-    var tilt = [0.34, 0.45, 0.26][seed % 3];
+    var tilt = 0.32;
     var RC = [[8, 4, 9, 10], [19, 16, 6, 0], [3, 2, 11, 18]][Math.floor(seed / 3) % 3];
     for (var py = 0; py < S; py++) for (var px = 0; px < S; px++) {
       var x = px + 0.5 - cx, y = (py + 0.5 - cy) / tilt;
@@ -184,7 +184,7 @@
       var band = (d - R1) / (R2 - R1);
       var c = band < 0.3 ? RC[0] : (band < 0.55 ? RC[1] : (band < 0.7 ? RC[2] : RC[0]));
       if (x * LT[0] < -R1 * 0.4 * Math.abs(LT[0])) c = band < 0.5 ? RC[2] : RC[3]; // 빛 반대쪽은 어두움
-      if (!front && Math.abs(x) < r * 0.9) c = RC[3];
+      if (!front) c = band < 0.5 ? RC[2] : RC[0];
       s.d[py * S + px] = c;
     }
   }
@@ -213,7 +213,8 @@
       var nz = Math.sqrt(1 - d2);
       var gr = fbm(nx * 3 + Math.cos(ph) * 0.6, ny * 3 + Math.sin(ph) * 0.6, nz * 3, 3);
       var limb = 1 - nz;
-      s.d[py * S + px] = G.gfx.rampPick(cfg.ramp, limb * 0.95 + (gr - 0.5) * 0.35 + 0.02, px, py, 0.14);
+      var hl = Math.max(0, 1 - Math.hypot(nx + 0.35, ny + 0.35) / 0.45);
+      s.d[py * S + px] = G.gfx.rampPick(cfg.ramp, 0.22 + limb * 0.78 + (gr - 0.5) * 0.3 - hl * 0.3, px, py, 0.14);
     }
     // 코로나: 각도별 가시 길이
     var n = 28;

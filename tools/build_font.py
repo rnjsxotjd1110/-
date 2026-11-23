@@ -11,6 +11,7 @@ FONTS = {
     'g11b': 'Galmuri11-Bold.bdf',
     'g9': 'Galmuri9.bdf',
     'g7': 'Galmuri7.bdf',
+    'g14': 'Galmuri14.bdf',
 }
 
 def parse_bdf(path):

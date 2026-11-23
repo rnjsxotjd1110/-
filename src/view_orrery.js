@@ -61,15 +61,6 @@
         gx.pset(tx, ty, big ? (q === 0 ? 3 : 2) : 11);
       }
     }
-    // 중심 받침 (톱니 원판)
-    for (var by = -9; by <= 9; by++) for (var bx = -24; bx <= 24; bx++) {
-      var e = (bx * bx) / (22 * 22) + (by * by) / (8 * 8);
-      var ang = Math.atan2(by * 2.6, bx), tooth = ((Math.floor((ang + Math.PI) / (Math.PI * 2) * 24)) & 1) === 0;
-      var lim = tooth ? 1.18 : 1;
-      if (e > lim) continue;
-      var c = e > 0.82 ? (by < 0 ? 3 : 11) : (e > 0.6 ? 18 : (by < -2 ? 2 : 11));
-      gx.pset(CX + bx, CY + 6 + by, c);
-    }
     // 궤도선
     st.orbits.forEach(function (s, i) {
       var o = L.map[s];
@@ -155,10 +146,8 @@
         if (hot) for (var yy = CY + 2; yy < RY - 3; yy += 3) gx.pset(x, yy, f > 0.2 ? 2 : 18);
         var label = String(s);
         var lw = G.font.measure(label, 'g7');
-        var kk = Math.max(1, Math.ceil((lastS >= 10 ? 12 : 8) / L.sp));
+        var kk = Math.max(1, Math.ceil((G.font.measure(String(lastS), 'g7') + 4) / L.sp));
         if (s % kk !== 0) return;
-        if (x - (lw >> 1) <= rulerLast + 2) return;
-        rulerLast = x + (lw >> 1);
         var row = 0;
         G.font.draw(label, x - (lw >> 1), RY + 7, hot ? 4 : (st.bodies[s] ? 8 : 15), 'g7');
       });
@@ -226,7 +215,7 @@
     flash: function (s, v) { flashes[s] = Math.max(flashes[s] || 0, v || 1); },
     flashAll: function (v) { return v; },
     beam: function (x, y, s, onHit) { beams.push({ x: x, y: y, s: s, t: 0, onHit: onHit }); },
-    pop: function (x, y, text, c, font, big, ramp, tag) { if (tag) for (var i = pops.length - 1; i >= 0; i--) if (pops[i].tag === tag || (!big && !pops[i].big && Math.abs(pops[i].x - x) < 26 && Math.abs(pops[i].y - y) < 10)) pops.splice(i, 1); pops.push({ tag: tag, x: x, y: y, text: text, c: c, font: font, life: 1, big: big, ramp: ramp }); if (pops.length > 24) pops.shift(); },
+    pop: function (x, y, text, c, font, big, ramp, tag) { if (tag) for (var i = pops.length - 1; i >= 0; i--) if (pops[i].tag === tag) pops.splice(i, 1); for (var j = 0; j < pops.length; j++) if (!pops[j].big && Math.abs(pops[j].x - x) < 30 && Math.abs(pops[j].y - y) < 11) y = pops[j].y - 11; pops.push({ tag: tag, x: x, y: y, text: text, c: c, font: font, life: 1, big: big, ramp: ramp }); if (pops.length > 24) pops.shift(); },
     ring: function (s) { rings.push({ s: s, life: 1 }); },
     clearFx: function () { beams.length = 0; parts.length = 0; pops.length = 0; rings.length = 0; flashes = {}; },
     partsCount: function () { return parts.length; }
