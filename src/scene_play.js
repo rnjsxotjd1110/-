@@ -25,8 +25,11 @@
     var d = C.derive(s);
     var v = A.view || {};
     v.orbits = d.orbits; v.bodies = s.bodies; v.stage = stageOf(s); v.sunForm = sunOf(s);
-    var mt = C.maxTier(s), gt = s.novas === 0 ? 8 : (s.collapses === 0 && mt >= 8 ? 10 : 0);
-    v.goal = gt && mt < gt ? [G.T('goal_next', G.nm('tiers', gt)), G.T('goal_now', G.nm('tiers', Math.max(1, mt)))] : null;
+    var mt = C.maxTier(s), gt = mt < 8 ? 8 : (mt < 10 ? 10 : 0);
+    var best = 0; Object.keys(s.bodies).forEach(function (k) { best = Math.max(best, s.bodies[k].m); });
+    var nxt = mt >= 1 && mt < 10 ? d.th[mt - 1] : 0;
+    v.goal = gt ? [G.T('goal_next', G.nm('tiers', gt)), nxt ? G.fmt(best) + ' / ' + G.fmt(nxt) : ''] : null;
+    v.goalTip = gt ? [G.T('goal_now', G.nm('tiers', Math.max(1, mt))), nxt ? G.T('goal_mass', G.fmt(best), G.fmt(nxt)) + ' → ' + G.nm('tiers', mt + 1) : ''] : null;
     A.view = v;
     return v;
   }
@@ -36,7 +39,8 @@
     gx.rect(0, 0, 640, 20, 13); gx.hline(0, 17, 640, 18); gx.hline(0, 18, 640, 2); gx.hline(0, 19, 640, 12);
     gx.blit(G.spr.icDust, 5, 4);
     if (U.hitArea('dusttip', 2, 2, 140, 16).over) U.tip([{ t: G.T('tip_dust'), f: 'g11b', c: 12 }], 10, 10);
-    var w = F.draw(G.fmt(s.dust), 17, 3, 3, 'g11b', 12);
+    var dl = F.draw(G.T('dust_lbl'), 16, 4, 8, 'g9', 12);
+    var w = F.draw(G.fmt(s.dust), 20 + dl, 3, 3, 'g11b', 12) + dl + 3;
     var rate = C.production(s);
     F.draw('+' + G.fmt(rate, true) + G.T('per_sec'), 21 + w, 4, 8, 'g9', 12);
     var x = Math.max(150, 21 + w + F.measure('+' + G.fmt(rate, true) + G.T('per_sec'), 'g9') + 12);
@@ -156,7 +160,7 @@
     var lh = U.hitArea('lever', G.tray.LEV.x, G.tray.LEV.y, G.tray.LEV.w, G.tray.LEV.h, !cut);
     G.tray.draw({ leverHot: lh.over || (s.stats.rolls === 0 && Math.floor(A.t * 2.5) % 2 === 0), leverHeld: lh.state === 'down', reduce: s.settings.reduce });
     G.orrery.drawPops();
-    G.tray.drawBadge(A.shownSum, A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
+    G.tray.drawBadge(G.tray.rolling() ? undefined : A.shownSum, A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
     var feltHit = U.hitArea('felt', G.tray.IN.x, G.tray.IN.y, G.tray.IN.w, G.tray.IN.h, !cut);
     if ((lh.clicked || feltHit.clicked) && !A.overlay) A.doManualRoll();
     if (U.inp.keysPressed.Space && !A.overlay && !cut) A.doManualRoll();
@@ -165,6 +169,7 @@
     // 궤도 툴팁
     if (!A.overlay && !cut && U.inp.y >= 20 && U.inp.y < 244 && U.inp.x < 416 && !U.hover()) orbitTip(s, v, U.inp.x, U.inp.y);
     else v.hoverOrbit = null;
+    if (v.goalTip && U.over(0, 246, 200, 20)) U.tip([{ t: v.goalTip[0], f: 'g11b', c: 12 }, { t: v.goalTip[1], c: 13 }], U.inp.x, U.inp.y - 40);
     topbar(s);
     // 오른쪽 판
     G.nine(G.spr.panel, PX, PY, PW, PH);

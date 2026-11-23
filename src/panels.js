@@ -138,14 +138,14 @@
     U.groove(X0, sy2 - 4, W0);
     var rows = [[G.T('prod'), '×' + G.fmt(d.globalMult, true)], [G.T('mass'), '×' + G.fmt(d.power, true)], [G.T('align_pop').replace('!', ''), '×' + G.fmt(d.alignMult, true)],
       [G.T('n_bodies'), String(Object.keys(s.bodies).length)],
-      [G.T('harmony', '').replace('×', '').trim(), '+' + (d.harmonyPer * 100).toFixed(1) + '%'], [G.T('roller_s'), d.interval ? d.interval.toFixed(2) + 's' : '-']];
+      [G.T('harmony', '').replace('×', '').trim(), '×' + C.harmony(s, d).toFixed(2)], [G.T('roller_s'), d.interval ? d.interval.toFixed(2) + 's' : '-']];
     rows.forEach(function (r, i) {
       var cx2 = X0 + (i % 2) * 106, cy2 = sy2 + 4 + Math.floor(i / 2) * 15;
       F.draw(r[0], cx2 + 2, cy2, 15, 'g9');
       F.drawRight(r[1], cx2 + 100, cy2 - 1, 4, 'g11b');
     });
     var owned = G.UPGRADES.filter(function (u) { return s.up[u.id]; }).length;
-    F.drawRight(owned + '/' + G.UPGRADES.length, X0 + W0 - 2, dy + 10, 15, 'g9');
+    F.drawRight(G.T('owned_n', owned, G.UPGRADES.length), X0 + W0 - 2, dy + 10, 15, 'g9');
   }
   var MEDAL = (function () { var base = []; for (var i = 0; i < 24; i++) base[i] = i; var sets = [[3, 2, 11, 4], [19, 16, 6, 4], [7, 5, 10, 8], [15, 14, 13, 4], [8, 9, 10, 4], [17, 20, 22, 8], [2, 1, 0, 4], [4, 8, 9, 4]]; return sets.map(function (c) { var m = base.slice(); m[3] = c[0]; m[2] = c[1]; m[11] = c[2]; m[4] = c[3]; return m; }); })();
   var SIL = []; for (var si2 = 0; si2 < 24; si2++) SIL[si2] = si2 === 12 ? 12 : 13;
@@ -192,10 +192,10 @@
       var die2 = s.dice[A.selFace[0]], v2 = die2.faces[A.selFace[1]];
       var mx = Math.max(C.maxFace(s), die2.shape === 'd12' ? 12 : (die2.shape === 'd8' ? 8 : 0));
       var cf = C.costForge(s), ok = s.dust >= cf;
-      costLine(X0 + 2, cy + 2, cf, ok);
+      if (v2 >= mx || v2 <= 1) F.draw(G.T(v2 >= mx ? 'face_max' : 'face_min'), X0 + 2, cy - 1, 8, 'g9');
+      costLine(X0 + 2, cy + (v2 >= mx || v2 <= 1 ? 8 : 2), cf, ok);
       var bw = 70;
       if (btn('fplus', X0 + W0 - bw * 2 - 4, cy, bw, 19, G.T('forge_plus'), ok && v2 < mx)) { if (C.forge(s, A.selFace[0], A.selFace[1], 1)) { G.audio.play('forge'); } }
-      if (v2 >= mx) F.draw(G.T('face_max'), X0 + 2, cy + 14, 8, 'g9'); else if (v2 <= 1) F.draw(G.T('face_min'), X0 + 2, cy + 14, 8, 'g9');
       if (U.over(X0 + W0 - bw * 2 - 4, cy, bw * 2 + 4, 19)) U.tip([{ t: G.T('tip_forge'), c: 12 }], U.inp.x, U.inp.y);
       if (btn('fminus', X0 + W0 - bw, cy, bw, 19, G.T('forge_minus'), ok && v2 > 1)) { if (C.forge(s, A.selFace[0], A.selFace[1], -1)) { G.audio.play('forge'); } }
     }

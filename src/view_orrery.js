@@ -135,7 +135,7 @@
       var xa = CX + L.map[first].rx, xb = CX + L.map[lastS].rx;
       gx.hline(xa, RY + 3, xb - xa + 1, 11);
       var rulerLast = -99;
-      if (st.goal) { var gw = G.font.draw(st.goal[0], V.x + 6, RY + 3, 4, 'g9'); G.font.draw('· ' + st.goal[1], V.x + 10 + gw, RY + 3, 15, 'g9'); }
+      if (st.goal) { var gw = G.font.draw(st.goal[0], V.x + 6, RY + 3, 4, 'g9'); if (st.goal[1]) G.font.draw('· ' + st.goal[1], V.x + 10 + gw, RY + 3, 15, 'g9'); }
       else G.font.draw(G.T('h_orbit_rule'), V.x + 6, RY + 3, 15, 'g9');
       st.orbits.forEach(function (s, i) {
         var o = L.map[s];
@@ -162,7 +162,7 @@
     pops.forEach(function (p) {
       var y = Math.round(p.y - (1 - p.life) * 14);
       if (p.big) G.embossText(p.text, Math.round(p.x - G.embossMeasure(p.text, 2) / 2), y - 6, 2, p.ramp || [4, 3, 11], 'g11b', 12);
-      else G.font.drawOutlined(p.text, Math.round(p.x - G.font.measure(p.text, p.font || 'g9') / 2), y, p.c || 4, p.font || 'g9', 12);
+      else { var pw = G.font.measure(p.text, p.font || 'g9'); G.font.drawOutlined(p.text, Math.max(2, Math.min(414 - pw, Math.round(p.x - pw / 2))), Math.max(22, y), p.c || 4, p.font || 'g9', 12); }
     });
   }
 

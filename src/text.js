@@ -15,7 +15,7 @@
     // 주사위 탭
     pick_face: '새길 면을 고르세요', forge_plus: '+1 새기기', forge_minus: '-1 깎기', face_max: '이 면은 더 못 새겨요', face_min: '이 면은 더 못 깎아요',
     shape_title: '주사위 모양', tray_cap: '쟁반 칸 {0}/{1}', change_shape: '바꾸기',
-    std_dist: '새기기 전 분포', dist_now: '지금 분포', goal_next: '다음: {0}', goal_now: '지금 {0}', total_mass: '총질량 {0} / {1}', tip_forge: '드문 합이 자주 나오게 새기면 그 궤도가 빨리 자라요.', ev_hint: '눌러서 잡아요', nova_keep: '별핵·연구·업적은 남아요.', tip_power: '한 번 굴릴 때 붙는 질량이 늘어요.', tip_wind: '태엽이 주사위를 자동으로 굴려요.', tip_dice: '주사위가 늘면 궤도가 바깥으로 늘어나요.', tip_forge2: '주사위 면의 눈을 바꿔 합의 분포를 바꿔요.', n_bodies: '천체',
+    std_dist: '새기기 전 분포', dist_now: '지금 분포', goal_next: '다음: {0}', goal_now: '지금 {0}', goal_mass: '질량 {0} / {1}', owned_n: '구매 {0}/{1}', dust_lbl: '별가루', total_mass: '총질량 {0} / {1}', tip_forge: '드문 합이 자주 나오게 새기면 그 궤도가 빨리 자라요.', ev_hint: '눌러서 잡아요', nova_keep: '별핵·연구·업적은 남아요.', tip_power: '한 번 굴릴 때 붙는 질량이 늘어요.', tip_wind: '태엽이 주사위를 자동으로 굴려요.', tip_dice: '주사위가 늘면 궤도가 바깥으로 늘어나요.', tip_forge2: '주사위 면의 눈을 바꿔 합의 분포를 바꿔요.', n_bodies: '천체',
     // 초신성
     nova_btn: '초신성 일으키기', nova_need: '적색 왜성이 태어나면 열려요', nova_gain: '별핵 +{0}', nova_next: '총질량이 {0}에 닿으면 별핵 +1',
     research: '연구', challenges: '관측 과제', br0: '성장', br1: '굴림', br2: '하늘',
@@ -30,7 +30,7 @@
     // 설정
     set_title: '설정', set_sfx: '효과음', set_bgm: '배경음', set_mute: '소리', set_notation: '숫자 표기', set_reduce: '연출 줄이기', set_lang: '언어',
     not_ko: '만·억·조', not_en: 'K·M·B', not_sci: '1.2e9', not_eng: '12e9',
-    set_save: '저장', b_save: '저장하기', b_export: '내보내기', b_import: '가져오기', b_close: '닫기', b_credits: '크레딧 보기', b_reset: '처음부터 하기', b_title: '타이틀로 가기',
+    set_save: '저장', b_save: '저장하기', b_export: '내보내기', b_import: '가져오기', b_close: '닫기', b_credits: '크레딧 보기', b_reset: '처음부터 하기', b_title: '시작 화면으로 가기',
     saved: '저장했어요', exported: '저장 코드를 복사했어요', import_ok: '불러왔어요', import_bad: '저장 코드가 올바르지 않아요', import_prompt: '저장 코드를 붙여 넣어 주세요',
     // 복귀
     away_title: '자리를 비운 사이', away_time: '{0} 동안', away_dust: '별가루 +{0}', away_rolls: '굴림 {0}번', away_tiers: '천체 성장 {0}번', away_novas: '초신성 {0}번 · 붕괴 {1}번', away_eff: '자리 비움 효율 {0}%', b_ok: '받기',
@@ -68,7 +68,7 @@
     upg_hidden: 'Gather more to reveal', bought: 'Owned',
     pick_face: 'Pick a face to carve', forge_plus: '+1 Carve', forge_minus: '-1 Shave', face_max: 'This face is at its limit', face_min: 'This face is at its limit',
     shape_title: 'Die shapes', tray_cap: 'Tray {0}/{1}', change_shape: 'Swap',
-    std_dist: 'Before carving', dist_now: 'Now', goal_next: 'Next: {0}', goal_now: 'now {0}', total_mass: 'Total mass {0} / {1}', tip_forge: 'Carve so rare sums come up more and those orbits grow fast.', ev_hint: 'Click to catch', nova_keep: 'Cores, research and feats stay.', tip_power: 'More mass per roll.', tip_wind: 'The roller rolls dice for you.', tip_dice: 'More dice push the orbits outward.', tip_forge2: 'Change face pips to reshape the odds.', n_bodies: 'Bodies',
+    std_dist: 'Before carving', dist_now: 'Now', goal_next: 'Next: {0}', goal_now: 'now {0}', goal_mass: 'mass {0} / {1}', owned_n: 'Owned {0}/{1}', dust_lbl: 'Stardust', total_mass: 'Total mass {0} / {1}', tip_forge: 'Carve so rare sums come up more and those orbits grow fast.', ev_hint: 'Click to catch', nova_keep: 'Cores, research and feats stay.', tip_power: 'More mass per roll.', tip_wind: 'The roller rolls dice for you.', tip_dice: 'More dice push the orbits outward.', tip_forge2: 'Change face pips to reshape the odds.', n_bodies: 'Bodies',
     nova_btn: 'Go supernova', nova_need: 'Needs a red dwarf', nova_gain: 'Cores +{0}', nova_next: 'Next core at mass {0}',
     research: 'Research', challenges: 'Trials', br0: 'Growth', br1: 'Rolling', br2: 'Sky',
     chal_start: 'Start', chal_quit: 'Give up', chal_goal: 'Goal: form a white dwarf under the rule', chal_done: 'Done', chal_reward: 'Reward: {0}', chal_active: 'Active', chal_lock: 'Novas {1}/{0}',
@@ -150,8 +150,8 @@
       case 'mass': return (ko ? '질량 ×' : 'Mass ×') + v;
       case 'align': return (ko ? '정렬 배율 ×' : 'Alignment ×') + v;
       case 'interval': return (ko ? '태엽 간격 ×' : 'Roller interval ×') + v;
-      case 'harmony': return (ko ? '단계마다 조화 +' : 'Harmony per stage +') + Math.round(v * 1000) / 10 + '%';
-      case 'neighbor': return (ko ? '이웃 궤도마다 생산 +' : 'Output per neighbor +') + Math.round(v * 100) + '%';
+      case 'harmony': return (ko ? '천체 단계 하나마다 조화 +' : 'Harmony per body stage +') + Math.round(v * 1000) / 10 + '%';
+      case 'neighbor': return (ko ? '번호가 하나 차이 나는 궤도에 천체가 있으면 생산 +' : 'Output per adjacent-number orbit +') + Math.round(v * 100) + '%';
       case 'event': return ko ? '하늘 이벤트 효과 ×2, 더 자주' : 'Sky events ×2, more often';
       case 'rarity': return ko ? '드문 궤도가 더 크게 자라요' : 'Rare orbits grow even more';
       case 'manual': return (ko ? '손 굴림 배율 +' : 'Hand roll bonus +') + v;
@@ -163,7 +163,7 @@
       case 'innerLens': return ko ? '희소도 2 미만 궤도 생산 ×' + v : 'Orbits with rarity under 2 output ×' + v;
       case 'threshold': return (ko ? '단계 문턱 ×' : 'Stage thresholds ×') + v;
       case 'startTier': return ko ? '시작할 때 모든 궤도에 미행성' : 'Start with planetesimals on every orbit';
-      case 'coreMass': return ko ? '질량 ×(1+별핵)^0.6' : 'Mass ×(1+cores)^0.6';
+      case 'coreMass': return ko ? '모은 별핵이 많을수록 질량이 커져요' : 'More cores gathered, more mass';
       case 'overflow': return ko ? '눈을 9까지 새길 수 있어요' : 'Carve pips up to 9';
       case 'startWind': return ko ? '태엽 Lv ' + v + '로 시작' : 'Start with roller Lv ' + v;
       case 'startDice': return ko ? '주사위 ' + v + '개로 시작' : 'Start with ' + v + ' dice';

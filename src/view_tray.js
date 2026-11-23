@@ -20,7 +20,7 @@
       var tx = startX + i * gap + Math.round((Math.random() - 0.5) * 8);
       var ty = IN.y + 40 + Math.round((Math.random() - 0.5) * 10);
       var far = Math.min(1, dur / 0.8);
-      var sx = dur < 0.35 ? tx - 8 : tx - 50 - far * 120 - Math.random() * 20, sy = dur < 0.35 ? ty - 4 : ty - 14 + Math.random() * 28;
+      var sx = dur < 0.35 ? tx - 8 : Math.max(IN.x + 14, tx - 50 - far * 120 - Math.random() * 20), sy = dur < 0.35 ? ty - 4 : ty - 14 + Math.random() * 28;
       var yaw = 0;
       var qf = G.dice3d.restQuat(sp.shape, results[i], yaw);
       var dist = tx - sx;
