@@ -79,7 +79,7 @@
     gx.blit(muted ? G.spr.icMute11 : G.spr.icSnd11, 620, 342);
     var sh2 = U.hitArea('tsnd', 614, 336, 24, 22);
     if (sh2.clicked) { if (!A.s) { var p2 = G.save.load(); A.s = (p2 && p2 !== 'broken') ? p2 : G.core.newState(); } A.s.settings.muted = !A.s.settings.muted; G.audio.unlock(); A.applySettings(); if (!A.s.settings.muted) { G.audio.startBgm(0); G.audio.play('tap'); } }
-    F.draw('v1.0', 432, 344, 14, 'g7');
+    F.draw('v1.0', 432, 344, 15, 'g7');
     U.block(false);
     if (A.overlay === 'settings') G.overlays.settings(A.s, true);
     else if (A.overlay === 'confirm') G.overlays.confirm(A.s);

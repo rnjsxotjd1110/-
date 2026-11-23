@@ -160,7 +160,7 @@
     var lh = U.hitArea('lever', G.tray.LEV.x, G.tray.LEV.y, G.tray.LEV.w, G.tray.LEV.h, !cut);
     G.tray.draw({ leverHot: lh.over || (s.stats.rolls === 0 && Math.floor(A.t * 2.5) % 2 === 0), leverHeld: lh.state === 'down', reduce: s.settings.reduce });
     G.orrery.drawPops();
-    G.tray.drawBadge(G.tray.rolling() ? undefined : A.shownSum, A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
+    G.tray.drawBadge(A.shownSum, A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
     var feltHit = U.hitArea('felt', G.tray.IN.x, G.tray.IN.y, G.tray.IN.w, G.tray.IN.h, !cut);
     if ((lh.clicked || feltHit.clicked) && !A.overlay) A.doManualRoll();
     if (U.inp.keysPressed.Space && !A.overlay && !cut) A.doManualRoll();

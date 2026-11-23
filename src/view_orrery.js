@@ -10,7 +10,7 @@
 
   function layout(orbits) {
     var n = orbits.length;
-    var r0 = 34, rmax = 196;
+    var r0 = 34, rmax = 190;
     var sp = n > 1 ? Math.min(15, (rmax - r0) / (n - 1)) : 0;
     var m = {};
     orbits.forEach(function (s, i) { m[s] = { rx: Math.round(r0 + i * sp), ry: Math.round((r0 + i * sp) * 0.4) }; });
@@ -47,7 +47,7 @@
     var L = layout(st.orbits);
     st._layout = L;
     // 놋쇠 테두리 고리 (오러리 기계의 바깥 틀)
-    var rmx = 210, rmy = 86;
+    var rmx = 202, rmy = 84;
     for (var ri = 0; ri < 720; ri++) {
       var ra = ri / 720 * Math.PI * 2;
       var rx = Math.round(CX + Math.cos(ra) * rmx), ry = Math.round(CY + Math.sin(ra) * rmy);

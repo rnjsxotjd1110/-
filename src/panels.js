@@ -5,7 +5,7 @@
 
   function costLine(x, y, cost, ok, icon) {
     gx.blit(icon || G.spr.icDust, x, y + 2);
-    F.draw(isFinite(cost) ? G.fmt(cost) : '-', x + 12, y, ok ? 3 : 8, 'g11b', 12);
+    F.draw(isFinite(cost) ? G.fmt(cost) : '-', x + 12, y, ok ? 3 : 9, 'g11b', 12);
   }
   function btn(id, x, y, w, h, label, en, style) { return U.button(id, x, y, w, h, label, { enabled: en, font: 'g11b', style: style, sfx: 'buy' }); }
 
@@ -16,11 +16,11 @@
     gx.blit(icon, px + 5, py + 5);
     F.draw(name, px + 23, py + 5, 4, 'g11b', 12);
     if (U.over(px, py, pw, 30) && plate.tips) U.tip([{ t: plate.tips[i], c: 12 }], U.inp.x, U.inp.y);
-    F.draw(lv, px + 23, py + 19, 8, 'g9');
-    F.wrap(eff, pw - 10, 'g9').slice(0, 2).forEach(function (l, k) { F.draw(l, px + 6, py + 32 + k * 10, 8, 'g9'); });
-    if (cost !== null) costLine(px + 6, py + 48, cost, ok, icon2);
-    if (btn('pl' + i, px + 5, py + 63, pw - 10, 19, label, en)) onClick();
-    else if (U.inp.released && U.over(px + 5, py + 63, pw - 10, 19) && !en && cost !== null) G.audio.play('deny');
+    F.draw(lv, px + 6, py + 22, 15, 'g9');
+    F.wrap(eff, pw - 10, 'g9').slice(0, 2).forEach(function (l, k) { F.draw(l, px + 6, py + 32 + k * 9, 8, 'g9'); });
+    if (cost !== null) costLine(px + 6, py + 51, cost, ok, icon2);
+    if (btn('pl' + i, px + 5, py + 65, pw - 10, 18, label, en)) onClick();
+    else if (U.inp.released && U.over(px + 5, py + 65, pw - 10, 18) && !en && cost !== null) G.audio.play('deny');
   }
   plate.tips = null;
   function machine(s) {
@@ -106,7 +106,7 @@
       if (own) { gx.hline(x + 1, y + 1, 22, 12); }
       var ic = G.spr.cat[u.cat] || G.spr.cat.lens;
       gx.blit(ic, x + 5, y + 5, false, own || ok ? null : SIL);
-      for (var tp = 0; tp <= ti; tp++) gx.rect(x + 19 - tp * 3, y + 19, 2, 2, fc[0]);
+      for (var tp = 0; tp <= ti; tp++) gx.rect(x + 19 - tp * 3, y + 19, 2, 2, 4);
       if (ok && Math.floor(A.t * 2) % 2 === 0) { gx.rect(x + 19, y + 2, 2, 2, 3); }
       if (sel && sel.id === u.id) { gx.hline(x - 1, y - 2, 26, 4); gx.hline(x - 1, y + 25, 26, 4); gx.vline(x - 2, y - 1, 26, 4); gx.vline(x + 25, y - 1, 26, 4); }
       if (h.over) U.tip([{ t: G.nm('up', u.id), f: 'g11b', c: 12 }, { t: G.effText(u.eff, u.v), c: 13 }, { t: own ? G.T('bought') : G.fmt(u.cost), c: own ? 11 : (ok ? 5 : 14) }], x, y);

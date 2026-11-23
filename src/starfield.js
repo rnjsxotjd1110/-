@@ -5,9 +5,9 @@
   var far = [], mid = [], near = [], galaxies = [];
   var STAGES = [
     // 진행 단계별 성운 색 (어두움 -> 밝음)
-    { base: 0, bands: [6, 16], th: [0.6, 0.74], density: 1 },
-    { base: 0, bands: [21, 18, 10], th: [0.58, 0.7, 0.8], density: 1.2 },
-    { base: 0, bands: [23, 22, 20], th: [0.57, 0.68, 0.8], density: 1.4 },
+    { base: 0, bands: [6, 16], th: [0.63, 0.77], density: 1 },
+    { base: 0, bands: [23, 22, 20], th: [0.62, 0.72, 0.82], density: 1.2 },
+    { base: 0, bands: [23, 22, 20, 17], th: [0.6, 0.7, 0.8, 0.88], density: 1.4 },
     { base: 12, bands: [6, 16, 19], th: [0.57, 0.69, 0.82], density: 1.6 },
     { base: 0, bands: [6, 16, 19], th: [0.55, 0.67, 0.8], density: 1.9 }
   ];

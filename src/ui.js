@@ -59,7 +59,7 @@
     var dy = r.state === 'down' ? 1 : 0;
     G.nine(sp, x, y + dy, w, h - dy);
     var font = opts.font || 'g11';
-    var col = en ? (r.state === 'down' ? 4 : 12) : 15;
+    var col = en ? (r.state === 'down' ? 4 : 12) : 8;
     if (style === 'teal' && en && r.state !== 'hover') col = 4;
     var tw = G.font.measure(label, font);
     var ty = y + dy + Math.floor((h - (font === 'g9' ? 9 : 11)) / 2) - (font === 'g9' ? 1 : 1);
