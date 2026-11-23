@@ -183,7 +183,7 @@
     for (var f = 0; f < np; f++) {
       var nwf = wn[f];
       var facing = -dot(nwf, VD);
-      if (facing < (sh.pips ? 0.38 : 0.12)) continue;
+      if (facing < (sh.pips ? 0.6 : 0.12)) continue;
       var pl = planes[f];
       var val = die.faces[f];
       var siF = shadeIdx(dot(nwf, LT));

@@ -46,6 +46,30 @@
     gx.setClip(V.x, V.y, V.w, opts.noRuler ? 340 : V.h - 22);
     var L = layout(st.orbits);
     st._layout = L;
+    // 놋쇠 테두리 고리 (오러리 기계의 바깥 틀)
+    var rmx = 210, rmy = 86;
+    for (var ri = 0; ri < 720; ri++) {
+      var ra = ri / 720 * Math.PI * 2;
+      var rx = Math.round(CX + Math.cos(ra) * rmx), ry = Math.round(CY + Math.sin(ra) * rmy);
+      var lit = Math.sin(ra) < 0.15; // 위쪽(뒤) 고리는 빛을 받음
+      gx.pset(rx, ry, lit ? 2 : 11); gx.pset(rx, ry + 1, lit ? 11 : 18);
+    }
+    for (var tk = 0; tk < 48; tk++) {
+      var ta = tk / 48 * Math.PI * 2, big = tk % 4 === 0;
+      for (var q = 0; q < (big ? 4 : 2); q++) {
+        var tx = Math.round(CX + Math.cos(ta) * (rmx + 2 + q)), ty = Math.round(CY + Math.sin(ta) * (rmy + 2 + q * 0.45));
+        gx.pset(tx, ty, big ? (q === 0 ? 3 : 2) : 11);
+      }
+    }
+    // 중심 받침 (톱니 원판)
+    for (var by = -9; by <= 9; by++) for (var bx = -24; bx <= 24; bx++) {
+      var e = (bx * bx) / (22 * 22) + (by * by) / (8 * 8);
+      var ang = Math.atan2(by * 2.6, bx), tooth = ((Math.floor((ang + Math.PI) / (Math.PI * 2) * 24)) & 1) === 0;
+      var lim = tooth ? 1.18 : 1;
+      if (e > lim) continue;
+      var c = e > 0.82 ? (by < 0 ? 3 : 11) : (e > 0.6 ? 18 : (by < -2 ? 2 : 11));
+      gx.pset(CX + bx, CY + 6 + by, c);
+    }
     // 궤도선
     st.orbits.forEach(function (s, i) {
       var o = L.map[s];
