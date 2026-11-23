@@ -5,7 +5,7 @@
   var far = [], mid = [], near = [], galaxies = [];
   var STAGES = [
     // 진행 단계별 성운 색 (어두움 -> 밝음)
-    { base: 0, bands: [6, 16], th: [0.57, 0.8], density: 1 },
+    { base: 0, bands: [6, 16], th: [0.58, 0.86], density: 1 },
     { base: 0, bands: [6, 21, 18], th: [0.56, 0.68, 0.8], density: 1.2 },
     { base: 0, bands: [23, 22, 20], th: [0.54, 0.65, 0.77], density: 1.4 },
     { base: 12, bands: [6, 16, 19], th: [0.55, 0.67, 0.8], density: 1.6 },
@@ -18,15 +18,15 @@
     neb = new Uint8Array(BW * BH);
     var fbm = G.planets.fbm, bay = G.gfx.bayer;
     for (var y = 0; y < BH; y++) for (var x = 0; x < BW; x++) {
-      var v = fbm(x / 120 + stage * 3.1, y / 90, 0.5 + stage, 4);
+      var v = fbm(x / 120 + stage * 3.1 + nebSeed * 5.7, y / 90 + nebSeed * 2.3, 0.5 + stage, 4);
       // 대각선 띠 모양으로 성운을 모음
       var bandShape = Math.exp(-Math.pow((y - BH * 0.35 - (x - BW / 2) * 0.35) / 160, 2));
       v = v * (0.55 + 0.55 * bandShape);
       var c = st.base;
       for (var i = 0; i < st.bands.length; i++) {
         var t = st.th[i];
-        if (v > t + 0.02) c = st.bands[i];
-        else if (v > t - 0.02) { if ((v - t + 0.02) / 0.04 > bay(x, y)) c = st.bands[i]; }
+        if (v > t + 0.008) c = st.bands[i];
+        else if (v > t - 0.008) { if ((v - t + 0.008) / 0.016 > bay(x, y)) c = st.bands[i]; }
       }
       neb[y * BW + x] = c;
     }
@@ -55,8 +55,10 @@
   }
 
   // camX, camY: 카메라 흔들림(작게), t: 시간(초)
-  function draw(stage, t, camX, camY, x0, y0, w, h) {
-    if (stage !== nebStage) build(stage);
+  var nebSeed = 0;
+  function draw(stage, t, camX, camY, x0, y0, w, h, seedOff) {
+    seedOff = seedOff || 0;
+    if (stage !== nebStage || seedOff !== nebSeed) { nebSeed = seedOff; build(stage); }
     var buf = G.gfx.buf, W = G.gfx.W;
     var drift = t * 2.0;
     var ox = Math.floor(30 + camX * 0.15 + drift * 0.15) % BW, oy = Math.floor(30 + camY * 0.15) % BH;

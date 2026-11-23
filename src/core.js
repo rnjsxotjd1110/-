@@ -104,16 +104,20 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.std = convolve(dice, true);
     d.al = alignDist(dice);
     var keys = Object.keys(d.std).map(Number);
-    var pmax = 0; keys.forEach(function (k) { pmax = Math.max(pmax, d.std[k]); });
     d.stdMin = Math.min.apply(null, keys); d.stdMax = Math.max.apply(null, keys);
+    // 희소도: 지금(깎은) 분포 기준. 표준 범위를 넘는 바깥 궤도는 칸마다 추가 배율.
+    var pmax = 0; Object.keys(d.dist).forEach(function (k) { pmax = Math.max(pmax, d.dist[k]); });
     var rexp = D.rarityExp + upSum(s, 'rarity');
     d.rarity = function (sum) {
-      var p = d.std[sum];
-      if (p) return Math.pow(pmax / p, rexp);
-      var edge = Math.pow(pmax / d.std[d.stdMax], rexp);
-      if (sum > d.stdMax) return edge * Math.pow(D.outerRarityStep, sum - d.stdMax);
-      return Math.pow(pmax / d.std[d.stdMin], rexp);
+      var p = d.dist[sum] || d.std[sum];
+      var r = p ? Math.pow(pmax / p, rexp) : 1;
+      if (sum > d.stdMax) r *= Math.pow(D.outerRarityStep, sum - d.stdMax);
+      return r;
     };
+    // 정렬 확률이 깎기로 높아지면 정렬 배율은 그만큼 줄어든다 (기대값 유지)
+    var alStd = Math.pow(1 / 6, Math.max(0, dice.length - 1));
+    var alCur = 0; Object.keys(d.al).forEach(function (k) { alCur += d.al[k]; });
+    d.alignDamp = alCur > alStd ? Math.sqrt(alStd / alCur) : 1;
     // 궤도 목록 (실제로 나올 수 있는 합)
     var orb = Object.keys(d.dist).map(Number).filter(function (k) { return d.dist[k] > 0; });
     Object.keys(s.bodies).forEach(function (k) { if (orb.indexOf(+k) < 0) orb.push(+k); });
@@ -133,12 +137,12 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.interval = lw > 0 ? Math.max(D.wind.intMin * (s.ev.buffs.pulsar > 0 ? 0.34 : 1), iv) : 0;
     d.rollsPerSec = d.interval ? 1 / d.interval : 0;
     d.twin = upSum(s, 'twin') + resV(s, 'twin', 'sum');
-    d.alignMult = (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align');
+    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * d.alignDamp);
     d.manualMult = D.manualMult + upSum(s, 'manual');
     // 단계
     var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, 8)) * Math.pow(D.collapseHeavyLate, Math.max(0, s.collapses - 8));
     d.th = [];
-    for (var t = 2; t <= 10; t++) d.th.push(D.tierBase * Math.pow(D.tierFactor, Math.min(t, 8) - 2) * Math.pow(D.tierFactorHigh, Math.max(0, t - 8)) * thK);
+    for (var t = 2; t <= 10; t++) d.th.push(D.tierTable[Math.min(t, 8) - 2] * Math.pow(D.tierFactorHigh, Math.max(0, t - 8)) * thK);
     d.tierMult = D.tierMultBase + upSum(s, 'tierMult') + resV(s, 'tierMult', 'sum') + sresV(s, 'tierMult', 'sum');
     // 생산 배율
     var gm = upProd(s, 'prod') * resV(s, 'prod') * chalReward(s, 'prod') * sresV(s, 'prod');
@@ -467,13 +471,13 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function novaGain(s) {
     if (!canNova(s)) return 0;
     var d = derive(s);
-    var thK = d.th[0] / D.tierBase;
+    var thK = d.th[0] / D.tierTable[0];
     var g = D.coreGain.k * Math.pow(totalMass(s) / (D.coreGain.div * thK), D.coreGain.exp);
     return Math.floor(g * d.coreMult);
   }
   // 다음 별핵 1개까지 필요한 총질량
   function novaNext(s) {
-    var d = derive(s), thK = d.th[0] / D.tierBase;
+    var d = derive(s), thK = d.th[0] / D.tierTable[0];
     var g = novaGain(s) + 1;
     return Math.pow(g / (D.coreGain.k * d.coreMult), 1 / D.coreGain.exp) * D.coreGain.div * thK;
   }

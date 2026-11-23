@@ -40,7 +40,7 @@
     // 궤도 정보
     orb: '궤도 {0}', orb_empty: '아직 비어 있어요', mass: '질량', prod: '생산', chance: '확률', next_tier: '다음 단계',
     align_pop: '정렬!', tier_up: '{0} 탄생',
-    harmony: '조화 ×{0}', buff_flare: '플레어', buff_pulsar: '펄서', buff_rogue: '떠돌이', buff_shower: '유성우 {0}', buff_align: '정렬 {0}', buff_moons: '달 {0}',
+    harmony: '조화 ×{0}', buff_flare: '플레어', buff_pulsar: '펄서', buff_rogue: '떠돌이', buff_shower: '유성우 {0}번', buff_align: '정렬 {0}번', buff_moons: '달 {0}번', n_rolls: '{0}번', sum_lbl: '합',
     // 연출 문구
     nova_title: '초신성', col_title: '중력 붕괴', new_unlock: '새로 열렸어요',
     unlock_upg: '개량 탭이 열렸어요', unlock_dice: '주사위 탭이 열렸어요', unlock_nova: '초신성 탭이 열렸어요', unlock_col: '붕괴 탭이 열렸어요', unlock_chal: '관측 과제가 열렸어요',
@@ -84,7 +84,7 @@
     evr_comet: 'Stardust +{0}', evr_shower: 'Next 20 rolls mass ×3', evr_flare: 'Output ×4 for 20s', evr_rogue: '+1 die for 30s', evr_align: 'Next 3 rolls align', evr_pulsar: 'Roller ×3 for 20s', evr_meteor: 'Orbit {0} mass +{1}', evr_moons: 'Next 10 rolls also hit neighbors',
     orb: 'Orbit {0}', orb_empty: 'Still empty', mass: 'Mass', prod: 'Output', chance: 'Odds', next_tier: 'Next stage',
     align_pop: 'Aligned!', tier_up: '{0} born',
-    harmony: 'Harmony ×{0}', buff_flare: 'Flare', buff_pulsar: 'Pulsar', buff_rogue: 'Rogue', buff_shower: 'Shower {0}', buff_align: 'Parade {0}', buff_moons: 'Moons {0}',
+    harmony: 'Harmony ×{0}', buff_flare: 'Flare', buff_pulsar: 'Pulsar', buff_rogue: 'Rogue', buff_shower: 'Shower {0}', buff_align: 'Parade {0}', buff_moons: 'Moons {0}', n_rolls: '×{0}', sum_lbl: 'Sum',
     nova_title: 'Supernova', col_title: 'Collapse', new_unlock: 'Unlocked',
     unlock_upg: 'Parts tab unlocked', unlock_dice: 'Dice tab unlocked', unlock_nova: 'Nova tab unlocked', unlock_col: 'Collapse tab unlocked', unlock_chal: 'Trials unlocked',
     chal_clear: 'Trial complete', ach_get: 'Feat',

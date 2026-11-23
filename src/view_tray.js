@@ -13,8 +13,8 @@
   function roll(specs, results, dur, onLand) {
     rollId++;
     var n = specs.length;
-    var gap = Math.min(52, Math.floor((IN.w - 44) / Math.max(1, n)));
-    var startX = IN.x + Math.floor((IN.w - gap * (n - 1)) / 2);
+    var gap = Math.min(50, Math.floor((IN.w - 96) / Math.max(1, n)));
+    var startX = IN.x + 34 + Math.floor((IN.w - 96 - gap * (n - 1)) / 2);
     var prev = dice;
     dice = specs.map(function (sp, i) {
       var tx = startX + i * gap + Math.round((Math.random() - 0.5) * 8);
@@ -69,9 +69,11 @@
     G.nine(G.spr.panel, T.x, T.y, T.w, T.h);
     // 펠트 바닥 (홈 파인 칸)
     G.nine(G.spr.inset, IN.x - 2, IN.y - 2, IN.w + 4, IN.h + 4);
-    // 펠트 결: 아주 드문 점
+    // 펠트: 안쪽 가장자리 그늘 + 성긴 직물 결
     for (var y = IN.y; y < IN.y + IN.h; y++) for (var x = IN.x; x < IN.x + IN.w; x++) {
-      if (G.planets.hash(x, y, 7) > 0.985) gx.pset(x, y, 23);
+      var e = Math.min(x - IN.x, y - IN.y);
+      if (e < 3 && (e < 2 || ((x + y) & 1))) gx.pset(x, y, 23);
+      else if (((x + 2 * y) % 9 === 0) && ((y % 3) === 0)) gx.pset(x, y, 23);
     }
     var sh = shakeT > 0 && !opts.reduce ? 1 : 0;
     gx.setClip(IN.x, IN.y, IN.w, IN.h);
@@ -113,10 +115,22 @@
     G.font.draw(lab, x + 38 - (lw >> 1), y + 62, hot ? 4 : 3, 'g11b', 12);
     G.font.drawCenter('Space', x + 38, y + 75, 14, 'g7');
   }
+  // 합 배지: 펠트 오른쪽 끝 고정 자리
+  function drawBadge(sum, batch) {
+    var x = IN.x + IN.w - 50, y = IN.y + 8;
+    G.nine(G.spr.insetDark, x, y, 44, 34);
+    G.font.drawCenter(G.T('sum_lbl'), x + 22, y + 3, 15, 'g9');
+    if (sum !== undefined) {
+      var t = String(sum), w = G.embossMeasure(t, 2);
+      G.embossText(t, x + 22 - (w >> 1), y + 14, 2, [4, 8, 9], 'g11b', 12);
+    }
+    if (batch) G.font.drawCenter(G.T('n_rolls', G.fmt(batch)), x + 22, y + 46, 8, 'g9', 23);
+  }
   function leverHit(mx, my) { return mx >= LEV.x && my >= LEV.y && mx < LEV.x + LEV.w && my < LEV.y + LEV.h; }
   function centerOf(i) { var d = dice[i]; return d ? { x: d._sx || d.tx, y: d._sy || d.ty } : { x: IN.x + IN.w / 2, y: IN.y + 20 }; }
   function rolling() { return dice.some(function (d) { return !d.landed; }); }
   function sumPos() {
+    return { x: IN.x + IN.w - 28, y: IN.y + 20 };
     if (!dice.length) return { x: IN.x + IN.w / 2, y: IN.y };
     var xs = dice.map(function (d) { return d.tx; });
     return { x: Math.round((Math.min.apply(null, xs) + Math.max.apply(null, xs)) / 2), y: IN.y + 4 };
@@ -130,5 +144,5 @@
     for (var i = 0; i < dice.length; i++) { var d = dice[i]; if (d.landed && Math.abs(mx - d.tx) < 16 && Math.abs(my - d.ty) < 16) return i; }
     return -1;
   }
-  G.tray = { T: T, IN: IN, LEV: LEV, roll: roll, update: update, draw: draw, leverHit: leverHit, centerOf: centerOf, rolling: rolling, sumPos: sumPos, place: place, dieAt: dieAt, dice: function () { return dice; } };
+  G.tray = { drawBadge: drawBadge, T: T, IN: IN, LEV: LEV, roll: roll, update: update, draw: draw, leverHit: leverHit, centerOf: centerOf, rolling: rolling, sumPos: sumPos, place: place, dieAt: dieAt, dice: function () { return dice; } };
 })();

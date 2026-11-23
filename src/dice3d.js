@@ -108,6 +108,7 @@
   }
 
   // die: {shape:'d6', faces:[...], mat:'ivory'}, q: 회전, size: 배율(1=기본)
+  // 1) 2×2 과표본으로 윤곽·면을 구하고 2) 눈은 투영 위치에 정해진 픽셀 모양으로 찍는다.
   function render(die, q, size, highlightFace) {
     var sh = SHAPES[die.shape];
     var k = sh.k * (size || 1);
@@ -116,68 +117,117 @@
     var spr = G.gfx.makeSprite(w, h);
     var mat = MATS[die.mat || 'ivory'];
     var qc = qconj(q);
-    // 몸 좌표계의 카메라 벡터
     var bD = qrot(qc, VD), bR = qrot(qc, VR), bU = qrot(qc, VU);
-    var planes = sh.planes;
-    var np = planes.length;
+    var planes = sh.planes, np = planes.length;
     var wn = planes.map(function (p) { return qrot(q, p.n); });
-    var bev = 0.11;
+    var bev = 0.1;
+    var faceOf = new Int16Array(w * h).fill(-1);
+    function cast(sx, sy) {
+      var O0 = bR[0] * sx - bU[0] * sy - bD[0] * 4, O1 = bR[1] * sx - bU[1] * sy - bD[1] * 4, O2 = bR[2] * sx - bU[2] * sy - bD[2] * 4;
+      var tin = -1e9, tout = 1e9, fi = -1, t2 = -1e9, f2 = -1;
+      for (var i = 0; i < np; i++) {
+        var p = planes[i], n = p.n;
+        var den = n[0] * bD[0] + n[1] * bD[1] + n[2] * bD[2];
+        var num = p.d - (n[0] * O0 + n[1] * O1 + n[2] * O2);
+        if (Math.abs(den) < 1e-9) { if (num < 0) return null; continue; }
+        var t = num / den;
+        if (den < 0) { if (t > tin) { t2 = tin; f2 = fi; tin = t; fi = i; } else if (t > t2) { t2 = t; f2 = i; } }
+        else if (t < tout) tout = t;
+      }
+      if (tin > tout || fi < 0) return null;
+      return { fi: fi, f2: f2, gap: tin - t2, y: (O1 + bD[1] * tin) };
+    }
     for (var py = 0; py < h; py++) {
       for (var px = 0; px < w; px++) {
-        var sx = (px - R) / k, sy = (py - R) / k;
-        var O = [bR[0] * sx - bU[0] * sy - bD[0] * 4, bR[1] * sx - bU[1] * sy - bD[1] * 4, bR[2] * sx - bU[2] * sy - bD[2] * 4];
-        var tin = -1e9, tout = 1e9, fi = -1, t2 = -1e9, f2 = -1, ok = true;
-        for (var i = 0; i < np; i++) {
-          var p = planes[i];
-          var den = dot(p.n, bD), num = p.d - dot(p.n, O);
-          if (Math.abs(den) < 1e-9) { if (num < 0) { ok = false; break; } continue; }
-          var t = num / den;
-          if (den < 0) { // 들어감
-            if (t > tin) { t2 = tin; f2 = fi; tin = t; fi = i; } else if (t > t2) { t2 = t; f2 = i; }
-          } else if (t < tout) tout = t;
+        // 2×2 과표본: 2개 이상 맞으면 칠함
+        var hits = 0;
+        for (var ss = 0; ss < 4; ss++) {
+          var hx = (px - R + (ss & 1 ? 0.25 : -0.25)) / k, hy = (py - R + (ss & 2 ? 0.25 : -0.25)) / k;
+          if (cast(hx, hy)) hits++;
         }
-        if (!ok || tin > tout || fi < 0) continue;
-        var n = wn[fi];
+        if (hits < 2) continue;
+        var c0 = cast((px - R) / k, (py - R) / k);
+        if (!c0) c0 = cast((px - R + 0.25) / k, (py - R + 0.25) / k) || cast((px - R - 0.25) / k, (py - R - 0.25) / k);
+        if (!c0) continue;
+        var n = wn[c0.fi];
         var l = dot(n, LT);
+        var si = shadeIdx(l);
         var c;
-        var onEdge = f2 >= 0 && (tin - t2) < bev;
-        if (onEdge) {
-          var n2 = wn[f2];
+        if (c0.f2 >= 0 && c0.gap < bev) {
+          var n2 = wn[c0.f2];
           var ne = norm([n[0] + n2[0], n[1] + n2[1], n[2] + n2[2]]);
           var le = dot(ne, LT);
-          c = mat.body[Math.max(0, shadeIdx(le) - 1)];
-          if (le > 0.75) c = mat.edge;
+          c = le > 0.72 ? mat.edge : mat.body[Math.min(4, Math.max(si, shadeIdx(le)) + 1)];
         } else {
-          var si = shadeIdx(l);
+          // 바닥 쪽 접촉 음영 (세계 좌표 y가 낮을수록 한 단계 어둡게)
+          var wy = qrot(q, [0, 0, 0])[1];
           c = mat.body[si];
-          // 면 위 점: 눈·숫자
-          var P = [O[0] + bD[0] * tin, O[1] + bD[1] * tin, O[2] + bD[2] * tin];
-          var pl = planes[fi];
-          var fu = dot(P, pl.u), fv = dot(P, pl.v);
-          var val = die.faces[fi];
-          var mark = false;
-          if (sh.pips && val >= 1 && val <= 9) {
-            var pts = PIPS[val];
-            var pr = val > 6 ? 0.2 : 0.24, sp = 0.52;
-            for (var m = 0; m < pts.length; m++) {
-              var dx = fu - pts[m][0] * sp, dy = fv - pts[m][1] * sp;
-              if (dx * dx + dy * dy < pr * pr) { mark = true; break; }
-            }
-          } else if (!sh.pips && -dot(n, VD) > 0.5) {
-            // 숫자: 면 중심 기준 3x5 격자
-            var s = String(val);
-            var cw = 0.2, ch = 0.2;
-            var tw = s.length * 4 - 1;
-            var gx = Math.floor((fu / cw) + tw / 2), gy = Math.floor((-fv / ch) + 2.5);
-            if (gy >= 0 && gy < 5 && gx >= 0 && gx < tw) {
-              var di = Math.floor(gx / 4), col = gx % 4;
-              if (col < 3) { var dg = DIG[+s[di]]; if (dg && dg[gy * 3 + col] === '1') mark = true; }
-            }
-          }
-          if (mark) c = mat.pip[si >= 3 ? 1 : 0];
-          if (highlightFace === fi && !mark && si > 0) c = mat.body[si - 1];
+          faceOf[py * w + px] = c0.fi;
         }
         spr.d[py * w + px] = c;
+      }
+    }
+    // 바닥 접촉 음영: 실루엣 아래쪽 2px 안을 한 단계 어둡게
+    for (var x2 = 0; x2 < w; x2++) {
+      var bottom = -1;
+      for (var y2 = h - 1; y2 >= 0; y2--) if (spr.d[y2 * w + x2] !== 255) { bottom = y2; break; }
+      if (bottom < 0) continue;
+      for (var dy = 0; dy < 2; dy++) {
+        var idx = (bottom - dy) * w + x2;
+        var cc = spr.d[idx]; var bi = mat.body.indexOf(cc);
+        if (bi >= 0 && bi < 4 && dy === 0) spr.d[idx] = mat.body[bi + 1];
+      }
+    }
+    // 눈 / 숫자
+    var pipCol = mat.pip;
+    for (var f = 0; f < np; f++) {
+      var nwf = wn[f];
+      var facing = -dot(nwf, VD);
+      if (facing < 0.12) continue;
+      var pl = planes[f];
+      var val = die.faces[f];
+      var siF = shadeIdx(dot(nwf, LT));
+      if (sh.pips && val >= 1 && val <= 9) {
+        var pts = PIPS[val], sp = 0.52;
+        var r = (val > 6 ? 0.19 : 0.23) * k;
+        // 화면에서 면 법선 방향 (찌그러짐 방향)
+        var a = dot(nwf, VR), b = -dot(nwf, VU);
+        var al = Math.hypot(a, b) || 1; a /= al; b /= al;
+        var ff = Math.max(0.25, facing);
+        var wx = Math.max(1, Math.round(2 * r * Math.sqrt(a * a * ff * ff + b * b)));
+        var wyy = Math.max(1, Math.round(2 * r * Math.sqrt(b * b * ff * ff + a * a)));
+        if (facing > 0.8) { wx = wyy = Math.max(2, Math.round(2 * r)); }
+        for (var m = 0; m < pts.length; m++) {
+          var P = [pl.n[0] * pl.d + pl.u[0] * pts[m][0] * sp + pl.v[0] * pts[m][1] * sp,
+            pl.n[1] * pl.d + pl.u[1] * pts[m][0] * sp + pl.v[1] * pts[m][1] * sp,
+            pl.n[2] * pl.d + pl.u[2] * pts[m][0] * sp + pl.v[2] * pts[m][1] * sp];
+          var W = qrot(q, P);
+          var cx = dot(W, VR) * k + R, cy = -dot(W, VU) * k + R;
+          var x0 = Math.round(cx - wx / 2), y0 = Math.round(cy - wyy / 2);
+          for (var yy = 0; yy < wyy; yy++) for (var xx = 0; xx < wx; xx++) {
+            var corner = (wx >= 3 && wyy >= 3) && ((xx === 0 || xx === wx - 1) && (yy === 0 || yy === wyy - 1));
+            if (corner) continue;
+            var X = x0 + xx, Y = y0 + yy;
+            if (X < 0 || Y < 0 || X >= w || Y >= h) continue;
+            if (faceOf[Y * w + X] !== f) continue;
+            var dark = (xx === 0 && wx >= 3) || (yy === 0 && wyy >= 3);
+            spr.d[Y * w + X] = (dark || siF >= 3) ? pipCol[1] : pipCol[0];
+          }
+        }
+      } else if (!sh.pips && facing > 0.5) {
+        var str = String(val), tw = str.length * 4 - 1;
+        var Pc = [pl.n[0] * pl.d, pl.n[1] * pl.d, pl.n[2] * pl.d];
+        var Wc = qrot(q, Pc);
+        var ccx = Math.round(dot(Wc, VR) * k + R - tw / 2), ccy = Math.round(-dot(Wc, VU) * k + R - 2.5);
+        for (var di = 0; di < str.length; di++) {
+          var dg = DIG[+str[di]];
+          for (var gy = 0; gy < 5; gy++) for (var gx2 = 0; gx2 < 3; gx2++) {
+            if (dg[gy * 3 + gx2] !== '1') continue;
+            var X2 = ccx + di * 4 + gx2, Y2 = ccy + gy;
+            if (X2 < 0 || Y2 < 0 || X2 >= w || Y2 >= h || faceOf[Y2 * w + X2] !== f) continue;
+            spr.d[Y2 * w + X2] = pipCol[siF >= 3 ? 1 : 0];
+          }
+        }
       }
     }
     // 1px 외곽선

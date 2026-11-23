@@ -42,9 +42,9 @@
     // 버프
     var B = s.ev.buffs, bx = Math.max(x, 300), d = C.derive(s);
     var hm = C.harmony(s, d);
-    if (hm > 1.005) { bx += F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 15, 'g9', 12) + 8; }
-    [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]), bx, 4, 3, 'g9', 12) + 8; });
-    [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 3, 'g9', 12) + 8; });
+    if (hm > 1.005) { gx.blit(G.spr.icHarm, bx, 5); bx += F.draw('×' + hm.toFixed(2), bx + 11, 3, 8, 'g11b', 12) + 20; }
+    [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12) + 8; });
+    [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12) + 8; });
     if (s.chal) F.draw(G.nm('chal', s.chal), 520 - F.measure(G.nm('chal', s.chal), 'g9'), 4, 17, 'g9', 12);
     // 소리, 설정
     var sm = U.hitArea('snd', 598, 2, 16, 16);
@@ -148,9 +148,9 @@
     if (!cut) drawEvent(s, A.t);
     // 쟁반
     var lh = U.hitArea('lever', G.tray.LEV.x, G.tray.LEV.y, G.tray.LEV.w, G.tray.LEV.h, !cut);
-    G.tray.draw({ leverHot: lh.over, leverHeld: lh.state === 'down', reduce: s.settings.reduce });
+    G.tray.draw({ leverHot: lh.over || (s.stats.rolls === 0 && Math.floor(A.t * 2.5) % 2 === 0), leverHeld: lh.state === 'down', reduce: s.settings.reduce });
     G.orrery.drawPops();
-    if (A.rollBadge && A.rollBadge.n > 1) { F.draw('×' + G.fmt(A.rollBadge.n), G.tray.IN.x + 4, G.tray.IN.y + 3, 15, 'g9', 23); }
+    G.tray.drawBadge(s.last[0], A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
     var feltHit = U.hitArea('felt', G.tray.IN.x, G.tray.IN.y, G.tray.IN.w, G.tray.IN.h, !cut);
     if ((lh.clicked || feltHit.clicked) && !A.overlay) A.doManualRoll();
     if (U.inp.keysPressed.Space && !A.overlay && !cut) A.doManualRoll();

@@ -19,19 +19,20 @@
     for (var i = 0; i < (o || 3); i++) { s += noise3(x * f, y * f, z * f) * a; t += a; a *= 0.5; f *= 2.03; }
     return s / t;
   }
-  var LT = (function () { var v = [-0.62, -0.55, 0.56], l = Math.hypot(v[0], v[1], v[2]); return [v[0] / l, v[1] / l, v[2] / l]; })();
+  var LT0 = (function () { var v = [-0.62, -0.55, 0.56], l = Math.hypot(v[0], v[1], v[2]); return [v[0] / l, v[1] / l, v[2] / l]; })();
 
-  var TIER_R = [0, 2, 3.2, 4.3, 5.2, 5.0, 7.6, 7.2, 6.0, 3.8, 2.6];
+  var TIER_R = [0, 2, 3.8, 5.0, 6.0, 5.6, 8.4, 8.0, 6.4, 4.0, 2.8];
   var NAMES_KO = ['', '먼지 구름', '미행성', '암석 행성', '바다 행성', '고리 행성', '가스 거성', '갈색 왜성', '적색 왜성', '백색 왜성', '중성자별'];
 
   var cache = {};
   var cacheN = 0;
-  function bodySprite(tier, seed, frame) {
-    var key = tier + ':' + seed + ':' + frame;
+  function bodySprite(tier, seed, frame, lb) {
+    lb = lb === undefined ? -1 : lb;
+    var key = tier + ':' + seed + ':' + frame + ':' + lb;
     var c = cache[key];
     if (c) return c;
     if (cacheN > 4000) { cache = {}; cacheN = 0; }
-    c = make(tier, seed, frame);
+    c = make(tier, seed, frame, lb);
     cache[key] = c; cacheN++;
     return c;
   }
@@ -46,9 +47,12 @@
     s.d = d;
   }
 
-  function make(tier, seed, frame) {
+  function make(tier, seed, frame, lb) {
     var gx = G.gfx;
-    var r = TIER_R[tier];
+    var LT = LT0;
+    if (lb >= 0) { var th = lb / 16 * Math.PI * 2; var v3 = [Math.cos(th) * 0.85, Math.sin(th) * 0.85, 0.55]; var ll = Math.hypot(v3[0], v3[1], v3[2]); LT = [v3[0] / ll, v3[1] / ll, v3[2] / ll]; }
+    var r = TIER_R[tier] + (tier >= 2 && tier <= 7 ? ((seed % 3) - 1) * 0.6 : 0);
+    var vari = seed % 3;
     var pad = tier === 5 ? 6 : (tier >= 8 ? 5 : 2);
     var S = Math.ceil(r) * 2 + 1 + pad * 2;
     var s = gx.makeSprite(S, S);
@@ -69,7 +73,7 @@
     }
     var cosP = Math.cos(ph), sinP = Math.sin(ph);
     // 고리 뒤쪽
-    if (tier === 5) ring(s, cx, cy, r, false, seed);
+    if (tier === 5) ring(s, cx, cy, r, false, seed, LT);
     for (var py = 0; py < S; py++) for (var px = 0; px < S; px++) {
       var nx = (px + 0.5 - cx) / r, ny = (py + 0.5 - cy) / r;
       var rad = r;
@@ -95,16 +99,17 @@
         col = gx.rampPick(ramp, shade * 0.85 + (t - 0.5) * 0.35 + crater, px, py, 0.12);
       } else if (tier === 4) {
         var land = fbm(X * 1.8 + sd, Y * 1.8, Z * 1.8, 4);
-        if (land > 0.53) col = gx.rampPick([2, 1, 0, 0], shade * 0.9 + (land - 0.53) * 0.6, px, py, 0.12);
+        var lth = [0.53, 0.47, 0.6][vari];
+        if (land > lth) col = gx.rampPick(vari === 1 ? [8, 9, 10, 21] : [2, 1, 0, 0], shade * 0.9 + (land - lth) * 0.6, px, py, 0.12);
         else col = gx.rampPick([19, 16, 6, 0], shade * 0.95, px, py, 0.12);
         if (Math.abs(Y) > 0.82 && shade < 0.6) col = 4; // 극관
       } else if (tier === 5) {
         var bnd = Math.sin(Y * 7 + fbm(X * 2 + sd, Y * 2, Z * 2, 2) * 3);
-        col = gx.rampPick([8, 9, 10, 21, 23], shade * 0.85 + bnd * 0.08, px, py, 0.12);
+        col = gx.rampPick([[8, 9, 10, 21, 23], [15, 14, 13, 21, 12], [3, 2, 11, 18, 21]][vari], shade * 0.85 + bnd * 0.08, px, py, 0.12);
       } else if (tier === 6) {
         var tb = fbm(X * 1.5 + sd, Y * 6, Z * 1.5, 3);
         var stripe = Math.sin(Y * 9 + tb * 4);
-        var rampG = (seed % 2) ? [8, 7, 5, 10, 21] : [4, 8, 9, 10, 21];
+        var rampG = [[8, 7, 5, 10, 21], [4, 8, 9, 10, 21], [3, 2, 11, 18, 21]][vari];
         col = gx.rampPick(rampG, shade * 0.8 + stripe * 0.12, px, py, 0.12);
         // 폭풍 점
         var sx = X - 0.35, sy = Y - 0.3;
@@ -126,7 +131,7 @@
       }
       put(px, py, col);
     }
-    if (tier === 5) ring(s, cx, cy, r, true, seed);
+    if (tier === 5) ring(s, cx, cy, r, true, seed, LT);
     if (tier <= 7) outline(s, 12);
     if (tier === 8) {
       // 코로나 가시
@@ -161,10 +166,11 @@
     }
     return s;
   }
-  function ring(s, cx, cy, r, front, seed) {
+  function ring(s, cx, cy, r, front, seed, LT) {
     var S = s.w;
-    var R1 = r * 1.55, R2 = r * 2.15;
-    var tilt = 0.34;
+    var R1 = r * 1.55, R2 = r * ([2.15, 1.9, 2.3][seed % 3]);
+    var tilt = [0.34, 0.45, 0.26][seed % 3];
+    var RC = [[8, 4, 9, 10], [19, 16, 6, 0], [3, 2, 11, 18]][Math.floor(seed / 3) % 3];
     for (var py = 0; py < S; py++) for (var px = 0; px < S; px++) {
       var x = px + 0.5 - cx, y = (py + 0.5 - cy) / tilt;
       var d = Math.sqrt(x * x + y * y);
@@ -176,9 +182,9 @@
         if (nx * nx + ny * ny <= 1) continue;
       }
       var band = (d - R1) / (R2 - R1);
-      var c = band < 0.3 ? 8 : (band < 0.55 ? 4 : (band < 0.7 ? 9 : 8));
-      if (x > R1 * 0.6) c = band < 0.5 ? 9 : 10; // 오른쪽은 어두움
-      if (!front && Math.abs(x) < r * 0.9) c = 10;
+      var c = band < 0.3 ? RC[0] : (band < 0.55 ? RC[1] : (band < 0.7 ? RC[2] : RC[0]));
+      if (x * LT[0] < -R1 * 0.4 * Math.abs(LT[0])) c = band < 0.5 ? RC[2] : RC[3]; // 빛 반대쪽은 어두움
+      if (!front && Math.abs(x) < r * 0.9) c = RC[3];
       s.d[py * S + px] = c;
     }
   }

@@ -59,9 +59,9 @@
     var sp = G.tray.sumPos();
     var big = r.align || r.rarity >= 8;
     var reduce = A.s.settings.reduce;
-    G.orrery.pop(sp.x, sp.y - 4, String(r.sum), r.align ? 3 : 4, 'g11b', big, r.align ? [4, 3, 11] : [4, 8, 9]);
+    if (big) G.orrery.pop(sp.x, sp.y - 20, r.align ? G.T('align_pop') : '×' + G.fmt(r.rarity, true), 3, 'g11b', false, null, 'sumx');
     if (r.batch && r.batch > 1) A.rollBadge = { n: r.batch, t: 1.2 };
-    if (r.align) { if (G.audio) G.audio.play('align'); if (!reduce) A.shake = Math.max(A.shake, 0.25); G.orrery.pop(sp.x, sp.y - 22, G.T('align_pop'), 3, 'g11b'); }
+    if (r.align) { if (G.audio) G.audio.play('align'); if (!reduce) A.shake = Math.max(A.shake, 0.25); }
     var target = r.sum;
     G.orrery.beam(sp.x, sp.y, target, function () {
       var p = G.orrery.bodyXY(A.view, target);
@@ -69,12 +69,12 @@
       if (reduce) n = Math.min(n, 6);
       G.orrery.flash(target, 1);
       G.orrery.burst(p.x, p.y, n, r.align ? [4, 3, 8, 7] : (r.rarity >= 4 ? [4, 3, 8] : [8, 3]), 26 + Math.min(40, r.rarity * 2));
-      G.orrery.pop(p.x, p.y - 10, '+' + G.fmt(r.mass), r.rarity >= 4 ? 3 : 8, 'g9');
+      G.orrery.pop(p.x, p.y - 10, '+' + G.fmt(r.mass), r.rarity >= 4 ? 3 : 8, 'g9', false, null, 'm' + target);
       var tu = (r.tierUps || []).concat(r.batchTierUps || []);
       tu.slice(-2).forEach(function (u) {
         G.orrery.ring(u[0]);
         var q = G.orrery.bodyXY(A.view, u[0]);
-        G.orrery.pop(q.x, q.y - 20, G.T('tier_up', G.nm('tiers', u[1])), 4, 'g11b');
+        G.orrery.pop(q.x, q.y - 20, G.T('tier_up', G.nm('tiers', u[1])), 4, 'g11b', false, null, 't' + u[0]);
         if (G.audio) G.audio.play('tierup', { tier: u[1] });
         if (u[1] >= 6 && !reduce) A.shake = Math.max(A.shake, 0.15 + (u[1] - 6) * 0.08);
       });
@@ -218,7 +218,7 @@
     document.addEventListener('visibilitychange', function () { if (document.hidden && A.s && A.scene !== 'title') { A.s.seenTabs = A.seenTabs; G.save.save(A.s); } });
     var q = location.search;
     // 개발·검수용 진입점
-    if (q.indexOf('demo=') >= 0) { G.devDemo(q); }
+    if (q.indexOf('demo=') >= 0) { G.devDemo(q); } else { var sp = /speed=(\d+)/.exec(q); if (sp) window.__timeScale = +sp[1]; }
     requestAnimationFrame(function (t) { last = t; frame(t); });
     setTimeout(function () { window.__ready = true; }, 80);
   }

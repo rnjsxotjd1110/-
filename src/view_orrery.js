@@ -34,7 +34,7 @@
       var key = x + ',' + y;
       if (key === last) continue;
       last = key;
-      if (sparse ? ((i % 6) === 0) : (((i + dashPh) % 4) < 2)) G.gfx.pset(x, y, col);
+      if (sparse ? ((i % 3) === 0) : (((i + dashPh) % 4) < 2)) G.gfx.pset(x, y, col);
     }
   }
 
@@ -42,7 +42,7 @@
   function draw(st, t, opts) {
     opts = opts || {};
     var gx = G.gfx;
-    G.starfield.draw(st.stage || 0, t, opts.camX || 0, opts.camY || 0, V.x, V.y, V.w, V.h);
+    G.starfield.draw(st.stage || 0, t, opts.camX || 0, opts.camY || 0, V.x, V.y, V.w, opts.noRuler ? 340 : V.h, opts.seedOff || 0);
     gx.setClip(V.x, V.y, V.w, opts.noRuler ? 340 : V.h - 22);
     var L = layout(st.orbits);
     st._layout = L;
@@ -50,9 +50,10 @@
     st.orbits.forEach(function (s, i) {
       var o = L.map[s];
       var f = flashes[s] || 0;
-      var col = f > 0.5 ? 3 : (f > 0.2 ? 2 : (st.bodies[s] ? 18 : 13));
-      if (st.hoverOrbit === s) col = 8;
-      drawOrbitLine(o, col, 0, !st.bodies[s] && f <= 0.2 && st.hoverOrbit !== s);
+      var hov = st.hoverOrbit === s;
+      if (!st.bodies[s] && f <= 0.2 && !hov) return;
+      var col = f > 0.5 ? 3 : (f > 0.2 ? 2 : (hov ? 8 : 18));
+      drawOrbitLine(o, col, 0, !hov && f <= 0.2);
     });
     // 천체 위치 계산
     var list = [];
@@ -65,7 +66,9 @@
     list.sort(function (a, b) { return a.p.y - b.p.y; });
     var frame = Math.floor(t * 4) % 32;
     function drawBody(it) {
-      var spr = G.planets.bodySprite((it.b.t || it.b.tier), it.b.seed, (frame + it.b.seed) % 32);
+      var tierB = (it.b.t || it.b.tier);
+      var lb = tierB >= 8 ? -1 : (Math.round(Math.atan2(CY - it.p.y, CX - it.p.x) / (Math.PI * 2) * 16) + 16) % 16;
+      var spr = G.planets.bodySprite(tierB, it.b.seed, (frame + it.b.seed) % 32, lb);
       gx.blit(spr, it.p.x - (spr.w >> 1), it.p.y - (spr.h >> 1));
       it.b._x = it.p.x; it.b._y = it.p.y;
     }
@@ -116,7 +119,7 @@
     if (first !== undefined) {
       var xa = CX + L.map[first].rx, xb = CX + L.map[lastS].rx;
       gx.hline(xa, RY + 3, xb - xa + 1, 11);
-      G.font.draw(G.T('h_orbit_rule'), V.x + 6, RY + 2, 14, 'g9');
+      G.font.draw(G.T('h_orbit_rule'), V.x + 6, RY + 3, 15, 'g9');
       st.orbits.forEach(function (s, i) {
         var o = L.map[s];
         var x = CX + o.rx;
@@ -127,10 +130,11 @@
         if (hot) for (var yy = CY + 2; yy < RY - 3; yy += 3) gx.pset(x, yy, f > 0.2 ? 2 : 18);
         var label = String(s);
         var lw = G.font.measure(label, 'g7');
-        var kk = Math.max(1, Math.ceil(8 / L.sp));
+        var kk = Math.max(1, Math.ceil((s >= 10 ? 13 : 8) / L.sp));
+        if (kk > 1 && kk % 2 && s >= 10) kk++;
         if (s % kk !== 0) return;
-        var row = (L.sp * kk < 10 && (Math.floor(s / kk) % 2)) ? 1 : 0;
-        G.font.draw(label, x - (lw >> 1), RY + 5 + row * 7, hot ? 4 : (st.bodies[s] ? 8 : 14), 'g7');
+        var row = 0;
+        G.font.draw(label, x - (lw >> 1), RY + 7, hot ? 4 : (st.bodies[s] ? 8 : 15), 'g7');
       });
     }
     }
@@ -140,7 +144,7 @@
     pops.forEach(function (p) {
       var y = Math.round(p.y - (1 - p.life) * 14);
       if (p.big) G.embossText(p.text, Math.round(p.x - G.embossMeasure(p.text, 2) / 2), y - 6, 2, p.ramp || [4, 3, 11], 'g11b', 12);
-      else G.font.drawCenter(p.text, Math.round(p.x), y, p.c || 4, p.font || 'g9', 12);
+      else G.font.drawOutlined(p.text, Math.round(p.x - G.font.measure(p.text, p.font || 'g9') / 2), y, p.c || 4, p.font || 'g9', 12);
     });
   }
 
@@ -196,7 +200,7 @@
     flash: function (s, v) { flashes[s] = Math.max(flashes[s] || 0, v || 1); },
     flashAll: function (v) { return v; },
     beam: function (x, y, s, onHit) { beams.push({ x: x, y: y, s: s, t: 0, onHit: onHit }); },
-    pop: function (x, y, text, c, font, big, ramp) { pops.push({ x: x, y: y, text: text, c: c, font: font, life: 1, big: big, ramp: ramp }); if (pops.length > 24) pops.shift(); },
+    pop: function (x, y, text, c, font, big, ramp, tag) { if (tag) for (var i = pops.length - 1; i >= 0; i--) if (pops[i].tag === tag) pops.splice(i, 1); pops.push({ tag: tag, x: x, y: y, text: text, c: c, font: font, life: 1, big: big, ramp: ramp }); if (pops.length > 24) pops.shift(); },
     ring: function (s) { rings.push({ s: s, life: 1 }); },
     clearFx: function () { beams.length = 0; parts.length = 0; pops.length = 0; rings.length = 0; flashes = {}; },
     partsCount: function () { return parts.length; }

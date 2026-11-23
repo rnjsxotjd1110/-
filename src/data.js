@@ -3,7 +3,7 @@ var G = (typeof G !== 'undefined') ? G : {};
 G.DATA = {
   version: 1,
   // 천체 단계 문턱 (질량). 1단계는 질량이 생기는 순간.
-  tierBase: 10, tierFactor: 14, tierFactorHigh: 16,
+  tierTable: [10, 120, 1200, 9000, 6e4, 2.5e5, 9e5], tierFactorHigh: 16,  // 2~8단계 문턱, 9·10단계는 ×High
   tierMultBase: 1.35,           // 단계 배율 = base^(단계-1)
   prodPerMass: 0.3,             // 질량^massExp 1당 초당 별가루
   massExp: 0.6,
@@ -17,7 +17,7 @@ G.DATA = {
   // 반복 구매
   power: { cost0: 10, costK: 1.8, grow: 1.07 },  // 굴림 힘: P = (1+lv/2)·grow^lv
   wind: { cost0: 30, costK: 2.2, int0: 3.0, intK: 0.92, intMin: 0.05 },
-  diceCost: { 3: 2500, 4: 2e6, 5: 4e9, 6: 1e14 },
+  diceCost: { 3: 1.2e5, 4: 1.5e7, 5: 2e11, 6: 1e15 },
   forge: { cost0: 150, costK: 2.4, unlock: 3 }, // 주사위 3개부터
   maxFaceBase: 6, maxFaceOver: 9,
 
@@ -30,10 +30,10 @@ G.DATA = {
 
   // 초신성
   novaTier: 8,
-  coreGain: { k: 3, div: 6e7, exp: 0.5 },
+  coreGain: { k: 3, div: 6e6, exp: 0.5 },
   // 중력 붕괴
   collapseTier: 10,
-  collapseHeavy: 2.8, collapseHeavyLate: 1.6,
+  collapseHeavy: 2.4, collapseHeavyLate: 1.5,
   singMassExp: 0.7,             // 특이점 누적에 따른 질량 배율 (1+특이점)^exp             // 붕괴할 때마다 단계 문턱 배율
   singGain: { k: 1, div: 40, exp: 0.6 },
   trayCapacity: 36
@@ -118,7 +118,7 @@ G.SRESEARCH = [
   { id: 'q9', cost: 34, eff: 'coreX', v: 5 },
   { id: 'q10', cost: 55, eff: 'tierMult', v: 0.25 },
   { id: 'q11', cost: 89, eff: 'autoCollapse', v: 1 },
-  { id: 'q12', cost: 400, eff: 'ending', v: 1 }
+  { id: 'q12', cost: 600, eff: 'ending', v: 1 }
 ];
 
 G.EVENTS = ['comet', 'shower', 'flare', 'rogue', 'align', 'pulsar', 'meteor', 'moons'];

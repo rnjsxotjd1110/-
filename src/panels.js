@@ -5,7 +5,7 @@
 
   function costLine(x, y, cost, ok, icon) {
     gx.blit(icon || G.spr.icDust, x, y + 2);
-    F.draw(isFinite(cost) ? G.fmt(cost) : '-', x + 12, y, ok ? 3 : 15, 'g11b', 12);
+    F.draw(isFinite(cost) ? G.fmt(cost) : '-', x + 12, y, ok ? 3 : 17, 'g11b', 12);
   }
   function btn(id, x, y, w, h, label, en, style) { return U.button(id, x, y, w, h, label, { enabled: en, font: 'g11b', style: style, sfx: 'buy' }); }
 
@@ -15,7 +15,7 @@
     G.nine(G.spr.inset, px, py, pw, ph);
     gx.blit(icon, px + 5, py + 5);
     F.draw(name, px + 23, py + 5, 4, 'g11b', 12);
-    F.draw(lv, px + 23, py + 19, 15, 'g9');
+    F.draw(lv, px + 23, py + 19, 8, 'g9');
     F.wrap(eff, pw - 10, 'g9').slice(0, 2).forEach(function (l, k) { F.draw(l, px + 6, py + 32 + k * 10, 8, 'g9'); });
     if (cost !== null) costLine(px + 6, py + 48, cost, ok, icon2);
     if (btn('pl' + i, px + 5, py + 63, pw - 10, 19, label, en)) onClick();
@@ -65,10 +65,10 @@
       var hot = o === hov, lastHit = o === lastS;
       var body = cw > 3 ? cw - 1 : cw;
       for (var j = 0; j < hgt; j++) {
-        var c = j === hgt - 1 ? (hot ? 4 : (lastHit ? 3 : 2)) : (hot ? 8 : (lastHit ? 2 : 11));
+        var c = j === hgt - 1 ? (hot || lastHit ? 4 : 2) : (hot || lastHit ? 8 : 11);
         gx.hline(xx, by - j, body, c);
       }
-      if (body > 2 && hgt > 1) gx.vline(xx + body - 1, by - hgt + 2, hgt - 2, hot ? 9 : 18);
+      if (body > 2 && hgt > 1) gx.vline(xx + body - 1, by - hgt + 2, hgt - 2, hot || lastHit ? 9 : 18);
       if (withStd) { var ps = d.std[o] || 0; if (ps > 0) { var hs = Math.round(ps / pm * h); gx.hline(xx, by - hs, body, 15); } }
       // 아래 숫자
       var stepL = Math.max(1, Math.ceil((orb[n - 1] >= 10 ? 11 : 6) / cw));
@@ -94,7 +94,9 @@
       G.nine(own ? G.spr.tileOwn : (ok ? G.spr.tileHot : G.spr.tile), x, y, 24, 24);
       var ic = G.spr.cat[u.cat] || G.spr.cat.lens;
       gx.blit(ic, x + 5, y + 5, false, own ? null : (ok ? null : DIM));
-      if (sel && sel.id === u.id) { gx.hline(x + 2, y + 25, 20, 4); gx.hline(x + 2, y + 26, 20, 3); }
+      if (sel && sel.id === u.id) { gx.hline(x, y - 1, 24, 4); gx.hline(x, y + 24, 24, 4); gx.vline(x - 1, y, 24, 4); gx.vline(x + 24, y, 24, 4); }
+      var rn = (G.nm('up', u.id).match(/ (I{1,3}|IV|V|VI)$/) || [])[1];
+      if (rn) F.draw(rn, x + 22 - F.measure(rn, 'g7'), y + 15, own ? 4 : 15, 'g7', 12);
       if (h.over) A.selUpg = u.id;
       if (h.clicked) { A.selUpg = u.id; if (!own && s.dust >= u.cost) { C.buyUpgrade(s, u.id); G.audio.play('buy'); G.orrery.burst(x + 12, y + 12, 10, [4, 3], 30); } else G.audio.play('tab'); }
     });
@@ -116,10 +118,21 @@
         if (btn('ugbuy', X0 + W0 - 92, dy + 41, 90, 19, G.T('b_buy'), s.dust >= sel.cost)) C.buyUpgrade(s, sel.id);
       }
     }
-    if (hidden > 0) F.draw(G.T('upg_hidden') + ' (' + hidden + ')', X0 + 2, dy + 76, 14, 'g9');
-    // 산 개량 효과 요약
+    if (hidden > 0) F.draw(G.T('upg_hidden') + ' (' + hidden + ')', X0 + 2, dy + 70, 15, 'g9');
+    // 지금 걸린 효과
+    var d = C.derive(s);
+    var sy2 = dy + 92;
+    U.groove(X0, sy2 - 4, W0);
+    var rows = [[G.T('prod'), '×' + G.fmt(d.globalMult, true)], [G.T('mass'), '×' + G.fmt(d.power, true)], [G.T('align_pop').replace('!', ''), '×' + G.fmt(d.alignMult, true)],
+      [G.T('rarity'), '^' + (G.DATA.rarityExp + G.UPGRADES.filter(function (u) { return s.up[u.id] && u.eff === 'rarity'; }).reduce(function (a, u) { return a + u.v; }, 0)).toFixed(2)],
+      [G.T('harmony', '').replace('×', '').trim(), '+' + (d.harmonyPer * 100).toFixed(1) + '%'], [G.T('wind'), d.interval ? d.interval.toFixed(2) + 's' : '-']];
+    rows.forEach(function (r, i) {
+      var cx2 = X0 + (i % 2) * 106, cy2 = sy2 + 4 + Math.floor(i / 2) * 15;
+      F.draw(r[0], cx2 + 2, cy2, 15, 'g9');
+      F.drawRight(r[1], cx2 + 100, cy2 - 1, 4, 'g11b');
+    });
     var owned = G.UPGRADES.filter(function (u) { return s.up[u.id]; }).length;
-    F.draw(owned + '/' + G.UPGRADES.length, X0 + W0 - F.measure(owned + '/' + G.UPGRADES.length, 'g9') - 2, dy + 76, 15, 'g9');
+    F.draw(owned + '/' + G.UPGRADES.length, X0 + W0 - F.measure(owned + '/' + G.UPGRADES.length, 'g9') - 2, dy + 70, 15, 'g9');
   }
   var DIM = []; for (var di = 0; di < 24; di++) DIM[di] = di; [4, 8, 3, 7, 19, 2].forEach(function (c) { DIM[c] = 15; }); [9, 5, 16, 11, 1, 10].forEach(function (c) { DIM[c] = 14; }); [17, 20].forEach(function (c) { DIM[c] = 14; });
 
@@ -226,24 +239,25 @@
     U.groove(X0, ty + 17, W0);
     if (A.sub.nova === 'chal' && chalOpen) challenges(s, ty + 22); else research(s, ty + 22);
   }
+  var RES_IC = { g1: 'weight', g2: 'harp', g3: 'orbit', g4: 'weight', g5: 'harp', g6: 'dice', r1: 'gear', r2: 'dice', r3: 'gear', r4: 'hand', r5: 'ring', r6: 'hand', s1: 'scope', s2: 'comet', s3: 'scope', s4: 'gear', s5: 'gear', s6: 'comet' };
   function research(s, y) {
     var cols = [X0 + 34, X0 + 104, X0 + 174];
     [0, 1, 2].forEach(function (br) {
-      F.drawCenter(G.T('br' + br), cols[br], y + 2, 8, 'g11b', 12);
+      F.drawCenter(G.T('br' + br), cols[br], y + 1, 8, 'g11b', 12);
       var list = G.RESEARCH.filter(function (r) { return r.br === br; });
       list.forEach(function (r, i) {
-        var cx = cols[br], cy = y + 26 + i * 33;
+        var cx = cols[br], cy = y + 30 + i * 36;
         var own = !!s.research[r.id], av = C.researchAvail(s, r), ok = av && s.cores >= r.cost;
-        if (i > 0) {
-          var py = cy - 33;
-          for (var yy = py + 5; yy < cy - 4; yy++) if (own || ((yy & 1) === 0)) gx.pset(cx, yy, own ? 3 : (av ? 2 : 18));
+        if (i > 0) { // 놋쇠 연결 막대
+          var py = cy - 36 + 12;
+          gx.rect(cx - 1, py, 2, cy - 12 - py, own ? 2 : 18);
+          if (own) gx.vline(cx - 1, py, cy - 12 - py, 3);
         }
-        var spr = own ? G.spr.starOn : (av ? G.spr.starAvail : G.spr.starOff);
-        gx.blit(spr, cx - 3, cy - 3);
-        if (ok && Math.floor(A.t * 2) % 2) { gx.pset(cx - 6, cy, 3); gx.pset(cx + 6, cy, 3); }
+        G.nine(own ? G.spr.tileOwn : (ok ? G.spr.tileHot : G.spr.tile), cx - 11, cy - 11, 22, 22);
+        gx.blit(G.spr.cat[RES_IC[r.id]], cx - 7, cy - 7, false, own || ok ? null : DIM);
         var nm = G.nm('res', r.id);
-        if (!own) { gx.blit(G.spr.icCore, cx + 6, cy - 4, false, ok ? null : DIM); F.draw(G.fmt(r.cost), cx + 17, cy - 4, ok ? 7 : 14, 'g9'); }
-        var h = U.hitArea('rs' + r.id, cx - 30, cy - 8, 60, 22);
+        if (!own) F.drawCenter(G.fmt(r.cost), cx + 19, cy - 5, ok ? 7 : 15, 'g9', 12);
+        var h = U.hitArea('rs' + r.id, cx - 12, cy - 12, 24, 24);
         if (h.over) U.tip([{ t: nm, f: 'g11b', c: 12 }, { t: G.effText(r.eff, r.v), c: 13 }, { t: own ? G.T('bought') : G.T('nova_gain', '').replace('+', '') + G.fmt(r.cost), c: own ? 11 : (ok ? 5 : 14) }], cx, cy);
         if (h.clicked) { if (ok) { C.buyResearch(s, r.id); G.audio.play('unlock'); G.orrery.burst(cx, cy, 14, [4, 3, 7], 30); } else G.audio.play('deny'); }
       });

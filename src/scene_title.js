@@ -34,15 +34,16 @@
     var saved = null;
     if (!A.titleInfo) { var p = G.save.load(); A.titleInfo = p ? { stage: G.stageOf(p), sun: G.sunOf(p), lang: p.settings.lang } : { stage: 0, sun: 0 }; if (p) { G.setLang(p.settings.lang); G.setNotation(p.settings.notation); } }
     v.stage = A.titleInfo.stage; v.sunForm = A.titleInfo.sun;
-    G.starfield.draw(v.stage, A.t, 0, 0, 0, 0, 640, 360);
+    G.starfield.draw(v.stage, A.t, 0, 0, 0, 0, 640, 360, 1);
     U.block(!!A.overlay);
-    G.orrery.draw(v, A.t * 1.5, { noRuler: true }); G.orrery.drawPops();
+    G.orrery.draw(v, A.t * 1.5, { noRuler: true, seedOff: 1 }); G.orrery.drawPops();
     // 오른쪽: 로고와 메뉴
     var lx = 430;
     var lw = G.embossMeasure('주사위', 3);
     G.embossText(G.getLang() === 'en' ? 'Dice' : '주사위', lx, 46, 3, [4, 3, 11], 'g11b', 12);
     G.embossText(G.getLang() === 'en' ? 'Orrery' : '성계', lx + 34, 86, 3, [8, 7, 10], 'g11b', 12);
-    F.draw(G.getLang() === 'en' ? '주사위 성계' : 'DICE ORRERY', lx + 2, 130, 15, 'g9', 12);
+    var sub = G.getLang() === 'en' ? '주사위 성계' : 'D I C E   O R R E R Y';
+    F.draw(sub, lx + 2, 130, 8, 'g11b', 12);
     var it = items();
     if (sel >= it.length) sel = 0;
     var anyHit = false;

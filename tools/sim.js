@@ -37,7 +37,7 @@ function run(kind, seed) {
   let lastBuyT = 0, maxGap = 0, maxGapAt = 0;
   const gapEnd = 3600 * 30;
   const dt = 0.5;
-  const P = { opt: { click: 3, clickUntil: 3600, catch: 1, react: 1 }, normal: { click: 1, clickUntil: 600, catch: 0.6, react: 8 }, random: { click: 0.5, clickUntil: 120, catch: 0.3, react: 20 } }[kind];
+  const P = { opt: { click: 3, clickUntil: 3600, catch: 1, react: 1 }, normal: { click: 1, clickUntil: 600, catch: 0.6, react: 8 }, random: { click: 0.5, clickUntil: 120, catch: 0.3, react: 20 }, idle: { click: 1, clickUntil: 60, catch: 0, react: 30 }, noforge: { click: 1, clickUntil: 600, catch: 0.6, react: 8 } }[kind];
   let nextAct = 0; const runs = []; const cols = [];
   const bought = () => { if (s.t > 30) { const g = s.t - lastBuyT; if (g > maxGap && s.t < 3600 * 6) { maxGap = g; maxGapAt = s.t; if (process.env.GAPDBG) console.log('gap', Math.round(g), (s.t/3600).toFixed(2), 'runT', Math.round((s.t - s.stats.runStart)/60), 'tier', C.maxTier(s), 'dust', s.dust.toExponential(2), 'cp', C.costPower(s).toExponential(2), 'prod', C.production(s).toExponential(2), 'cores', s.cores, 'col', s.collapses, 'chal', s.chal); } } lastBuyT = s.t; };
   while (s.t < MAXH * 3600) {
@@ -61,7 +61,7 @@ function run(kind, seed) {
         if (s.dust >= C.costDie(s)) opts.push(() => C.buyDie(s));
         G.UPGRADES.forEach(u => { if (!s.up[u.id] && C.upgradeVisible(s, u) && s.dust >= u.cost) opts.push(() => C.buyUpgrade(s, u.id)); });
         if (C.forgeUnlocked(s) && s.dust >= C.costForge(s)) opts.push(() => { const di = Math.floor(R() * s.dice.length), fi = Math.floor(R() * 6); return C.forge(s, di, fi, R() < 0.5 ? 1 : -1); });
-        if (opts.length && R() < 0.7) { did = opts[Math.floor(R() * opts.length)](); if (did) bought(); }
+        if (opts.length && R() < 0.85) { did = opts[Math.floor(R() * opts.length)](); if (did) bought(); }
       } else {
         // 개량: 싼 것부터
         const ups = G.UPGRADES.filter(u => !s.up[u.id] && C.upgradeVisible(s, u) && s.dust >= u.cost).sort((a, b) => a.cost - b.cost);
@@ -70,7 +70,7 @@ function run(kind, seed) {
         // 다음 주사위를 위해 저축 (opt): 주사위 값의 20% 이하 지출만
         const save = kind === 'opt' && isFinite(C.costDie(s)) && C.costDie(s) < s.dust * 8 ? 0.25 : 1e9;
         const cf = C.costForge(s);
-        if (C.forgeUnlocked(s) && s.dust >= cf && cf < s.dust * (kind === 'opt' ? 0.6 : 0.3)) {
+        if (kind !== 'noforge' && C.forgeUnlocked(s) && s.dust >= cf && cf < s.dust * (kind === 'opt' ? 0.6 : 0.3)) {
           const b = bestForge(s);
           if (b && C.forge(s, b.di, b.fi, b.dl)) { did = true; bought(); continue; }
         }
@@ -126,7 +126,7 @@ function run(kind, seed) {
     const runT = s.t - s.stats.runStart;
     if (C.canNova(s)) {
       const g = C.novaGain(s);
-      const want = kind === 'opt' ? (g >= Math.max(1, s.coresLayer * 0.6) || runT > 1800) : kind === 'normal' ? (g >= Math.max(1, s.coresLayer * 0.35) || runT > 2400) : (R() < 0.05);
+      const want = kind === 'opt' ? (g >= Math.max(1, s.coresLayer * 0.6) || runT > 1800) : (kind === 'normal' || kind === 'idle' || kind === 'noforge') ? (g >= Math.max(1, s.coresLayer * 0.35) || runT > 2400) : (R() < 0.05);
       const colWait = C.canCollapse(s) && (C.collapseGain(s) >= Math.max(1, s.singAll * (kind === 'opt' ? 0.6 : 0.4)));
       if (want && !colWait) {
         bought(); runs.push(Math.round(runT/60)+'m+'+C.novaGain(s)+(s.chal?'c':'')); C.nova(s); mark('nova1'); if (s.novas >= 2) mark('nova2'); if (s.novas >= 5) mark('nova5');
@@ -144,7 +144,7 @@ function run(kind, seed) {
 }
 
 function fmt(t) { if (t === undefined) return '   -   '; if (t < 3600) return (t / 60).toFixed(1).padStart(5) + 'm'; return (t / 3600).toFixed(2).padStart(5) + 'h'; }
-const kinds = strat === 'all' ? ['opt', 'normal', 'random'] : [strat];
+const kinds = strat === 'all' ? ['opt', 'normal', 'idle', 'random'] : strat.split(',');
 for (const k of kinds) {
   const rs = []; for (let i = 0; i < SEEDS; i++) rs.push(run(k, i + 1));
   console.log('== ' + k + ' (' + SEEDS + ' seeds)');

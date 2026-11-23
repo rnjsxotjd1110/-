@@ -94,5 +94,9 @@
     }
     return px - x;
   }
-  G.font = { draw: draw, drawRight: drawRight, drawCenter: drawCenter, measure: measure, wrap: wrap, glyph: glyph, LH: LH, drawScaled: drawScaled };
+  function drawOutlined(str, x, y, color, font, oc) {
+    [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1]].forEach(function (d) { var lg = G.textLog; G.textLog = null; draw(str, x + d[0], y + d[1], oc, font); G.textLog = lg; });
+    return draw(str, x, y, color, font);
+  }
+  G.font = { drawOutlined: drawOutlined, draw: draw, drawRight: drawRight, drawCenter: drawCenter, measure: measure, wrap: wrap, glyph: glyph, LH: LH, drawScaled: drawScaled };
 })();

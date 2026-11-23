@@ -67,11 +67,11 @@
     '.kwwwwwwwkcpk...',
     '.kwwwDwwwkpck...',
     '.kwwwwwwwkcck...',
-    '.kwwwwwDwkck..k.',
-    '.kpppppppkk..kHk',
-    '.kkkkkkkkk..kHwHk',
-    '.............kHk',
-    '..............k.',
+    '.kwwwwwDwkck....',
+    '.kpppppppkk.....',
+    '.kkkkkkkkk......',
+    '................',
+    '................',
     '................']);
   // 눈 새기기: 끌과 면
   S.icChisel = parse([
@@ -165,6 +165,16 @@
     'kHbbbbdk.',
     'kbddddrk.',
     '.kkkkkk..']);
+  S.icHarm = parse([
+    '..kkkkk..',
+    '.kHk.kbk.',
+    'kHk...kdk',
+    'kbk.k.kdk',
+    'kbkkHkkdk',
+    'kbk.k.kdk',
+    'kdk...kdk',
+    '.kdk.kdk.',
+    '..kkkkk..']);
   // 반짝이는 별 3프레임 (7x7)
   S.twinkle = [
     parse(['.......', '.......', '...w...', '..wHw..', '...w...', '.......', '.......']),
@@ -438,9 +448,9 @@
     '.....k.....',
     '....kgk....',
     'kkkkgmk....',
-    'kgggmmk.R.R',
-    'kgmmmmk..R.',
-    'kgmmmmk.R.R',
+    'kgggmmk.m.m',
+    'kgmmmmk..m.',
+    'kgmmmmk.m.m',
     'kgggmmk....',
     'kkkkgmk....',
     '....kgk....',
@@ -487,7 +497,7 @@
   S.btn = bevelFrame(2, 12, [12, 3, 2], [12, 18, 11], 2, null);
   S.btnHover = bevelFrame(2, 12, [12, 4, 3], [12, 11, 2], 3, null);
   S.btnDown = bevelFrame(2, 12, [12, 11, 11], [12, 2, 11], 11, null);
-  S.btnOff = bevelFrame(2, 12, [12, 21, 23], [12, 13, 23], 23, null);
+  S.btnOff = bevelFrame(2, 12, [12, 11, 13], [12, 18, 13], 13, null);
   S.tile = bevelFrame(1, 18, [18, 21], [18, 13], 21, null);
   S.tileHot = bevelFrame(1, 3, [3, 21], [3, 13], 21, null);
   S.tileOwn = bevelFrame(1, 11, [11, 2], [11, 18], 13, null);
