@@ -17,7 +17,7 @@
     shape_title: '주사위 모양', tray_cap: '쟁반 칸 {0}/{1}', change_shape: '바꾸기',
     std_dist: '깎지 않은 분포',
     // 초신성
-    nova_btn: '초신성 일으키기', nova_need: '적색 왜성이 태어나면 열려요', nova_gain: '별핵 +{0}', nova_next: '총질량 {0}이 되면 별핵 +1',
+    nova_btn: '초신성 일으키기', nova_need: '적색 왜성이 태어나면 열려요', nova_gain: '별핵 +{0}', nova_next: '총질량이 {0}에 닿으면 별핵 +1',
     research: '연구', challenges: '관측 과제', br0: '성장', br1: '굴림', br2: '하늘',
     chal_start: '시작하기', chal_quit: '포기하기', chal_goal: '목표: 적색 왜성', chal_done: '완료', chal_reward: '보상: {0}', chal_active: '진행 중', chal_lock: '초신성 {1}/{0}',
     auto_nova: '자동 초신성', on: '켜짐', off: '꺼짐',
@@ -36,7 +36,7 @@
     away_title: '자리를 비운 사이', away_time: '{0} 동안', away_dust: '별가루 +{0}', away_rolls: '굴림 {0}번', away_tiers: '천체 성장 {0}번', away_eff: '자리 비움 효율 {0}%', b_ok: '받기',
     // 이벤트
     ev_comet: '혜성', ev_shower: '유성우', ev_flare: '태양 플레어', ev_rogue: '떠돌이 주사위', ev_align: '행성 정렬', ev_pulsar: '펄서 신호', ev_meteor: '성간 운석', ev_moons: '쌍둥이 달',
-    evr_comet: '별가루 +{0}', evr_shower: '다음 20번 굴림 질량 ×3', evr_flare: '20초 동안 생산 ×4', evr_rogue: '30초 동안 주사위 +1', evr_align: '다음 3번은 정렬', evr_pulsar: '20초 동안 태엽 ×3', evr_meteor: '궤도 {0} 질량 +{1}', evr_moons: '다음 10번 굴림이 양옆 궤도에도',
+    evr_comet: '별가루 +{0}', evr_shower: '다음 20번 굴림 질량 ×3', evr_flare: '20초 동안 생산 ×4', evr_rogue: '30초 동안 주사위 +1', evr_align: '다음 3번은 정렬', evr_pulsar: '20초 동안 태엽 ×3', evr_meteor: '궤도 {0} 질량 +{1}', evr_moons: '다음 10번 굴림은 양옆 궤도도 키워요',
     // 궤도 정보
     orb: '궤도 {0}', orb_empty: '아직 비어 있어요', mass: '질량', prod: '생산', chance: '확률', next_tier: '다음 단계',
     align_pop: '정렬!', tier_up: '{0} 탄생',
@@ -49,7 +49,7 @@
     end1: '모든 궤도가 한 줄로 섰어요.', end2: '주사위는 더 구르지 않아요.', end3: '천구가 완성됐어요.', end_thanks: '플레이해 주셔서 고마워요.', b_continue: '계속하기',
     // 크레딧
     credits: '크레딧', cr_game: '주사위 성계', cr_made: '기획·그림·소리·코드', cr_made2: '1인 개발 (Claude와 함께)', cr_font: '글꼴', cr_font2: '갈무리 (Galmuri) · 이민서 · SIL OFL 1.1', cr_pal: '팔레트', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: '소리', cr_sound2: '코드로 합성', cr_tool: '도구', cr_tool2: 'HTML5 Canvas · Web Audio',
-    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요.', col_confirm: '특이점 {0}개를 얻어요. 별핵과 연구도 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '모든 천체 단계의 합만큼 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
+    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요.', col_confirm: '특이점 {0}개를 얻어요. 별핵과 연구도 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '모든 천체 단계의 합만큼 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
     h_orbit_rule: '합 = 궤도'
   };
   var EN = {
