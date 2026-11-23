@@ -53,7 +53,9 @@
     forge: function (t) { tone(2093, t, 0.1, 0.05, 'sine'); tone(3136, t + 0.01, 0.07, 0.03, 'sine'); },
     chal: function (t) { [72, 76, 79].forEach(function (n, i) { bell(NOTE(n), t + i * 0.12, 0.5, 0.07); }); },
     ending: function (t) { [48, 55, 60, 64, 67, 72].forEach(function (n, i) { bell(NOTE(n), t + i * 0.25, 2.5, 0.05); }); },
-    lever: function (t) { tone(392, t, 0.06, 0.06, 'triangle', null, 330); }
+    lever: function (t) { tone(392, t, 0.06, 0.06, 'triangle', null, 330); },
+    fate: function (t) { [55, 62, 67, 74].forEach(function (n, i) { bell(NOTE(n), t + i * 0.09, 0.6, 0.07); }); },
+    fateready: function (t) { bell(NOTE(86), t, 0.3, 0.04); bell(NOTE(91), t + 0.08, 0.35, 0.035); }
   };
   function play(name, opt) {
     if (!ctx || settings.muted || !SFX[name]) return;

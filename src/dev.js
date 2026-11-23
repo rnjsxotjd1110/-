@@ -2,7 +2,7 @@
 (function () {
   var C = G.core;
   function bot(s, secs) {
-    var dt = 1, R = Math.random;
+    var dt = 1;
     for (var t = 0; t < secs; t += dt) {
       if (C.derive(s).interval === 0 || t < 300) { s.manualCd = 0; C.manualRoll(s); }
       C.tick(s, dt, {});
@@ -12,7 +12,7 @@
         var ups = G.UPGRADES.filter(function (u) { return !s.up[u.id] && C.upgradeVisible(s, u) && s.dust >= u.cost; });
         if (ups.length) { C.buyUpgrade(s, ups[0].id); continue; }
         if (s.dust >= C.costDie(s)) { C.buyDie(s); continue; }
-        if (C.forgeUnlocked(s) && s.dust >= C.costForge(s) * 4) { var di = Math.floor(R() * s.dice.length), f = Math.floor(R() * s.dice[di].faces.length); if (C.forge(s, di, f, s.dice[di].faces[f] < 4 ? 1 : 1)) continue; }
+        if (s.moves >= 1 && C.forgeUnlocked(s)) { var bm = C.bestMove(s); if (bm && C.movePip(s, bm.di, bm.from, bm.to)) continue; }
         if (s.dust >= C.costWind(s) && C.costWind(s) <= C.costPower(s) * 1.5 && (C.derive(s).interval === 0 || C.derive(s).interval > 0.06)) { C.buyWind(s); continue; }
         if (s.dust >= C.costPower(s)) { C.buyPower(s); continue; }
         break;
@@ -45,7 +45,7 @@
       C.setShape(s, 0, 'd8'); C.setShape(s, 1, 'd12');
       bot(s, 900);
     }
-    if (name === 'end') { G.CHALLENGES.forEach(function (c) { s.chalDone[c.id] = 1; }); s.sing += 999; ['q9', 'q10', 'q11', 'q12'].forEach(function (id) { C.buySres(s, id); }); }
+    if (name === 'end') { G.CHALLENGES.forEach(function (c) { s.chalDone[c.id] = 3; }); s.sing += 999; ['q9', 'q10', 'q11', 'q12'].forEach(function (id) { C.buySres(s, id); }); }
     C.invalidate();
     A.seenTabs = { machine: 1, rec: 1, upg: 1, dice: 1, nova: 1, col: 1, n_upg: 1, n_dice: 1, n_nova: 1, n_col: 1, n_chal: 1 };
     C.achQueue.length = 0;

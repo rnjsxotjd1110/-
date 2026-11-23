@@ -25,6 +25,14 @@
     var d = C.derive(s);
     var v = A.view || {};
     v.orbits = d.orbits; v.bodies = s.bodies; v.stage = stageOf(s); v.sunForm = sunOf(s);
+    var cg = s.chal ? C.chalGoal(s, s.chal) : null;
+    v.goalOrbits = cg ? cg.map(function (q) { return q[0]; }) : null;
+    if (cg) {
+      var met = cg.filter(function (q) { return s.bodies[q[0]] && s.bodies[q[0]].t >= q[1]; }).length;
+      v.goal = [G.T('chal_goal_t', G.goalShort(cg)), met + '/' + cg.length];
+      v.goalTip = [G.nm('chal', s.chal), G.nm('chal', s.chal, 1)];
+      A.view = v; return v;
+    }
     var mt = C.maxTier(s), gt = mt < 8 ? 8 : (mt < 10 ? 10 : 0);
     var best = 0; Object.keys(s.bodies).forEach(function (k) { best = Math.max(best, s.bodies[k].m); });
     var nxt = gt ? d.th[gt - 2] : 0;
@@ -147,6 +155,31 @@
     U.tip(lines, mx, my);
   }
 
+  // 운명 굴림 칸: 펠트 왼쪽 세로 줄
+  var FATE = { x: 10, y: 276, w: 24, h: 74 };
+  var GEM_DIM = (function () { var m = []; for (var i = 0; i < 24; i++) m[i] = i; m[4] = 8; m[8] = 7; m[7] = 10; m[17] = 22; return m; })();
+  function drawFate(s, cut) {
+    if (!C.fateUnlocked(s)) return null;
+    var F2 = s.fate, need = C.fateNeed(s), max = G.DATA.fate.max;
+    var h = U.hitArea('fate', FATE.x, FATE.y, FATE.w, FATE.h, !cut && F2.n >= 1);
+    F.drawCenter(G.T('fate'), FATE.x + 12, FATE.y + 1, F2.n >= 1 ? (h.over ? 4 : 3) : 15, 'g9');
+    G.nine(G.spr.insetDark, FATE.x + 4, FATE.y + 11, 17, 47);
+    for (var i = 0; i < max; i++) {
+      var gy = FATE.y + 14 + i * 14, gxp = FATE.x + 7;
+      var slot = max - 1 - i; // 아래부터 찬다
+      gx.blit(G.spr.fateEmpty, gxp, gy);
+      if (slot < F2.n) {
+        gx.blit(G.spr.fateGem, gxp, gy);
+        if (h.over && slot === F2.n - 1 && Math.floor(A.t * 4) % 2) { gx.pset(gxp - 2, gy + 5, 4); gx.pset(gxp + 12, gy + 5, 4); }
+      } else if (slot === F2.n) {
+        var fr = Math.max(0, Math.min(1, F2.c / need)), rows = Math.round(fr * 7);
+        if (rows > 0) { gx.setClip(gxp, gy + 9 - rows, 11, rows); gx.blit(G.spr.fateGem, gxp, gy, false, GEM_DIM); gx.resetClip(); }
+      }
+    }
+    if (h.over) U.tip([{ t: G.T('fate_title'), f: 'g11b', c: 12 }, { t: G.T('tip_fate'), c: 13 }, { t: G.T('tip_fate2', max), c: 11 }], FATE.x + 30, FATE.y);
+    if (h.clicked) { if (F2.n >= 1) A.doFateRoll(); else G.audio.play('deny'); }
+    return h;
+  }
   function draw(dt) {
     var s = A.s;
     var v = buildView(s);
@@ -162,14 +195,16 @@
     // 쟁반
     var lh = U.hitArea('lever', G.tray.LEV.x, G.tray.LEV.y, G.tray.LEV.w, G.tray.LEV.h, !cut);
     G.tray.draw({ leverHot: lh.over || (s.stats.rolls === 0 && Math.floor(A.t * 2.5) % 2 === 0), leverHeld: lh.state === 'down', reduce: s.settings.reduce });
+    var fh = drawFate(s, cut);
     G.orrery.drawPops();
     G.tray.drawBadge(A.shownSum, A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
     if (s.ev.cur && !cut && !A.overlay && U.inp.released && U.inp.x >= 0 && U.inp.x < 416 && U.inp.y >= 20 && U.inp.y < 244 && !U.hover()) catchEv(s, eventPos(s.ev.cur));
     var feltHit = U.hitArea('felt', G.tray.IN.x, G.tray.IN.y, G.tray.IN.w, G.tray.IN.h, !cut);
-    if ((lh.clicked || feltHit.clicked) && !A.overlay) A.doManualRoll();
+    var onFate = fh && U.over(FATE.x, FATE.y, FATE.w, FATE.h);
+    if ((lh.clicked || (feltHit.clicked && !onFate)) && !A.overlay) A.doManualRoll();
     if (U.inp.keysPressed.Space && !A.overlay && !cut) A.doManualRoll();
     // 누르고 있으면 반복 (연타 불필요)
-    if (!A.overlay && !cut && (U.inp.keys.Space || ((lh.state === 'down' || feltHit.state === 'down') && U.inp.down)) && s.manualCd <= 0) { A.holdT = (A.holdT || 0) + dt; if (A.holdT > 0.35) A.doManualRoll(); } else if (!U.inp.down && !U.inp.keys.Space) A.holdT = 0;
+    if (!A.overlay && !cut && (U.inp.keys.Space || ((lh.state === 'down' || (feltHit.state === 'down' && !onFate)) && U.inp.down)) && s.manualCd <= 0) { A.holdT = (A.holdT || 0) + dt; if (A.holdT > 0.35) A.doManualRoll(); } else if (!U.inp.down && !U.inp.keys.Space) A.holdT = 0;
     // 궤도 툴팁
     if (!A.overlay && !cut && U.inp.y >= 20 && U.inp.y < 244 && U.inp.x < 416 && !U.hover()) orbitTip(s, v, U.inp.x, U.inp.y);
     else v.hoverOrbit = null;

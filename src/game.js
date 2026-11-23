@@ -52,22 +52,31 @@
     var specs = d.dice.map(spec);
     if (specs.length !== r.idx.length) specs = specs.slice(0, r.idx.length);
     var iv = d.interval || 2;
-    var dur = r.manual ? 0.75 : Math.max(0.28, Math.min(0.95, iv * 0.85));
+    var dur = r.fate ? 1.1 : (r.manual ? 0.75 : Math.max(0.28, Math.min(0.95, iv * 0.85)));
     if (G.audio) G.audio.play('roll');
     G.tray.roll(specs, r.idx, dur, function () { landed(r); });
   }
   function landed(r) {
     A.shownSum = r.sum;
     var sp = G.tray.sumPos();
-    var big = r.align || r.rarity >= 8;
+    var big = r.align || r.rarity >= 8 || r.fate;
     var reduce = A.s.settings.reduce;
-    if (big) G.orrery.pop(sp.x, sp.y - 20, r.align ? G.T('align_pop') : '×' + G.fmt(r.rarity, true), 3, 'g11b', false, null, 'sumx');
+    if (big) G.orrery.pop(sp.x, sp.y - 20, r.fate ? G.T('fate_pop') : (r.align ? G.T('align_pop') : '×' + G.fmt(r.rarity, true)), r.fate ? 4 : 3, 'g11b', false, null, 'sumx');
+    if (r.fate && !reduce) A.shake = Math.max(A.shake, 0.3);
+    var jp = r.jackpot;
+    if (jp && (jp.align || jp.rarity >= 8) && jp.sum !== r.sum) {
+      var jq = G.orrery.bodyXY(A.view, jp.sum);
+      G.orrery.flash(jp.sum, 1);
+      G.orrery.burst(jq.x, jq.y, reduce ? 6 : (jp.align ? 26 : 16), jp.align ? [4, 3, 8, 7] : [4, 3, 8], 40);
+      G.orrery.pop(jq.x, jq.y - 18, jp.align ? G.T('jack_align', G.fmt(jp.n)) : G.T('jack_rare', G.fmt(jp.rarity, true)), 3, 'g11b', false, null, 'jp' + jp.sum);
+      if (jp.align && G.audio) G.audio.play('align');
+    }
     if (r.batch && r.batch > 1) A.rollBadge = { n: r.batch, t: 1.2 };
     if (r.align) { if (G.audio) G.audio.play('align'); if (!reduce) A.shake = Math.max(A.shake, 0.25); }
     var target = r.sum;
     G.orrery.beam(sp.x, sp.y, target, function () {
       var p = G.orrery.bodyXY(A.view, target);
-      var n = Math.min(40, 6 + Math.round(Math.log(Math.max(1, r.rarity)) * 6) + (r.align ? 14 : 0));
+      var n = Math.min(r.fate ? 60 : 40, 6 + Math.round(Math.log(Math.max(1, r.rarity)) * 6) + (r.align ? 14 : 0) + (r.fate ? 30 : 0));
       if (reduce) n = Math.min(n, 6);
       G.orrery.flash(target, 1);
       G.orrery.burst(p.x, p.y, n, r.align ? [4, 3, 8, 7] : (r.rarity >= 4 ? [4, 3, 8] : [8, 3]), 26 + Math.min(40, r.rarity * 2));
@@ -83,6 +92,14 @@
       if (r.born !== undefined) G.orrery.ring(r.born);
     });
   }
+  A.doFateRoll = function () {
+    if (A.cut || G.tray.rolling()) return;
+    var r = C.fateRoll(A.s);
+    if (!r) return;
+    if (G.audio) G.audio.play('fate');
+    A.pendingRoll = null;
+    showRoll(r);
+  };
   A.doManualRoll = function () {
     if (A.cut) return;
     var r = C.manualRoll(A.s);
@@ -197,6 +214,10 @@
         while (C.achQueue.length) { var id = C.achQueue.shift(); A.notify([G.T('ach_get'), G.nm('ach', id)], 'ach'); }
         if (A.s.ended && !A.s.endSeen && A.scene !== 'ending') { A.scene = 'ending'; A.endT = 0; if (G.audio) G.audio.play('ending'); }
         checkUnlocks();
+        if (A.lastMoves !== undefined && A.s.moves > A.lastMoves && C.forgeUnlocked(A.s) && A.s.novas === A.lastNovas && A.s.collapses === A.lastCols && !A.cut) { var mp = G.tray.sumPos(); G.orrery.pop(mp.x - 40, mp.y - 30, G.T('move_pop', A.s.moves - A.lastMoves), 7, 'g9', false, null, 'mv'); }
+        A.lastMoves = A.s.moves;
+        if (A.lastFate !== undefined && A.s.fate.n > A.lastFate && G.audio) G.audio.play('fateready');
+        A.lastFate = A.s.fate.n;
         if (A.lastNovas !== undefined && (A.s.novas !== A.lastNovas || A.s.collapses !== A.lastCols) && !A.cut) { var dd = C.derive(A.s); G.tray.place(dd.dice.map(spec), dd.dice.map(function () { return 0; })); G.orrery.clearFx(); A.shownSum = undefined; if (A.s.collapses !== A.lastCols) G.audio.startBgm(1); }
         if (A.lastDiceN !== undefined && A.s.dice.length !== A.lastDiceN && !G.tray.rolling()) { var d2 = C.derive(A.s); G.tray.place(d2.dice.map(spec), d2.dice.map(function () { return 0; })); }
         A.lastNovas = A.s.novas; A.lastCols = A.s.collapses; A.lastDiceN = A.s.dice.length;

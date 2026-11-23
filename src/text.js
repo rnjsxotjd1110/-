@@ -5,25 +5,25 @@
     m_continue: '이어하기', m_new: '새로 시작하기', m_settings: '설정하기', m_credits: '크레딧 보기', m_confirmNew: '정말 새로 시작할까요? 지금 기록은 지워져요.', m_yes: '지우고 시작하기', m_no: '돌아가기',
     tab_machine: '기계', tab_upg: '개량', tab_dice: '주사위', tab_nova: '초신성', tab_col: '붕괴', tab_rec: '기록',
     roll: '굴리기', per_sec: '/초',
-    power: '굴림 힘', wind: '태엽 굴림대', dice: '주사위', forge: '눈 새기기',
-    b_power: '강화하기', b_wind: '가속하기', b_dice: '추가하기', b_forge: '새기러 가기', b_buy: '구매하기', b_research: '연구하기',
+    power: '굴림 힘', wind: '태엽 굴림대', dice: '주사위', forge: '눈 옮기기',
+    b_power: '강화하기', b_wind: '가속하기', b_dice: '추가하기', b_forge: '옮기러 가기', b_buy: '구매하기', b_research: '연구하기',
     power_eff: '굴림당 질량 ×{0}', wind_none: '손으로만 굴려요', wind_eff: '{0}초마다 굴림', wind_max: '가장 빨라요',
-    dice_eff: '궤도 {0}~{1}', dice_max: '쟁반이 가득 찼어요', forge_eff: '면 하나 +1 또는 −1', forge_lock: '주사위 3개부터 열려요',
-    lv: 'Lv {0}', n_dice: '{0}개', n_forge: '{0}번',
+    dice_eff: '궤도 {0}~{1}', dice_max: '쟁반이 가득 찼어요', forge_eff: '눈을 다른 면으로 옮겨요', forge_lock: '주사위 3개부터 열려요',
+    lv: 'Lv {0}', n_dice: '{0}개', n_forge: '남은 횟수 {0}',
     dist: '합의 분포', recent: '최근 합', rarity: '희소도',
     upg_hidden: '더 모으면 열려요', bought: '구매함',
     // 주사위 탭
-    pick_face: '새길 면을 고르세요', forge_plus: '+1 새기기', forge_minus: '-1 깎기', face_max: '이 면은 더 못 새겨요', face_min: '이 면은 더 못 깎아요',
+    pick_face: '눈을 뺄 면을 고르세요', pick_to: '눈을 넣을 면을 고르세요', face_max: '이 면은 가득 찼어요', face_min: '빈 면이에요', moves_left: '남은 옮기기 {0}번', no_moves: '옮기기 횟수를 다 썼어요', tip_moves: '이번 판에서 처음 보는 천체 단계가 태어날 때마다 +{0}번', b_cancel: '취소하기',
     shape_title: '주사위 모양', tray_cap: '쟁반 칸 {0}/{1}', change_shape: '바꾸기',
-    std_dist: '새기기 전 분포', dist_now: '지금 분포', goal_next: '다음: {0}', goal_now: '지금 {0}', goal_mass: '질량 {0} / {1}', owned_n: '구매 {0}/{1}', dust_lbl: '별가루', total_mass: '총질량 {0} / {1}', tip_forge: '드문 합이 자주 나오게 새기면 그 궤도가 빨리 자라요.', ev_hint: '눌러서 잡아요', nova_keep: '별핵·연구·업적은 남아요.', tip_power: '한 번 굴릴 때 붙는 질량이 늘어요.', tip_wind: '태엽이 주사위를 자동으로 굴려요.', tip_dice: '주사위가 늘면 궤도가 바깥으로 늘어나요.', tip_forge2: '주사위 면의 눈을 바꿔 합의 분포를 바꿔요.', n_bodies: '천체',
+    std_dist: '처음 분포', dist_now: '지금 분포', dist_after: '옮긴 뒤 분포', goal_next: '다음: {0}', goal_now: '지금 {0}', goal_mass: '질량 {0} / {1}', owned_n: '구매 {0}/{1}', dust_lbl: '별가루', total_mass: '총질량 {0} / {1}', tip_forge: '눈 총합은 그대로라서 평균 합은 변하지 않고, 합이 퍼지는 정도만 바뀌어요.', ev_hint: '눌러서 잡아요', nova_keep: '별핵·연구·업적은 남아요.', tip_power: '한 번 굴릴 때 붙는 질량이 늘어요.', tip_wind: '태엽이 주사위를 자동으로 굴려요.', tip_dice: '주사위가 늘면 궤도가 바깥으로 늘어나요.', tip_forge2: '한 면의 눈을 같은 주사위의 다른 면으로 옮겨 합의 분포를 바꿔요.', n_bodies: '천체',
     // 초신성
     nova_btn: '초신성 일으키기', nova_need: '적색 왜성이 태어나면 열려요', nova_gain: '별핵 +{0}', nova_next: '총질량이 {0}에 닿으면 별핵 +1',
     research: '연구', challenges: '관측 과제', br0: '성장', br1: '굴림', br2: '하늘',
-    chal_start: '시작하기', chal_quit: '포기하기', chal_goal: '목표: 과제 규칙으로 백색 왜성 만들기', chal_done: '완료', chal_reward: '보상: {0}', chal_active: '진행 중', chal_lock: '초신성 {1}/{0}',
+    chal_start: '시작하기', chal_quit: '포기하기', chal_done: '모두 완료', chal_stage: '{0}/{1}단계', chal_lock_col: '중력 붕괴 뒤에 열려요', goal_orb: '궤도 {0} {1}', chal_reward: '단계마다 보상: {0}', chal_now: '지금까지: {0}', chal_active: '진행 중', chal_lock: '초신성 {1}/{0}',
     auto_nova: '자동 초신성', on: '켜짐', off: '꺼짐',
     // 붕괴
     col_btn: '중력 붕괴시키기', col_need: '중성자별이 태어나면 열려요', col_gain: '특이점 +{0}', col_warn: '별핵과 연구가 사라지고 우주가 {0}배 무거워져요',
-    sres: '특이점 연구', ending_need: '관측 과제 6개를 끝내야 열려요', auto_col: '자동 붕괴',
+    sres: '특이점 연구', ending_need: '관측 과제를 모두 3단계까지 끝내야 열려요', auto_col: '자동 붕괴',
     // 기록
     ach: '업적', stats: '통계', ach_hidden: '???',
     st_time: '플레이 시간', st_rolls: '굴림', st_manual: '손 굴림', st_aligns: '정렬', st_events: '잡은 이벤트', st_best: '가장 큰 천체', st_hit: '가장 무거운 한 번', st_rare: '가장 높은 희소도', st_novas: '초신성', st_cols: '중력 붕괴', st_cores: '모은 별핵', st_sing: '모은 특이점', st_dust: '모은 별가루', st_fast: '가장 빠른 초신성',
@@ -39,7 +39,9 @@
     evr_comet: '별가루 +{0}', evr_shower: '다음 {0}번 굴림 질량 ×3', evr_flare: '{0}초 동안 생산 ×4', evr_rogue: '{0}초 동안 주사위 +1', evr_align: '다음 {0}번은 정렬', evr_pulsar: '{0}초 동안 태엽 ×3', evr_meteor: '궤도 {0} 질량 +{1}', evr_moons: '다음 {0}번 굴림은 양옆 궤도도 키워요',
     // 궤도 정보
     orb: '궤도 {0}', orb_empty: '아직 비어 있어요', orb_dead: '지금 주사위로는 나오지 않아요', mass: '질량', prod: '생산', chance: '확률', next_tier: '다음 단계',
-    align_pop: '정렬!', tier_up: '{0} 탄생',
+    align_pop: '정렬!', tier_up: '{0} 탄생', jack_align: '정렬 ×{0}', jack_rare: '드문 합 ×{0}', move_pop: '옮기기 +{0}',
+    fate: '운명', fate_title: '운명 굴림', tip_fate: '굴려서 나온 합의 궤도에 큰 질량이 붙어요. 드문 합일수록 커요.', tip_fate2: '태엽이 굴릴수록 차올라요 · 최대 {0}번', fate_pop: '운명!',
+    pair_or: '또는', pair_taken: '이번 판 선택: {0}', tip_pair: '둘 중 하나만 살 수 있어요. 초신성 뒤 다시 고를 수 있어요.',
     harmony: '조화 ×{0}', buff_flare: '플레어', buff_pulsar: '펄서', buff_rogue: '주사위 +1', buff_shower: '유성우 {0}번', buff_align: '정렬 {0}번', buff_moons: '달 {0}번', n_rolls: '{0}번', sum_lbl: '합',
     // 연출 문구
     nova_title: '초신성', col_title: '중력 붕괴', new_unlock: '새로 열렸어요',
@@ -61,22 +63,22 @@
     m_continue: 'Continue', m_new: 'New game', m_settings: 'Settings', m_credits: 'Credits', m_confirmNew: 'Start over? Your current save will be erased.', m_yes: 'Erase and start', m_no: 'Back',
     tab_machine: 'Rig', tab_upg: 'Parts', tab_dice: 'Dice', tab_nova: 'Nova', tab_col: 'Void', tab_rec: 'Log',
     roll: 'Roll', per_sec: '/s',
-    power: 'Force', wind: 'Roller', dice: 'Dice', forge: 'Carve pips',
-    b_power: 'Upgrade', b_wind: 'Speed up', b_dice: 'Add', b_forge: 'Carve', b_buy: 'Buy', b_research: 'Research',
+    power: 'Force', wind: 'Roller', dice: 'Dice', forge: 'Move pips',
+    b_power: 'Upgrade', b_wind: 'Speed up', b_dice: 'Add', b_forge: 'Go move', b_buy: 'Buy', b_research: 'Research',
     power_eff: 'Mass ×{0}', wind_none: 'Rolls by hand only', wind_eff: 'Rolls every {0}s', wind_max: 'Top speed',
-    dice_eff: 'Orbits {0}-{1}', dice_max: 'Tray is full', forge_eff: 'One face +1 or −1', forge_lock: 'Opens at 3 dice',
-    lv: 'Lv {0}', n_dice: '{0}', n_forge: '{0} cuts',
+    dice_eff: 'Orbits {0}-{1}', dice_max: 'Tray is full', forge_eff: 'Move a pip to another face', forge_lock: 'Opens at 3 dice',
+    lv: 'Lv {0}', n_dice: '{0}', n_forge: '{0} moves left',
     dist: 'Sum odds', recent: 'Recent', rarity: 'Rarity',
     upg_hidden: 'Gather more to reveal', bought: 'Owned',
-    pick_face: 'Pick a face to carve', forge_plus: '+1 Carve', forge_minus: '-1 Shave', face_max: 'This face is at its limit', face_min: 'This face is at its limit',
+    pick_face: 'Pick a face to take a pip from', pick_to: 'Pick a face to put it on', face_max: 'This face is full', face_min: 'This face is empty', moves_left: '{0} moves left', no_moves: 'No moves left', tip_moves: '+{0} each time a new body stage appears this run', b_cancel: 'Cancel',
     shape_title: 'Die shapes', tray_cap: 'Tray {0}/{1}', change_shape: 'Swap',
-    std_dist: 'Before carving', dist_now: 'Now', goal_next: 'Next: {0}', goal_now: 'now {0}', goal_mass: 'mass {0} / {1}', owned_n: 'Owned {0}/{1}', dust_lbl: 'Stardust', total_mass: 'Total mass {0} / {1}', tip_forge: 'Carve so rare sums come up more and those orbits grow fast.', ev_hint: 'Click to catch', nova_keep: 'Cores, research and feats stay.', tip_power: 'More mass per roll.', tip_wind: 'The roller rolls dice for you.', tip_dice: 'More dice push the orbits outward.', tip_forge2: 'Change face pips to reshape the odds.', n_bodies: 'Bodies',
+    std_dist: 'Original', dist_now: 'Now', dist_after: 'After the move', goal_next: 'Next: {0}', goal_now: 'now {0}', goal_mass: 'mass {0} / {1}', owned_n: 'Owned {0}/{1}', dust_lbl: 'Stardust', total_mass: 'Total mass {0} / {1}', tip_forge: 'The pip total stays the same, so the average sum never moves. Only the spread changes.', ev_hint: 'Click to catch', nova_keep: 'Cores, research and feats stay.', tip_power: 'More mass per roll.', tip_wind: 'The roller rolls dice for you.', tip_dice: 'More dice push the orbits outward.', tip_forge2: 'Move a pip to another face of the same die to reshape the sums.', n_bodies: 'Bodies',
     nova_btn: 'Go supernova', nova_need: 'Needs a red dwarf', nova_gain: 'Cores +{0}', nova_next: 'Next core at mass {0}',
     research: 'Research', challenges: 'Trials', br0: 'Growth', br1: 'Rolling', br2: 'Sky',
-    chal_start: 'Start', chal_quit: 'Give up', chal_goal: 'Goal: form a white dwarf under the rule', chal_done: 'Done', chal_reward: 'Reward: {0}', chal_active: 'Active', chal_lock: 'Novas {1}/{0}',
+    chal_start: 'Start', chal_quit: 'Give up', chal_done: 'All done', chal_stage: 'Stage {0}/{1}', chal_lock_col: 'Opens after a collapse', goal_orb: 'Orbit {0} {1}', chal_reward: 'Per stage: {0}', chal_now: 'So far: {0}', chal_active: 'Active', chal_lock: 'Novas {1}/{0}',
     auto_nova: 'Auto nova', on: 'On', off: 'Off',
     col_btn: 'Collapse', col_need: 'Needs a neutron star', col_gain: 'Singularity +{0}', col_warn: 'Cores and research are lost. The universe gets {0}× heavier',
-    sres: 'Singularity research', ending_need: 'Finish all 6 trials first', auto_col: 'Auto collapse',
+    sres: 'Singularity research', ending_need: 'Bring every trial to stage 3 first', auto_col: 'Auto collapse',
     ach: 'Feats', stats: 'Stats', ach_hidden: '???',
     st_time: 'Play time', st_rolls: 'Rolls', st_manual: 'Hand rolls', st_aligns: 'Alignments', st_events: 'Events caught', st_best: 'Largest body', st_hit: 'Heaviest roll', st_rare: 'Rarest orbit', st_novas: 'Supernovae', st_cols: 'Collapses', st_cores: 'Cores gathered', st_sing: 'Singularities', st_dust: 'Stardust gathered', st_fast: 'Fastest nova',
     set_title: 'Settings', set_sfx: 'Effects', set_bgm: 'Music', set_mute: 'Sound', set_notation: 'Numbers', set_reduce: 'Reduce effects', set_lang: 'Language',
@@ -87,7 +89,9 @@
     ev_comet: 'Comet', ev_shower: 'Meteor shower', ev_flare: 'Solar flare', ev_rogue: 'Rogue die', ev_align: 'Planet parade', ev_pulsar: 'Pulsar signal', ev_meteor: 'Interstellar rock', ev_moons: 'Twin moons',
     evr_comet: 'Stardust +{0}', evr_shower: 'Next {0} rolls mass ×3', evr_flare: 'Output ×4 for {0}s', evr_rogue: '+1 die for {0}s', evr_align: 'Next {0} rolls align', evr_pulsar: 'Roller ×3 for {0}s', evr_meteor: 'Orbit {0} mass +{1}', evr_moons: 'Next {0} rolls also hit neighbors',
     orb: 'Orbit {0}', orb_empty: 'Still empty', orb_dead: 'Your dice cannot roll this sum now', mass: 'Mass', prod: 'Output', chance: 'Odds', next_tier: 'Next stage',
-    align_pop: 'Aligned!', tier_up: '{0} born',
+    align_pop: 'Aligned!', tier_up: '{0} born', jack_align: 'Aligned ×{0}', jack_rare: 'Rare sum ×{0}', move_pop: 'Moves +{0}',
+    fate: 'Fate', fate_title: 'Fate roll', tip_fate: 'The orbit you roll gains a large chunk of mass. Rarer sums gain more.', tip_fate2: 'Fills as the roller rolls · holds up to {0}', fate_pop: 'Fate!',
+    pair_or: 'or', pair_taken: 'This run: {0}', tip_pair: 'Only one of the two. Pick again after a supernova.',
     harmony: 'Harmony ×{0}', buff_flare: 'Flare', buff_pulsar: 'Pulsar', buff_rogue: 'Rogue', buff_shower: 'Shower {0}', buff_align: 'Parade {0}', buff_moons: 'Moons {0}', n_rolls: '×{0}', sum_lbl: 'Sum',
     nova_title: 'Supernova', col_title: 'Collapse', new_unlock: 'Unlocked',
     unlock_upg: 'Parts tab unlocked', unlock_dice: 'Dice tab unlocked', unlock_nova: 'Nova tab unlocked', unlock_col: 'Collapse tab unlocked', unlock_chal: 'Trials unlocked',
@@ -116,11 +120,11 @@
     },
     res: {
       g1: ['별핵 질량', 'Core Mass'], g2: ['별핵 조화', 'Core Harmony'], g3: ['원시 원반', 'Protoplanetary Disk'], g4: ['별핵 중력', 'Core Gravity'], g5: ['단계 공명', 'Stage Resonance'], g6: ['넘치는 눈', 'Overflowing Pips'],
-      r1: ['감긴 태엽', 'Wound Spring'], r2: ['세 번째 주사위', 'Third Die'], r3: ['기름칠', 'Oiled Gears'], r4: ['새긴 눈 보존', 'Kept Carvings'], r5: ['정렬 각인', 'Alignment Seal'], r6: ['쌍둥이 손', 'Twin Hands'],
+      r1: ['감긴 태엽', 'Wound Spring'], r2: ['세 번째 주사위', 'Third Die'], r3: ['기름칠', 'Oiled Gears'], r4: ['숙련된 손', 'Practiced Hands'], r5: ['정렬 각인', 'Alignment Seal'], r6: ['쌍둥이 손', 'Twin Hands'],
       s1: ['별자리 지도', 'Star Chart'], s2: ['혜성 덫', 'Comet Trap'], s3: ['밤샘 관측', 'Night Watch'], s4: ['자동 개량', 'Auto Parts'], s5: ['자동 기계', 'Auto Machine'], s6: ['자동 초신성', 'Auto Nova']
     },
     chal: {
-      c1: ['굳은 눈', 'Set in Stone', '눈 새기기 금지', 'No carving'], c2: ['두 개의 주사위', 'Two Dice', '주사위 2개 고정', 'Two dice only'], c3: ['홀수 우주', 'Odd Universe', '짝수 궤도는 생산 없음', 'Even orbits produce nothing'],
+      c1: ['굳은 눈', 'Set in Stone', '눈 옮기기 금지', 'No moving pips'], c2: ['두 개의 주사위', 'Two Dice', '주사위 2개 고정', 'Two dice only'], c3: ['홀수 우주', 'Odd Universe', '짝수 궤도는 생산 없음', 'Even orbits produce nothing'],
       c4: ['불협화음', 'Discord', '조화 없음', 'No harmony'], c5: ['느린 태엽', 'Slow Spring', '태엽 간격 3초 고정', 'Roller fixed at 3s'], c6: ['무거운 하늘', 'Heavy Sky', '단계 문턱 ×10', 'Stage thresholds ×10']
     },
     sres: {
@@ -135,11 +139,11 @@
       tier2: ['뭉친 먼지', 'Clumped Dust', '미행성을 만들어요', 'Form a planetesimal'], tier4: ['푸른 점', 'Blue Dot', '바다 행성을 만들어요', 'Form an ocean world'], tier6: ['거대한 띠', 'Great Bands', '가스 거성을 만들어요', 'Form a gas giant'],
       tier8: ['두 번째 해', 'A Second Sun', '적색 왜성을 만들어요', 'Ignite a red dwarf'], tier9: ['식은 불씨', 'Cooled Ember', '백색 왜성을 만들어요', 'Form a white dwarf'], tier10: ['맥박', 'Pulse', '중성자별을 만들어요', 'Form a neutron star'],
       dice3: ['세 번째 눈', 'Third Eye', '주사위 3개', 'Own 3 dice'], dice5: ['한 줌', 'A Handful', '주사위 5개', 'Own 5 dice'], dice6: ['가득 찬 쟁반', 'Full Tray', '주사위 6개', 'Own 6 dice'],
-      forge1: ['첫 끌질', 'First Cut', '눈을 새겨요', 'Carve a pip'], face9: ['아홉 개의 눈', 'Nine Pips', '면에 눈 9개를 새겨요', 'Carve a 9'],
+      forge1: ['첫 이동', 'First Move', '눈을 옮겨요', 'Move a pip'], face9: ['아홉 개의 눈', 'Nine Pips', '한 면에 눈 9개를 모아요', 'Gather 9 pips on one face'],
       dust6: ['한 줌의 별', 'Handful of Stars', '별가루 100만', '1M stardust'], dust12: ['은하수', 'Milky Way', '별가루 1조', '1T stardust'], dust24: ['셀 수 없는', 'Uncountable', '별가루 1e24', '1e24 stardust'], dust48: ['숫자의 끝', 'End of Numbers', '별가루 1e48', '1e48 stardust'],
       ev1: ['하늘을 본 사람', 'Sky Watcher', '이벤트를 잡아요', 'Catch an event'], ev25: ['천체 사냥꾼', 'Sky Hunter', '이벤트 25번', 'Catch 25 events'], evAll: ['모든 하늘', 'Every Sky', '이벤트 8종을 모두 잡아요', 'Catch all 8 events'],
       nova1: ['첫 폭발', 'First Blast', '초신성을 일으켜요', 'Go supernova'], nova10: ['연쇄', 'Chain Reaction', '초신성 10번', '10 supernovae'], nova50: ['불꽃놀이', 'Fireworks', '초신성 50번', '50 supernovae'],
-      chal1: ['첫 관측', 'First Trial', '관측 과제를 끝내요', 'Finish a trial'], chalAll: ['관측 일지', 'Observation Log', '관측 과제 6개', 'Finish all trials'],
+      chal1: ['첫 관측', 'First Trial', '관측 과제를 끝내요', 'Finish a trial'], chalAll: ['관측 일지', 'Observation Log', '모든 관측 과제 3단계', 'Every trial to stage 3'],
       col1: ['지평선 너머', 'Beyond the Horizon', '중력 붕괴', 'Collapse'], col5: ['다섯 번의 밤', 'Five Nights', '중력 붕괴 5번', '5 collapses'],
       resAll: ['완성된 연구', 'Full Research', '별핵 연구 18개', 'All 18 research'], harm5: ['화음', 'Chord', '조화 ×5', 'Harmony ×5'], bodies20: ['붐비는 하늘', 'Crowded Sky', '천체 20개', '20 bodies at once'],
       rare50: ['드문 손님', 'Rare Guest', '희소도 50 이상 궤도에 맞혀요', 'Hit an orbit with rarity 50+'], streak5: ['같은 자리', 'Same Spot', '같은 합 5번 연속', 'Same sum 5 times in a row'], ending: ['천구', 'The Orrery', '엔딩을 봐요', 'See the ending']
@@ -168,10 +172,13 @@
       case 'threshold': return (ko ? '단계 문턱 ×' : 'Stage thresholds ×') + v;
       case 'startTier': return ko ? '시작할 때 모든 궤도에 미행성' : 'Start with planetesimals on every orbit';
       case 'coreMass': return ko ? '모은 별핵이 많을수록 질량이 커져요' : 'More cores gathered, more mass';
-      case 'overflow': return ko ? '눈을 9까지 새길 수 있어요' : 'Carve pips up to 9';
+      case 'overflow': return ko ? '한 면에 눈을 9개까지 모을 수 있어요' : 'Up to 9 pips on a face';
       case 'startWind': return ko ? '태엽 Lv ' + v + '로 시작' : 'Start with roller Lv ' + v;
       case 'startDice': return ko ? '주사위 ' + v + '개로 시작' : 'Start with ' + v + ' dice';
-      case 'keepForge': return ko ? '초신성 뒤에도 새긴 눈 유지' : 'Carvings survive supernovae';
+      case 'moveStart': return ko ? '판 시작 옮기기 횟수 +' + v : '+' + v + ' moves at run start';
+      case 'perDie': return ko ? '주사위 하나당 질량 배율 +' + v : 'Per-die mass bonus +' + v;
+      case 'oddProd': return ko ? '홀수 궤도 생산 ×' + v : 'Odd orbits output ×' + v;
+      case 'outerCap': return ko ? '끝 궤도 희소도 상한 ×' + v : 'Edge orbit rarity cap ×' + v;
       case 'eventFreq': return ko ? '이벤트 간격 ×' + v : 'Event gap ×' + v;
       case 'autoCatch': return ko ? '이벤트를 자동으로 잡아요' : 'Catch events automatically';
       case 'offline': return ko ? '자리 비움 효율 100%' : 'Away rate 100%';
@@ -185,9 +192,8 @@
       case 'offlineCap': return ko ? '자리 비움 최대 ' + v + '시간' : 'Away cap ' + v + 'h';
       case 'autoCollapse': return ko ? '붕괴를 자동으로 해요' : 'Collapse automatically';
       case 'ending': return ko ? '천구를 완성해요' : 'Complete the orrery';
-      case 'forgeCost': return (ko ? '눈 새기기 비용 ×' : 'Carving cost ×') + v;
       case 'diceCost': return (ko ? '주사위 추가 비용 ×' : 'Dice cost ×') + v;
-      case 'harmonyX': return (ko ? '조화 ×' : 'Harmony ×') + v;
+      case 'harmonyX': return (ko ? '조화 +' : 'Harmony +') + Math.round(v * 100) + '%';
     }
     return eff;
   }
@@ -199,6 +205,13 @@
     return s;
   }
   function nm(group, id, idx) { var e = N[group][id]; if (!e) return id; var i = (idx || 0) * 2 + (lang === 'en' ? 1 : 0); return e[i] !== undefined ? e[i] : e[0]; }
+  // 과제 목표 짧게: 같은 단계끼리 묶어 "궤도 5·11 갈색 왜성"
+  function goalShort(g) {
+    var by = {}, order = [];
+    g.forEach(function (q) { if (!by[q[1]]) { by[q[1]] = []; order.push(q[1]); } by[q[1]].push(q[0]); });
+    return order.map(function (t) { return T('goal_orb', by[t].join('·'), nm('tiers', t)); }).join(', ');
+  }
+  G.goalShort = goalShort;
   G.T = T; G.NAMES = N; G.nm = nm; G.effText = function (eff, v) { return effText(eff, v, lang); };
   G.setLang = function (l) { lang = l; }; G.getLang = function () { return lang; };
   G.TEXT_KO = KO; G.TEXT_EN = EN;

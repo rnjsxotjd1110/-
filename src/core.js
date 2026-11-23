@@ -22,7 +22,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       dust: 0, dustRun: 0, dustAll: 0,
       dice: [newDie(), newDie()],
       bodies: {},
-      lv: { power: 0, wind: 0 }, forges: 0,
+      lv: { power: 0, wind: 0 }, forges: 0, moves: D.moveStart, runTiers: {}, fate: { c: 0, n: 0 }, pairPref: {},
       up: {},
       autoT: 0, manualCd: 0,
       cores: 0, coresLayer: 0, coresAll: 0, novas: 0, research: {},
@@ -44,7 +44,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function res(s, id) { return !!s.research[id]; }
   function sres(s, id) { return !!s.sres[id]; }
   function chalRule(s, rule) { if (!s.chal) return false; var c = G.CHALLENGES.filter(function (x) { return x.id === s.chal; })[0]; return c && c.rule === rule; }
-  function chalReward(s, reward) { var v = 1; G.CHALLENGES.forEach(function (c) { if (s.chalDone[c.id] && c.reward === reward) v *= c.v; }); return v; }
+  function chalStage(s, id) { return +s.chalDone[id] || 0; }
+  // 과제 보상: 단계마다 쌓인다. 곱(mult) 또는 합(sum)
+  function chalReward(s, reward) { var v = 1; G.CHALLENGES.forEach(function (c) { if (c.reward === reward) v *= Math.pow(c.v, chalStage(s, c.id)); }); return v; }
+  function chalRewardSum(s, reward) { var v = 0; G.CHALLENGES.forEach(function (c) { if (c.reward === reward) v += c.v * chalStage(s, c.id); }); return v; }
   function upSum(s, eff) { var v = 0; G.UPGRADES.forEach(function (u) { if (s.up[u.id] && u.eff === eff) v += u.v; }); return v; }
   function upProd(s, eff) { var v = 1; G.UPGRADES.forEach(function (u) { if (s.up[u.id] && u.eff === eff) v *= u.v; }); return v; }
   function resV(s, eff, mode) {
@@ -63,7 +66,9 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (s.ev.buffs.rogue > 0) d.push(newDie('d6'));
     return d;
   }
-  function maxFace(s) { return res(s, 'g6') ? D.maxFaceOver : D.maxFaceBase; }
+  function maxFace(s, die) { var m = res(s, 'g6') ? D.maxFaceOver : D.maxFaceBase; return die ? Math.max(m, SHAPE_FACES[die.shape]) : m; }
+  function stdTotal(shape) { var n = SHAPE_FACES[shape]; return n * (n + 1) / 2; }
+  function outerCap(s) { var c = D.outerCap; G.SRESEARCH.forEach(function (r) { if (r.outer && s.sres[r.id]) c = Math.max(c, r.outer); }); return c; }
 
   // 분포: 실제 눈으로 합 확률, 정렬 확률
   function convolve(dice, useBase) {
@@ -83,7 +88,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function alignDist(dice) {
     var out = {};
     if (dice.length < 2) return out;
-    for (var v = 1; v <= 12; v++) {
+    for (var v = 0; v <= 12; v++) {
       var p = 1;
       for (var i = 0; i < dice.length; i++) {
         var c = 0; dice[i].faces.forEach(function (f) { if (f === v) c++; });
@@ -104,6 +109,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.dist = convolve(dice, false);
     d.std = convolve(dice, true);
     d.al = alignDist(dice);
+    d.outerCap = outerCap(s);
     var keys = Object.keys(d.std).map(Number);
     d.stdMin = Math.min.apply(null, keys); d.stdMax = Math.max.apply(null, keys);
     // 희소도: 지금(깎은) 분포 기준. 표준 범위를 넘는 바깥 궤도는 칸마다 추가 배율.
@@ -112,7 +118,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.rarity = function (sum) {
       var p = d.dist[sum] || d.std[sum];
       var r = p ? Math.pow(pmax / p, rexp) : 1;
-      if (sum > d.stdMax) r *= Math.min(8, Math.pow(D.outerRarityStep, sum - d.stdMax));
+      if (sum > d.stdMax) r *= Math.min(d.outerCap, Math.pow(D.outerRarityStep, sum - d.stdMax));
+      else if (sum < d.stdMin) r *= Math.min(d.outerCap, Math.pow(D.outerRarityStep, d.stdMin - sum));
       return r;
     };
     // 정렬 확률이 깎기로 높아지면 정렬 배율은 그만큼 줄어든다 (기대값 유지)
@@ -129,7 +136,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.power = (1 + lp * 0.5) * Math.pow(D.power.grow, lp);
     d.massMult = upProd(s, 'mass') * resV(s, 'mass') * sresV(s, 'mass') * (res(s, 'g4') ? Math.pow(1 + s.coresLayer, 0.4) : 1) * Math.pow(1 + s.singAll, D.singMassExp);
     var nd12 = dice.filter(function (x) { return x.shape === 'd12'; }).length;
-    d.massMult *= Math.pow(D.perDieMass, dice.length) * Math.pow(D.shapeBonus.d12, nd12) * Math.pow(D.refine.v, s.lv.refine || 0) * Math.pow(D.compress.v, s.lv.compress || 0);
+    d.massMult *= Math.pow(D.perDieMass + chalRewardSum(s, 'perDie'), dice.length) * Math.pow(D.shapeBonus.d12, nd12) * Math.pow(D.refine.v, s.lv.refine || 0) * Math.pow(D.compress.v, s.lv.compress || 0);
     d.power *= d.massMult;
     // 태엽 간격
     var lw = s.lv.wind;
@@ -151,7 +158,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var gm = upProd(s, 'prod') * resV(s, 'prod') * chalReward(s, 'prod') * sresV(s, 'prod');
     if (s.ev.buffs.flare > 0) gm *= 4;
     d.globalMult = gm;
-    d.harmonyPer = chalRule(s, 'noHarmony') ? 0 : (D.harmonyPerTier + upSum(s, 'harmony') + resV(s, 'harmony', 'sum')) * chalReward(s, 'harmonyX');
+    d.harmonyPer = chalRule(s, 'noHarmony') ? 0 : (D.harmonyPerTier + upSum(s, 'harmony') + resV(s, 'harmony', 'sum')) * (1 + chalRewardSum(s, 'harmonyX'));
+    d.oddProd = chalReward(s, 'oddProd');
     d.neighbor = upSum(s, 'neighbor');
     d.outerLens = upProd(s, 'outerLens'); d.innerLens = upProd(s, 'innerLens');
     d.eventMult = upProd(s, 'event');
@@ -173,6 +181,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (!b || b.m <= 0) return 0;
     if (chalRule(s, 'oddOnly') && sum % 2 === 0) return 0;
     var r = Math.pow(b.m, D.massExp) * D.prodPerMass * Math.pow(d.tierMult, b.t - 1);
+    if (sum % 2 === 1) r *= d.oddProd;
     var rar = d.rarity(sum);
     if (rar >= 4) r *= d.outerLens; else if (rar < 2) r *= d.innerLens;
     if (d.neighbor) {
@@ -211,6 +220,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
         if (out) (out.tierUps = out.tierUps || []).push([sum, nt]);
       }
       if (nt > s.stats.bestTier) s.stats.bestTier = nt;
+      for (var tt = Math.max(2, old + 1); tt <= nt; tt++) if (!s.runTiers[tt]) { s.runTiers[tt] = 1; s.moves += D.moveGain; if (out) out.moves = (out.moves || 0) + D.moveGain; }
     }
     return b;
   }
@@ -223,7 +233,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var vals = idx.map(function (f, i) { return dice[i].faces[f]; });
     return applyRoll(s, d, idx, vals, manual);
   }
-  function applyRoll(s, d, idx, vals, manual, forcedAlign) {
+  function applyRoll(s, d, idx, vals, manual, mult) {
     var sum = 0; vals.forEach(function (v) { sum += v; });
     var align = vals.length >= 2 && vals.every(function (v) { return v === vals[0]; });
     var B = s.ev.buffs;
@@ -242,6 +252,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var m = d.power * d.rarity(sum);
     if (align) m *= d.alignMult;
     if (manual) m *= d.manualMult;
+    if (mult) m *= mult;
     if (B.shower > 0) { m *= 3; B.shower--; }
     var out = { idx: idx, vals: vals, sum: sum, align: align, mass: m, manual: !!manual, rarity: d.rarity(sum) };
     addMass(s, d, sum, m, out);
@@ -258,28 +269,78 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (align) s.stats.alignDice = Math.max(s.stats.alignDice || 0, vals.length);
     return out;
   }
-  // 여러 번 굴림을 기대값으로 묶어 처리 (빠른 태엽·오프라인)
+  // 푸아송 추첨 (묶음 굴림의 희귀 결과)
+  function poisson(lam) {
+    if (lam <= 0) return 0;
+    if (lam < 30) { var L = Math.exp(-lam), k = 0, p = 1; do { k++; p *= rng(); } while (p > L); return k - 1; }
+    var u = Math.max(1e-12, rng()), v = rng();
+    return Math.max(0, Math.round(lam + Math.sqrt(lam) * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)));
+  }
+  // 여러 번 굴림을 묶어 처리 (빠른 태엽·오프라인). 흔한 결과는 기대값, 희귀한 결과(정렬·드문 궤도)는 실제로 추첨한다.
   function rollBatch(s, k) {
     var d = derive(s);
-    var out = { tierUps: [] };
+    var out = { tierUps: [], jackpot: null };
     var sums = Object.keys(d.dist).map(Number);
     var B = s.ev.buffs;
     var showerK = Math.min(k, B.shower || 0);
+    var aligns = 0;
     sums.forEach(function (sum) {
-      var p = d.dist[sum], pa = d.al[sum] || 0;
-      var hits = k * p;
-      var m = d.power * d.rarity(sum) * (hits + k * pa * (d.alignMult - 1));
-      m *= 1 + (showerK / k) * 2;
+      var p = d.dist[sum], pa = d.al[sum] || 0, rar = d.rarity(sum);
+      var rare = rar >= D.rareMin;
+      var hits = rare ? poisson(k * (p - pa)) : k * (p - pa);
+      var na = pa > 0 ? poisson(k * pa) : 0;
+      aligns += na;
+      if (!(hits > 0) && !na) return;
+      var unit = d.power * rar * (1 + (showerK / k) * 2);
+      var m = unit * (hits + na * d.alignMult);
       addMass(s, d, sum, m, out);
-      if (d.alignSpread && pa) { addMass(s, d, sum - 1, k * pa * d.power * d.rarity(sum) * d.alignMult * d.alignSpread, out); addMass(s, d, sum + 1, k * pa * d.power * d.rarity(sum) * d.alignMult * d.alignSpread, out); }
+      if (d.alignSpread && na) { addMass(s, d, sum - 1, na * unit * d.alignMult * d.alignSpread, out); addMass(s, d, sum + 1, na * unit * d.alignMult * d.alignSpread, out); }
+      if ((na || (rare && hits >= 1)) && (!out.jackpot || m > out.jackpot.mass)) out.jackpot = { sum: sum, align: na > 0, n: na || hits, mass: m, rarity: rar };
     });
     if (B.shower) B.shower = Math.max(0, B.shower - k);
     if (B.align) B.align = Math.max(0, B.align - k);
     if (B.moons) B.moons = Math.max(0, B.moons - k);
-    var aligns = 0; Object.keys(d.al).forEach(function (q) { aligns += d.al[q]; });
     s.stats.rolls += k;
-    s.stats.aligns += Math.round(k * aligns);
+    s.stats.aligns += aligns;
     return out;
+  }
+
+  // ── 운명 굴림 ───────────────────────────────────
+  function fateUnlocked(s) { return s.lv.wind > 0; }
+  function fateNeed(s) {
+    var d = derive(s), raw = Math.max(D.fate.min, (d.rollsPerSec || 0.33) * D.fate.sec);
+    var e = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), f = raw / e;
+    return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * e;
+  }
+  function fateCharge(s, n) {
+    if (!fateUnlocked(s)) return;
+    var F = s.fate; F.c += n;
+    var need = fateNeed(s);
+    while (F.c >= need && F.n < D.fate.max) { F.c -= need; F.n++; }
+    if (F.n >= D.fate.max) F.c = Math.min(F.c, need);
+  }
+  // 손으로 굴리는 큰 굴림: 나온 합의 궤도에 약 massSec초치 태엽 굴림 질량을 바로 더한다
+  function fateRoll(s) {
+    if (!(s.fate.n >= 1)) return null;
+    s.fate.n--;
+    var d = derive(s);
+    var idx = d.dice.map(function (dd) { return Math.floor(rng() * dd.faces.length); });
+    var vals = idx.map(function (f, i) { return d.dice[i].faces[f]; });
+    // 평균 굴림 대비 희소도의 제곱근만큼 더 크게 (한 번에 판이 끝나지 않게)
+    var er = 0; Object.keys(d.dist).forEach(function (k) { er += d.dist[k] * d.rarity(+k); });
+    var sum = 0; vals.forEach(function (v) { sum += v; });
+    var rr = d.rarity(sum);
+    var mult = Math.max(1, d.rollsPerSec) * D.fate.massSec * er / rr * Math.sqrt(rr / er);
+    // 지금 가장 큰 천체보다 한 단계 위까지만 (운 한 번에 판이 끝나지 않게)
+    var mt = maxTier(s), capM = d.th[Math.min(d.th.length - 1, Math.max(0, mt - 1))];
+    var b0 = s.bodies[sum] ? s.bodies[sum].m : 0, unit = d.power * rr;
+    var allow = Math.max(capM * 1.001 - b0, unit * mult * 0.05);
+    if (unit * mult > allow) mult = allow / unit;
+    var r = applyRoll(s, d, idx, vals, false, mult);
+    r.fate = true;
+    s.stats.fates = (s.stats.fates || 0) + 1;
+    checkAch(s);
+    return r;
   }
 
   // ── 시간 진행 ───────────────────────────────────
@@ -306,12 +367,13 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
         var extra = 0;
         if (d.twin > 0) { if (n <= 8) { for (var i = 0; i < n; i++) if (rng() < d.twin) extra++; } else extra = Math.round(n * Math.min(1, d.twin)); }
         var tot = n + extra;
+        fateCharge(s, tot);
         while (tot > 0 && ((B0.align || 0) > 0 || (B0.moons || 0) > 0) && tot > 6) { rollOnce(s, false); tot--; }
         if (tot <= 6 && !opts.offline) { for (var j = 0; j < tot; j++) rolled.push(rollOnce(s, false)); }
         else if (tot > 0) {
           var shown = opts.offline ? 0 : 1;
           var bo = rollBatch(s, tot - shown);
-          if (shown) { var r1 = rollOnce(s, false); r1.batch = tot; r1.batchTierUps = bo.tierUps; rolled.push(r1); }
+          if (shown) { var r1 = rollOnce(s, false); r1.batch = tot; r1.batchTierUps = bo.tierUps; r1.jackpot = bo.jackpot; rolled.push(r1); }
         }
       }
     }
@@ -327,7 +389,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       if (s.ev.next <= 0) spawnEvent(s);
     }
     // 자동화
-    if (s.chal && maxTier(s) >= chalGoal(s.chal)) { s.chalDone[s.chal] = 1; chalQueue.push(s.chal); s.chal = null; invalidate(); }
+    if (s.chal && chalMet(s)) { s.chalDone[s.chal] = chalStage(s, s.chal) + 1; chalQueue.push(s.chal); s.chal = null; invalidate(); }
     if (res(s, 's5')) autoBuy(s);
     if (res(s, 's4')) autoUpgrade(s);
     if (res(s, 's6') && s.settings.autoNova && canNova(s) && novaGain(s) >= Math.max(1, Math.floor(s.coresLayer * 0.25))) nova(s);
@@ -400,8 +462,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (trayUsed(s.dice) + 6 > D.trayCapacity) return Infinity;
     return (D.diceCost[n] || Infinity) * chalReward(s, 'diceCost');
   }
-  function costForge(s) { return D.forge.cost0 * Math.pow(D.forge.costK, s.forges) * chalReward(s, 'forgeCost'); }
-  function forgeUnlocked(s) { return !chalRule(s, 'noForge') && (s.dice.length >= D.forge.unlock || s.forges > 0); }
+  function forgeUnlocked(s) { return !chalRule(s, 'noMove') && (s.dice.length >= D.forge.unlock || s.forges > 0 || s.novas > 0 || s.collapses > 0); }
+  function moveStart(s) { return D.moveStart + resV(s, 'moveStart', 'sum') + chalRewardSum(s, 'moveStart'); }
   function trayUsed(dice) { var t = 0; dice.forEach(function (d) { t += d.faces.length; }); return t; }
 
   function spend(s, c) { if (!(s.dust >= c) || !isFinite(c)) return false; s.dust -= c; return true; }
@@ -414,25 +476,71 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (!spend(s, c)) return false;
     s.dice.push(newDie(shape)); invalidate(); return true;
   }
-  // 면 하나 ±1
-  function forge(s, di, fi, delta) {
-    if (!forgeUnlocked(s)) return false;
-    var die = s.dice[di]; if (!die) return false;
-    var nv = die.faces[fi] + delta;
-    if (nv < 1 || nv > Math.max(maxFace(s), die.shape === 'd12' ? 12 : 0, die.shape === 'd8' ? 8 : 0)) return false;
-    if (!spend(s, costForge(s))) return false;
-    die.faces[fi] = nv; s.forges++; invalidate(); return true;
+  // 눈 옮기기: 같은 주사위의 면 from에서 눈 1개를 빼 면 to에 넣는다. 횟수 1회.
+  function canMove(s, di, from, to) {
+    if (!forgeUnlocked(s) || !(s.moves >= 1)) return false;
+    var die = s.dice[di]; if (!die || from === to) return false;
+    var a = die.faces[from], b = die.faces[to];
+    if (a === undefined || b === undefined) return false;
+    return a >= 1 && b < maxFace(s, die);
+  }
+  function movePip(s, di, from, to) {
+    if (!canMove(s, di, from, to)) return false;
+    var die = s.dice[di];
+    die.faces[from]--; die.faces[to]++;
+    s.moves--; s.forges++; invalidate(); checkAch(s); return true;
+  }
+  // 굴림 1번의 가치 (자동 플레이·시뮬레이터용): 기대 질량 × 궤도 수 가산
+  function rollValue(s) {
+    var d = derive(s), e = 0;
+    Object.keys(d.dist).forEach(function (k) { var p = d.dist[k], pa = d.al[k] || 0; e += d.rarity(+k) * ((p - pa) + pa * d.alignMult); });
+    return e * (1 + 0.02 * Object.keys(d.dist).length);
+  }
+  // 과제 목표 궤도가 잘 나오는 정도
+  function goalValue(s) {
+    var g = chalGoal(s, s.chal); if (!g) return rollValue(s);
+    var d = derive(s), v = 0;
+    g.forEach(function (q) { var b = s.bodies[q[0]]; if (b && b.t >= q[1]) return; v += Math.log(1e-9 + (d.dist[q[0]] || 0) * d.rarity(q[0])); });
+    return v;
+  }
+  // 점수를 가장 많이 올리는 눈 하나 옮기기 (없으면 null)
+  function bestMove(s, score) {
+    score = score || (s.chal ? goalValue : rollValue);
+    var base = score(s), best = null;
+    s.dice.forEach(function (die, di) {
+      var mx = maxFace(s, die);
+      die.faces.forEach(function (a, from) {
+        if (a < 1) return;
+        die.faces.forEach(function (b, to) {
+          if (to === from || b >= mx || b === a - 1) return;
+          die.faces[from]--; die.faces[to]++; invalidate();
+          var v = score(s);
+          die.faces[from]++; die.faces[to]--; invalidate();
+          if (v > base + Math.abs(base) * 0.005 + 1e-9 && (!best || v > best.v)) best = { di: di, from: from, to: to, v: v };
+        });
+      });
+    });
+    return best;
+  }
+  // 눈 총합을 표준값에 맞춘다 (불러온 저장용)
+  function fixTotal(die, mx) {
+    var want = stdTotal(die.shape), f = die.faces, tot = 0, g = 0;
+    f.forEach(function (v) { tot += v; });
+    while (tot > want && g++ < 500) { var i = f.indexOf(Math.max.apply(null, f)); f[i]--; tot--; }
+    while (tot < want && g++ < 1000) { var j = f.indexOf(Math.min.apply(null, f)); if (f[j] >= mx) break; f[j]++; tot++; }
   }
   function costRefine(s) { return D.refine.cost0 * Math.pow(D.refine.costK, s.lv.refine || 0); }
   function costCompress(s) { return D.compress.cost0 * Math.pow(D.compress.costK, s.lv.compress || 0); }
   function buyRefine(s) { var c = costRefine(s); if (!(s.cores >= c)) return false; s.cores -= c; s.lv.refine = (s.lv.refine || 0) + 1; invalidate(); return true; }
   function buyCompress(s) { var c = costCompress(s); if (!(s.sing >= c)) return false; s.sing -= c; s.lv.compress = (s.lv.compress || 0) + 1; invalidate(); return true; }
   function upgradeVisible(s, u) { return s.dustRun >= u.req || s.up[u.id]; }
+  function pairOf(u) { return u.pair ? G.UPGRADES.filter(function (x) { return x.pair === u.pair && x.id !== u.id; })[0] : null; }
+  function pairBlocked(s, u) { var o = pairOf(u); return !!(o && s.up[o.id]); }
   function buyUpgrade(s, id) {
     var u = G.UPGRADES.filter(function (x) { return x.id === id; })[0];
-    if (!u || s.up[id] || !upgradeVisible(s, u)) return false;
+    if (!u || s.up[id] || !upgradeVisible(s, u) || pairBlocked(s, u)) return false;
     if (!spend(s, u.cost)) return false;
-    s.up[id] = 1; invalidate(); return true;
+    s.up[id] = 1; if (u.pair) s.pairPref[u.pair] = id; invalidate(); return true;
   }
   function autoBuy(s) {
     var guard = 0;
@@ -445,7 +553,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (s.dust >= costDie(s) && s.dice.length < maxDice(s)) buyDie(s);
   }
   function autoUpgrade(s) {
-    G.UPGRADES.forEach(function (u) { if (!s.up[u.id] && upgradeVisible(s, u) && s.dust >= u.cost) buyUpgrade(s, u.id); });
+    G.UPGRADES.forEach(function (u) {
+      if (u.pair) { var pref = s.pairPref[u.pair]; if (pref ? pref !== u.id : pairOf(u) && G.UPGRADES.indexOf(pairOf(u)) < G.UPGRADES.indexOf(u)) return; }
+      if (!s.up[u.id] && upgradeVisible(s, u) && s.dust >= u.cost) buyUpgrade(s, u.id);
+    });
   }
   function researchAvail(s, r) {
     if (s.research[r.id]) return false;
@@ -469,7 +580,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function buySres(s, id) {
     var r = G.SRESEARCH.filter(function (x) { return x.id === id; })[0];
     if (!r || !sresAvail(s, r) || s.sing < r.cost) return false;
-    if (r.eff === 'ending' && Object.keys(s.chalDone).length < G.CHALLENGES.length) return false;
+    if (r.eff === 'ending' && !endingReady(s)) return false;
     s.sing -= r.cost; s.sres[id] = 1; invalidate();
     if (r.eff === 'shape') s.shapes[r.v] = true;
     if (r.eff === 'ending') { s.ended = true; }
@@ -501,7 +612,6 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     return Math.pow(g / (D.coreGain.k * d.coreMult), 1 / D.coreGain.exp) * D.coreGain.div * thK;
   }
   function resetRun(s) {
-    var keepFaces = res(s, 'r4');
     var oldDice = s.dice;
     s.dust = 0; s.dustRun = 0; s.bodies = {}; s.up = {}; s.autoT = 0;
     s.lv = { power: 0, wind: res(s, 'r1') ? 6 : 0, refine: s.lv.refine || 0, compress: s.lv.compress || 0 };
@@ -510,11 +620,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     s.dice = [];
     for (var i = 0; i < nd; i++) {
       var od = oldDice[i];
-      var shape = od ? od.shape : 'd6';
-      if (!s.shapes[shape]) shape = 'd6';
-      s.dice.push(keepFaces && od && od.shape === shape && !chalRule(s, 'noForge') ? { shape: shape, faces: od.faces.slice() } : newDie(shape));
+      var shape = od && s.shapes[od.shape] ? od.shape : 'd6';
+      s.dice.push(od && od.shape === shape ? { shape: shape, faces: od.faces.slice() } : newDie(shape));
     }
-    if (!keepFaces) s.forges = 0; else s.forges = Math.floor(s.forges / 2);
+    s.moves = moveStart(s); s.runTiers = {};
     s.ev.buffs = {}; s.ev.cur = null;
     s.last = [];
     s.stats.runStart = s.t;
@@ -535,11 +644,23 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     checkAch(s);
     return info;
   }
-  function chalGoal(id) { var i = G.CHALLENGES.map(function (c) { return c.id; }).indexOf(id); return i >= 3 ? 10 : D.chalTier; }
-  function chalUnlocked(s, c) { return s.novas >= c.req || s.collapses > 0; }
+  function chalById(id) { return G.CHALLENGES.filter(function (x) { return x.id === id; })[0]; }
+  // 지금 단계의 목표 [[궤도, 단계]...] (모두 끝났으면 null)
+  function chalGoal(s, id) { var c = chalById(id), k = chalStage(s, id); return c && k < c.goals.length ? c.goals[k] : null; }
+  function chalMet(s) {
+    var g = chalGoal(s, s.chal); if (!g) return false;
+    return g.every(function (q) { var b = s.bodies[q[0]]; return b && b.t >= q[1]; });
+  }
+  function chalUnlocked(s, c) {
+    var k = chalStage(s, c.id);
+    if (k >= c.goals.length) return false;
+    if (k >= 2) return s.collapses > 0;
+    return s.novas >= c.req || s.collapses > 0;
+  }
+  function endingReady(s) { return G.CHALLENGES.every(function (c) { return chalStage(s, c.id) >= D.endChalStage; }); }
   function startChallenge(s, id) {
-    var c = G.CHALLENGES.filter(function (x) { return x.id === id; })[0];
-    if (!c || !chalUnlocked(s, c)) return false;
+    var c = chalById(id);
+    if (!c || !chalUnlocked(s, c) || s.chal) return false;
     s.chal = id; resetRun(s); return true;
   }
   function quitChallenge(s) { if (!s.chal) return false; s.chal = null; resetRun(s); return true; }
@@ -611,8 +732,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     ['nova1', function (s) { return s.novas >= 1; }],
     ['nova10', function (s) { return s.novas >= 10; }],
     ['nova50', function (s) { return s.novas >= 50; }],
-    ['chal1', function (s) { return Object.keys(s.chalDone).length >= 1; }],
-    ['chalAll', function (s) { return Object.keys(s.chalDone).length >= 6; }],
+    ['chal1', function (s) { return G.CHALLENGES.some(function (c) { return chalStage(s, c.id) >= 1; }); }],
+    ['chalAll', function (s) { return endingReady(s); }],
     ['col1', function (s) { return s.collapses >= 1; }],
     ['col5', function (s) { return s.collapses >= 5; }],
     ['resAll', function (s) { return Object.keys(s.research).length >= 18; }],
@@ -633,11 +754,12 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   G.core = {
     newState: newState, derive: derive, invalidate: invalidate, tick: tick, rollOnce: rollOnce, manualRoll: manualRoll, rollBatch: rollBatch,
     production: production, bodyRate: bodyRate, harmony: harmony, tierOf: tierOf,
-    costPower: costPower, costWind: costWind, costDie: costDie, costForge: costForge, maxDice: maxDice, forgeUnlocked: forgeUnlocked, maxFace: maxFace,
-    buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, forge: forge, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible,
+    costPower: costPower, costWind: costWind, costDie: costDie, maxDice: maxDice, forgeUnlocked: forgeUnlocked, maxFace: maxFace, stdTotal: stdTotal, fixTotal: fixTotal, canMove: canMove, movePip: movePip, bestMove: bestMove, rollValue: rollValue, goalValue: goalValue, moveStart: moveStart,
+    buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible, pairOf: pairOf, pairBlocked: pairBlocked,
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
     canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
-    chalUnlocked: chalUnlocked, chalGoal: chalGoal, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
+    chalUnlocked: chalUnlocked, chalGoal: chalGoal, chalStage: chalStage, chalMet: chalMet, endingReady: endingReady, outerCap: outerCap,
+    fateUnlocked: fateUnlocked, fateNeed: fateNeed, fateRoll: fateRoll, poisson: poisson, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, layerBonus: layerBonus, collapseGain: collapseGain, collapse: collapse,
     spawnEvent: spawnEvent, catchEvent: catchEvent, offline: offline, checkAch: checkAch,
     achQueue: achQueue, chalQueue: chalQueue, setRng: setRng, capAll: capAll, newDie: newDie, SHAPE_FACES: SHAPE_FACES, res: res, sres: sres

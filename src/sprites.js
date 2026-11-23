@@ -182,6 +182,31 @@
     parse(['...p...', '...p...', '..pwp..', 'ppwwwpp', '..pwp..', '...p...', '...p...'])
   ];
   // 혜성 머리 (이벤트) 9x9
+  // 운명 굴림 보석 자리 (빈 자리 / 찬 보석)
+  S.fateEmpty = parse([
+    '...kkkkk...',
+    '.kkbHHHbkk.',
+    '.kbxxxxxdk.',
+    'kbxNNNNNxdk',
+    'kHxNNNNNxdk',
+    'kHxNNNNNxdk',
+    'kHxNNNNNxdk',
+    'kbxNNNNNxdk',
+    '.kdxxxxxdk.',
+    '.kkdddddkk.',
+    '...kkkkk...']);
+  S.fateGem = parse([
+    '...kkkkk...',
+    '.kkbHHHbkk.',
+    '.kbxxwxxdk.',
+    'kbxxwpoxxdk',
+    'kHxwppoRxdk',
+    'kHwwpooRRdk',
+    'kHxpooRRxdk',
+    'kbxxoRRxxdk',
+    '.kdxxRxxdk.',
+    '.kkdddddkk.',
+    '...kkkkk...']);
   S.comet = parse([
     '....kkk..',
     '...kwwpk.',

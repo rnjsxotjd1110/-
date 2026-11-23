@@ -38,7 +38,7 @@
     plate(2, G.spr.icDie, G.T('dice'), G.T('n_dice', s.dice.length), full ? G.T('dice_max') : G.T('dice_eff', orb[0], orb[orb.length - 1]),
       full ? null : cd, s.dust >= cd, G.T('b_dice'), !full && s.dust >= cd, function () { if (C.buyDie(s)) G.audio.play('unlock'); });
     var fu = C.forgeUnlocked(s);
-    plate(3, G.spr.icChisel, G.T('forge'), G.T('n_forge', s.forges), fu ? G.T('forge_eff') : G.T('forge_lock'), fu ? C.costForge(s) : null, s.dust >= C.costForge(s), G.T('b_forge'), fu, function () { A.tab = 'dice'; A.seenTabs.dice = 1; });
+    plate(3, G.spr.icChisel, G.T('forge'), fu ? G.T('n_forge', s.moves) : '', fu ? G.T('forge_eff') : (C.chalRule(s, 'noMove') ? G.nm('chal', 'c1', 1) : G.T('forge_lock')), null, false, G.T('b_forge'), fu, function () { A.tab = 'dice'; A.seenTabs.dice = 1; });
     histogram(s, d, X0, Y0 + 186, W0, 46, false);
     // 최근 합
     var ry = Y0 + 262;
@@ -97,7 +97,8 @@
     var TIER_F = [[11, 18], [15, 14], [3, 2], [7, 5], [19, 16], [4, 8]];
     vis.forEach(function (u, i) {
       var x = X0 + (i % 8) * 26, y = Y0 + 2 + Math.floor(i / 8) * 26;
-      var own = !!s.up[u.id], ok = !own && s.dust >= u.cost;
+      var blk = C.pairBlocked(s, u);
+      var own = !!s.up[u.id], ok = !own && !blk && s.dust >= u.cost;
       var h = U.hitArea('ug' + u.id, x, y, 24, 24);
       var rn = (G.nm('up', u.id).match(/ (I{1,3}|IV|V|VI)$/) || [])[1];
       var ti = rn ? ['I', 'II', 'III', 'IV', 'V', 'VI'].indexOf(rn) : 0;
@@ -107,10 +108,12 @@
       if (own) { gx.hline(x + 1, y + 1, 22, 12); }
       var ic = G.spr.cat[u.cat] || G.spr.cat.lens;
       gx.blit(ic, x + 5, y + 5, false, own || ok ? null : SIL);
-      for (var tp = 0; tp <= ti; tp++) gx.rect(x + 19 - tp * 3, y + 19, 2, 2, 4);
+      for (var tp = 0; tp <= ti; tp++) gx.rect(x + 19 - tp * 3, y + 19, 2, 2, blk ? 14 : 4);
+      if (u.pair) { gx.rect(x + 2, y + 19, 2, 2, blk ? 14 : 7); gx.pset(x + 4, y + 20, blk ? 14 : 7); }
+      if (blk) { for (var bk = 2; bk < 12; bk++) { gx.pset(x + 5 + bk, y + 5 + bk, 14); gx.pset(x + 18 - bk, y + 5 + bk, 14); } }
       if (ok && Math.floor(A.t * 2) % 2 === 0) { gx.rect(x + 19, y + 2, 2, 2, 3); }
       if (sel && sel.id === u.id) { gx.hline(x - 1, y - 2, 26, 4); gx.hline(x - 1, y + 25, 26, 4); gx.vline(x - 2, y - 1, 26, 4); gx.vline(x + 25, y - 1, 26, 4); }
-      if (h.over) U.tip([{ t: G.nm('up', u.id), f: 'g11b', c: 12 }, { t: G.effText(u.eff, u.v), c: 13 }, { t: own ? G.T('bought') : G.fmt(u.cost), c: own ? 11 : (ok ? 5 : 14) }], x, y);
+      if (h.over) { var tl = [{ t: G.nm('up', u.id), f: 'g11b', c: 12 }, { t: G.effText(u.eff, u.v), c: 13 }, { t: own ? G.T('bought') : (blk ? G.T('pair_taken', G.nm('up', C.pairOf(u).id)) : G.fmt(u.cost)), c: own ? 11 : (ok ? 5 : 14) }]; if (u.pair && !own && !blk) tl.push({ t: G.T('pair_or') + ' ' + G.nm('up', C.pairOf(u).id), c: 7 }); U.tip(tl, x, y); }
       if (h.clicked) { A.selUpgLock = u.id; A.selUpg = u.id; G.audio.play('tab'); }
     });
     if (hidden > 0) {
@@ -125,14 +128,21 @@
       gx.blit(G.spr.cat[sel.cat], X0 + 2, dy + 9);
       F.draw(G.nm('up', sel.id), X0 + 22, dy + 9, 4, 'g11b', 12);
       F.wrap(G.effText(sel.eff, sel.v), W0 - 24, 'g9').slice(0, 2).forEach(function (l, k) { F.draw(l, X0 + 22, dy + 24 + k * 10, 8, 'g9'); });
+      var blk2 = C.pairBlocked(s, sel), par = C.pairOf(sel);
+      if (par && !own2) {
+        var pl = blk2 ? G.T('pair_taken', G.nm('up', par.id)) : G.T('pair_or') + ' ' + G.nm('up', par.id);
+        F.draw(pl, X0 + 22, dy + 60, 7, 'g9');
+        if (U.over(X0 + 22, dy + 58, F.measure(pl, 'g9') + 4, 12)) U.tip([{ t: G.T('tip_pair'), c: 12 }], U.inp.x, U.inp.y);
+      }
       if (own2) F.draw(G.T('bought'), X0 + 22, dy + 44, 2, 'g11b');
+      else if (blk2) { }
       else {
         costLine(X0 + 22, dy + 44, sel.cost, s.dust >= sel.cost);
         if (btn('ugbuy', X0 + W0 - 92, dy + 41, 90, 19, G.T('b_buy'), s.dust >= sel.cost)) { C.buyUpgrade(s, sel.id); A.selUpgLock = null; }
       }
     }
     var nextU = G.UPGRADES.filter(function (u) { return !C.upgradeVisible(s, u); })[0];
-    if (nextU) F.draw(G.T('upg_next', G.fmt(nextU.req)), X0 + 2, dy + 70, 15, 'g9');
+    if (nextU) F.draw(G.T('upg_next', G.fmt(nextU.req)), X0 + 2, dy + 74, 15, 'g9');
     // 지금 걸린 효과
     var d = C.derive(s);
     var sy2 = dy + 92;
@@ -155,20 +165,32 @@
   // ── 주사위 ─────────────────────────────────────
   var PIPP = { 1: [[1, 1]], 2: [[0, 0], [2, 2]], 3: [[0, 0], [1, 1], [2, 2]], 4: [[0, 0], [2, 0], [0, 2], [2, 2]], 5: [[0, 0], [2, 0], [1, 1], [0, 2], [2, 2]], 6: [[0, 0], [2, 0], [0, 1], [2, 1], [0, 2], [2, 2]], 7: [[0, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [2, 2]], 8: [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [0, 2], [1, 2], [2, 2]], 9: [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [1, 2], [2, 2]] };
   var FACE_RAMP = { d6: [4, 8, 20], d4: [8, 7, 12], d8: [3, 2, 12], d12: [19, 16, 12] };
-  function faceTile(x, y, shape, v, sel, hot) {
+  function faceTile(x, y, shape, v, sel, hot, dim) {
     var r = FACE_RAMP[shape] || FACE_RAMP.d6;
-    gx.rect(x + 1, y + 1, 12, 12, r[0]);
-    gx.hline(x + 1, y + 12, 12, r[1]); gx.vline(x + 12, y + 1, 12, r[1]);
+    gx.rect(x + 1, y + 1, 12, 12, dim ? 13 : r[0]);
+    gx.hline(x + 1, y + 12, 12, dim ? 21 : r[1]); gx.vline(x + 12, y + 1, 12, dim ? 21 : r[1]);
     var oc = sel ? 3 : (hot ? 8 : 12);
     gx.hline(x + 1, y, 12, oc); gx.hline(x + 1, y + 13, 12, oc); gx.vline(x, y + 1, 12, oc); gx.vline(x + 13, y + 1, 12, oc);
-    if (sel) { gx.hline(x + 1, y - 1, 12, 4); }
-    if (shape === 'd6' && PIPP[v]) PIPP[v].forEach(function (p) { gx.rect(x + 2 + p[0] * 4, y + 2 + p[1] * 4, 2, 2, r[2]); });
-    else F.drawCenter(String(v), x + 7, y + 2, r[2], 'g9');
+    if (sel) { gx.hline(x + 1, y - 1, 12, 4); gx.hline(x + 1, y + 14, 12, 4); }
+    if (v === 0) return;
+    if (shape === 'd6' && PIPP[v]) PIPP[v].forEach(function (p) { gx.rect(x + 2 + p[0] * 4, y + 2 + p[1] * 4, 2, 2, dim ? 14 : r[2]); });
+    else F.drawCenter(String(v), x + 7, y + 2, dim ? 14 : r[2], 'g9');
+  }
+  // 눈을 하나 옮겼을 때의 분포 (미리보기)
+  function previewDerive(s, di, from, to) {
+    var die = s.dice[di];
+    die.faces[from]--; die.faces[to]++; C.invalidate();
+    var d = C.derive(s), keep = { dist: d.dist, std: d.std, orbits: d.orbits, rarity: d.rarity };
+    die.faces[from]++; die.faces[to]--; C.invalidate();
+    return keep;
   }
   function dicePanel(s) {
     var d = C.derive(s);
     var fu = C.forgeUnlocked(s);
     var y = Y0 + 2;
+    var sel = A.selFace && s.dice[A.selFace[0]] ? A.selFace : null;
+    if (sel && s.dice[sel[0]].faces[sel[1]] < 1) sel = A.selFace = null;
+    var preview = null;
     s.dice.forEach(function (die, i) {
       var yy = y + i * 18;
       F.draw(die.shape, X0 + 1, yy + 2, 15, 'g9');
@@ -178,33 +200,42 @@
       order.forEach(function (f, pos) {
         var v = die.faces[f];
         var x = X0 + 22 + pos * 15;
-        var sel = A.selFace && A.selFace[0] === i && A.selFace[1] === f;
+        var isSel = !!sel && sel[0] === i && sel[1] === f;
+        var target = !!sel && sel[0] === i && !isSel;
+        var okT = target && C.canMove(s, i, sel[1], f);
         var h = U.hitArea('fc' + i + '_' + f, x, yy, 14, 14, fu);
-        faceTile(x, yy, die.shape, v, sel, h.over);
-        if (h.clicked) { A.selFace = [i, f]; G.audio.play('tab'); }
+        faceTile(x, yy, die.shape, v, isSel, h.over && (!sel || okT || !target), target && !okT);
+        if (h.over && okT) preview = [i, sel[1], f];
+        if (h.clicked) {
+          if (isSel) { A.selFace = null; G.audio.play('tab'); }
+          else if (okT) { if (C.movePip(s, i, sel[1], f)) { G.audio.play('forge'); refreshTray(); if (s.dice[i].faces[sel[1]] < 1) A.selFace = null; } }
+          else if (target) G.audio.play('deny');
+          else if (v >= 1) { A.selFace = [i, f]; G.audio.play('tab'); }
+          else G.audio.play('deny');
+        }
       });
     });
     var cy = y + s.dice.length * 18 + 4;
     U.groove(X0, cy, W0);
     cy += 6;
-    if (!fu) F.draw(C.chalRule(s, 'noForge') ? G.nm('chal', 'c1', 1) : G.T('forge_lock'), X0 + 2, cy + 4, 15, 'g11');
-    else if (!A.selFace || !s.dice[A.selFace[0]]) F.draw(G.T('pick_face'), X0 + 2, cy + 4, 15, 'g11');
+    if (!fu) F.draw(C.chalRule(s, 'noMove') ? G.nm('chal', 'c1', 1) : G.T('forge_lock'), X0 + 2, cy + 4, 15, 'g11');
     else {
-      var die2 = s.dice[A.selFace[0]], v2 = die2.faces[A.selFace[1]];
-      var mx = Math.max(C.maxFace(s), die2.shape === 'd12' ? 12 : (die2.shape === 'd8' ? 8 : 0));
-      var cf = C.costForge(s), ok = s.dust >= cf;
-      if (v2 >= mx || v2 <= 1) F.draw(G.T(v2 >= mx ? 'face_max' : 'face_min'), X0 + 2, cy - 1, 8, 'g9');
-      costLine(X0 + 2, cy + (v2 >= mx || v2 <= 1 ? 8 : 2), cf, ok);
-      var bw = 70;
-      if (btn('fplus', X0 + W0 - bw * 2 - 4, cy, bw, 19, G.T('forge_plus'), ok && v2 < mx)) { if (C.forge(s, A.selFace[0], A.selFace[1], 1)) { G.audio.play('forge'); } }
-      if (U.over(X0 + W0 - bw * 2 - 4, cy, bw * 2 + 4, 19)) U.tip([{ t: G.T('tip_forge'), c: 12 }], U.inp.x, U.inp.y);
-      if (btn('fminus', X0 + W0 - bw, cy, bw, 19, G.T('forge_minus'), ok && v2 > 1)) { if (C.forge(s, A.selFace[0], A.selFace[1], -1)) { G.audio.play('forge'); } }
+      var msg = !(s.moves >= 1) ? G.T('no_moves') : (sel ? G.T('pick_to') : G.T('pick_face'));
+      var room = W0 - 8 - (sel ? 64 : F.measure(G.T('moves_left', s.moves), 'g9'));
+      F.draw(msg, X0 + 2, cy + 4, sel ? 4 : 15, F.measure(msg, 'g11') > room ? 'g9' : 'g11');
+      if (sel) { if (U.button('fcancel', X0 + W0 - 62, cy + 1, 60, 18, G.T('b_cancel'), { font: 'g11b' })) A.selFace = null; }
+      else {
+        var ml = G.T('moves_left', s.moves);
+        F.drawRight(ml, X0 + W0 - 2, cy + 5, s.moves >= 1 ? 3 : 9, 'g9');
+        if (U.over(X0 + W0 - F.measure(ml, 'g9') - 4, cy + 2, F.measure(ml, 'g9') + 4, 14)) U.tip([{ t: G.T('moves_left', s.moves), f: 'g11b', c: 12 }, { t: G.T('tip_moves', G.DATA.moveGain), c: 13 }, { t: G.T('tip_forge'), c: 11 }], U.inp.x, U.inp.y);
+      }
     }
+    if (preview) d = previewDerive(s, preview[0], preview[1], preview[2]);
     cy += 26;
     var shapes = Object.keys(s.shapes).filter(function (k) { return s.shapes[k]; });
     var ly = shapes.length > 1 ? Y0 + 250 : Y0 + 284;
     histogram(s, d, X0, cy, W0, Math.max(20, ly - cy - 28), true);
-    gx.rect(X0 + 2, ly + 2, 5, 6, 2); F.draw(G.T('dist_now'), X0 + 11, ly, 8, 'g9');
+    gx.rect(X0 + 2, ly + 2, 5, 6, preview ? 7 : 2); F.draw(preview ? G.T('dist_after') : G.T('dist_now'), X0 + 11, ly, preview ? 7 : 8, 'g9');
     gx.hline(X0 + 92, ly + 4, 6, 15); F.draw(G.T('std_dist'), X0 + 101, ly, 8, 'g9');
     // 모양 바꾸기
     if (shapes.length > 1) {
@@ -219,7 +250,7 @@
         var cur = s.dice[di2] && s.dice[di2].shape === sh;
         var nd = s.dice.slice(); nd[di2] = { faces: new Array(C.SHAPE_FACES[sh]) };
         var fits = C.trayUsed(nd) <= G.DATA.trayCapacity;
-        if (U.button('sh' + sh, X0 + 2 + k * 52, sy + 14, 48, 18, sh, { enabled: !cur && fits, font: 'g11b' })) { C.setShape(s, di2, sh); A.selFace = null; G.audio.play('forge'); refreshTray(); }
+        if (U.button('sh' + sh, X0 + 2 + k * 52, sy + 14, 48, 18, sh, { enabled: !cur && fits, font: 'g11b' })) { C.setShape(s, di2, sh); A.selFace = null; A.shapeDie = null; G.audio.play('forge'); refreshTray(); }
       });
     }
   }
@@ -300,18 +331,26 @@
   }
   function challenges(s, y) {
     G.CHALLENGES.forEach(function (c, i) {
-      var yy = y + 1 + i * 36;
+      var yy = y + 1 + i * 37;
       if (i > 0) U.groove(X0, yy - 3, W0);
-      var done = !!s.chalDone[c.id], act = s.chal === c.id, unl = C.chalUnlocked(s, c);
-      F.draw(G.nm('chal', c.id), X0 + 2, yy + 1, done ? 2 : 4, 'g11b', 12);
-      F.draw(G.nm('chal', c.id, 1) + ' · ' + G.T('chal_goal_t', G.nm('tiers', C.chalGoal(c.id))), X0 + 2, yy + 13, 8, 'g9');
-      F.draw(G.T('chal_reward', G.effText(c.reward, c.v)), X0 + 2, yy + 24, done ? 2 : 15, 'g9');
+      var k = C.chalStage(s, c.id), n = c.goals.length, all = k >= n;
+      var act = s.chal === c.id, unl = C.chalUnlocked(s, c), g = C.chalGoal(s, c.id);
+      var nw = F.draw(G.nm('chal', c.id), X0 + 2, yy + 1, all ? 2 : 4, 'g11b', 12);
+      for (var st = 0; st < n; st++) { gx.rect(X0 + 8 + nw + st * 6, yy + 4, 4, 4, st < k ? 2 : 21); gx.hline(X0 + 8 + nw + st * 6, yy + 4, 4, st < k ? 3 : 18); }
+      F.draw(G.nm('chal', c.id, 1), X0 + 2, yy + 13, 8, 'g9');
+      if (g) F.draw(G.T('chal_goal_t', G.goalShort(g)), X0 + 2, yy + 24, act ? 7 : 15, 'g9');
+      var rh = U.hitArea('chr' + c.id, X0, yy, W0 - 66, 35);
+      if (rh.over) U.tip([{ t: G.nm('chal', c.id) + ' · ' + G.T('chal_stage', k, n), f: 'g11b', c: 12 }, { t: G.T('chal_reward', G.effText(c.reward, c.v)), c: 13 }, { t: k ? G.T('chal_now', G.effText(c.reward, rewardNow(c, k))) : '', c: 11 }].filter(function (l) { return l.t; }), U.inp.x, U.inp.y);
       var bx = X0 + W0 - 62;
-      if (done) F.drawRight(G.T('chal_done'), X0 + W0 - 4, yy + 2, 2, 'g11b');
+      if (all) F.drawRight(G.T('chal_done'), X0 + W0 - 4, yy + 2, 2, 'g11b');
       else if (act) { if (U.button('cq' + c.id, bx, yy + 1, 60, 18, G.T('chal_quit'), { font: 'g11b' })) { A.confirmText = G.T('chal_confirm_quit'); A.confirmYes = G.T('b_quit_chal'); A.confirmFn = function () { C.quitChallenge(s); refreshTray(); }; A.overlay = 'confirm'; } }
-      else if (!unl) F.drawRight(G.T('chal_lock', c.req, s.novas), X0 + W0 - 2, yy + 3, 15, 'g9');
+      else if (!unl) F.drawRight(k >= 2 ? G.T('chal_lock_col') : G.T('chal_lock', c.req, s.novas), X0 + W0 - 2, yy + 3, 15, 'g9');
       else if (U.button('cs' + c.id, bx, yy + 1, 60, 18, G.T('chal_start'), { font: 'g11b', enabled: !s.chal })) { A.confirmText = G.nm('chal', c.id) + ' · ' + G.T('chal_confirm_start'); A.confirmYes = G.T('b_start_chal'); A.confirmFn = function () { C.startChallenge(s, c.id); refreshTray(); G.audio.play('unlock'); }; A.overlay = 'confirm'; }
     });
+  }
+  function rewardNow(c, k) {
+    if (c.reward === 'moveStart' || c.reward === 'perDie' || c.reward === 'harmonyX') return Math.round(c.v * k * 100) / 100;
+    return G.fmt(Math.pow(c.v, k), true);
   }
   function refreshTray() { var d = C.derive(A.s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; })); G.orrery.clearFx(); }
 
@@ -371,7 +410,7 @@
       var a = -Math.PI / 2 + i / G.SRESEARCH.length * Math.PI * 2;
       var nx = Math.round(cx + Math.cos(a) * R), ny = Math.round(cy + Math.sin(a) * R * 0.66);
       var own = !!s.sres[r.id], av = C.sresAvail(s, r);
-      var endBlock = r.eff === 'ending' && Object.keys(s.chalDone).length < G.CHALLENGES.length;
+      var endBlock = r.eff === 'ending' && !C.endingReady(s);
       var ok = av && s.sing >= r.cost && !endBlock;
       G.nine(own ? G.spr.tileOwn : (ok ? G.spr.tileHot : G.spr.tile), nx - 7, ny - 7, 14, 14);
       var spr = own ? G.spr.sresOn : (av ? G.spr.sresAvail : G.spr.starOff);
@@ -379,7 +418,7 @@
       if (ok && Math.floor(A.t * 2) % 2) { gx.pset(nx - 6, ny, 19); gx.pset(nx + 6, ny, 19); }
       if (!own) F.drawCenter(G.fmt(r.cost), nx, ny + 8, ok ? 19 : 15, 'g9', 12);
       var h = U.hitArea('sr' + r.id, nx - 10, ny - 8, 20, 20);
-      if (h.over) U.tip([{ t: G.nm('sres', r.id), f: 'g11b', c: 12 }, { t: G.effText(r.eff, r.v), c: 13 }, { t: own ? G.T('bought') : (endBlock ? G.T('ending_need') : G.T('col_gain', '').replace('+', '') + G.fmt(r.cost)), c: own ? 11 : (ok ? 16 : 14) }], nx, ny);
+      if (h.over) U.tip([{ t: G.nm('sres', r.id), f: 'g11b', c: 12 }, { t: G.effText(r.eff, r.v), c: 13 }].concat(r.outer ? [{ t: G.effText('outerCap', r.outer), c: 13 }] : []).concat([{ t: own ? G.T('bought') : (endBlock ? G.T('ending_need') : G.T('col_gain', '').replace('+', '') + G.fmt(r.cost)), c: own ? 11 : (ok ? 16 : 14) }]), nx, ny);
       if (h.clicked) { if (ok) { C.buySres(s, r.id); G.audio.play('unlock'); G.orrery.burst(nx, ny, 14, [4, 19, 16], 30); } else G.audio.play('deny'); }
     });
   }
@@ -422,7 +461,7 @@
   function dotFor(s, key) {
     if (key === 'upg') return G.UPGRADES.some(function (u) { return !s.up[u.id] && C.upgradeVisible(s, u) && s.dust >= u.cost; });
     if (key === 'nova') return C.canNova(s) || G.RESEARCH.some(function (r) { return C.researchAvail(s, r) && s.cores >= r.cost; });
-    if (key === 'col') return C.canCollapse(s) || G.SRESEARCH.some(function (r) { return C.sresAvail(s, r) && s.sing >= r.cost && (r.eff !== 'ending' || Object.keys(s.chalDone).length >= 6); });
+    if (key === 'col') return C.canCollapse(s) || G.SRESEARCH.some(function (r) { return C.sresAvail(s, r) && s.sing >= r.cost && (r.eff !== 'ending' || C.endingReady(s)); });
     return false;
   }
   function draw(s, PX, PY, PW, PH) {

@@ -66,9 +66,10 @@
       var o = L.map[s];
       var f = flashes[s] || 0;
       var hov = st.hoverOrbit === s;
-      if (!st.bodies[s] && f <= 0.2 && !hov) return;
-      var col = f > 0.5 ? 3 : (f > 0.2 ? 2 : (hov ? 8 : 18));
-      drawOrbitLine(o, col, 0, !hov && f <= 0.2);
+      var goal = st.goalOrbits && st.goalOrbits.indexOf(s) >= 0;
+      if (!st.bodies[s] && f <= 0.2 && !hov && !goal) return;
+      var col = f > 0.5 ? 3 : (f > 0.2 ? 2 : (hov ? 8 : (goal ? 7 : 18)));
+      drawOrbitLine(o, col, 0, !hov && f <= 0.2 && !goal);
     });
     // 천체 위치 계산
     var list = [];

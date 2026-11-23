@@ -28,20 +28,24 @@
     var dice = s.dice.filter(function (d) { return d && typeof d === 'object'; }).slice(0, 6).map(function (d) {
       var shape = SF[d.shape] ? d.shape : 'd6';
       var n = SF[shape], base = G.core.newDie(shape).faces;
-      var faces = Array.isArray(d.faces) && d.faces.length === n ? d.faces.map(function (f, i) { return int(f, 1, Math.max(9, n), base[i]); }) : base;
+      var faces = Array.isArray(d.faces) && d.faces.length === n ? d.faces.map(function (f, i) { return int(f, 0, Math.max(9, n), base[i]); }) : base;
       return { shape: shape, faces: faces };
     });
     while (dice.length < 2) dice.push(G.core.newDie('d6'));
     var used = 0; dice = dice.filter(function (d) { used += d.faces.length; return used <= G.DATA.trayCapacity; });
     var maxD = s.sres && s.sres.q6 ? 6 : 5, maxF = s.research && s.research.g6 ? 9 : 6;
     dice = dice.slice(0, maxD);
-    dice.forEach(function (d) { if (d.shape === 'd6') d.faces = d.faces.map(function (f) { return Math.min(f, maxF); }); });
+    dice.forEach(function (d) { var mx = Math.max(maxF, G.core.SHAPE_FACES[d.shape]); d.faces = d.faces.map(function (f) { return Math.min(f, mx); }); G.core.fixTotal(d, mx); });
     s.dice = dice;
+    s.moves = int(s.moves, 0, 1e4, G.DATA.moveStart);
+    var rt = {}; Object.keys(s.runTiers || {}).forEach(function (k) { var t = int(k, 2, 10, 0); if (t) rt[t] = 1; }); s.runTiers = rt;
+    var fa = s.fate || {}; s.fate = { c: num(fa.c, 0, 1e15, 0), n: int(fa.n, 0, G.DATA.fate.max, 0) };
+    var pp = {}; Object.keys(s.pairPref || {}).forEach(function (k) { var id = s.pairPref[k]; if (G.UPGRADES.some(function (u) { return u.id === id && u.pair === k; })) pp[k] = id; }); s.pairPref = pp;
     // 천체
     var nb = {};
     Object.keys(s.bodies || {}).forEach(function (k) {
-      var b = s.bodies[k], key = /^\d{1,2}$/.test(k) ? int(k, 1, 80, -1) : -1;
-      if (key < 1 || !b || typeof b !== 'object') return;
+      var b = s.bodies[k], key = /^\d{1,2}$/.test(k) ? int(k, 0, 80, -1) : -1;
+      if (key < 0 || !b || typeof b !== 'object') return;
       var m = num(b.m, 0, CAP, 0); if (m <= 0) return;
       nb[key] = { m: m, t: int(b.t, 1, 10, 1), seed: int(b.seed, 0, 1e6, key), a0: num(b.a0, -1e6, 1e6, 0) };
     });
@@ -49,8 +53,10 @@
     // 구매 기록: 알려진 id만
     function clean(obj, ids) { var o = {}; Object.keys(obj || {}).forEach(function (k) { if (ids[k] && obj[k]) o[k] = 1; }); return o; }
     s.up = clean(s.up, idSet(G.UPGRADES)); s.research = clean(s.research, idSet(G.RESEARCH)); s.sres = clean(s.sres, idSet(G.SRESEARCH));
-    s.chalDone = clean(s.chalDone, idSet(G.CHALLENGES));
-    if (s.chal && (!idSet(G.CHALLENGES)[s.chal] || s.chalDone[s.chal])) s.chal = null;
+    var cd = {}; G.CHALLENGES.forEach(function (c) { var v = s.chalDone && s.chalDone[c.id]; if (v) cd[c.id] = int(v, 0, c.goals.length, 0); }); s.chalDone = cd;
+    if (s.chal && (!idSet(G.CHALLENGES)[s.chal] || (s.chalDone[s.chal] || 0) >= 5)) s.chal = null;
+    // 구매한 개량 중 같은 쌍 둘 다 가진 경우 뒤쪽을 뺀다
+    G.UPGRADES.forEach(function (u) { if (u.pair && s.up[u.id]) { var o = G.core.pairOf(u); if (o && s.up[o.id] && G.UPGRADES.indexOf(o) > G.UPGRADES.indexOf(u)) delete s.up[o.id]; } });
     var ach = {}; Object.keys(s.ach || {}).forEach(function (k) { if (idSet(G.ACH)[k]) ach[k] = int(s.ach[k], 0, 1e12, 0); }); s.ach = ach;
     s.shapes = { d6: true }; ['d4', 'd8', 'd12'].forEach(function (sh) { G.SRESEARCH.forEach(function (r) { if (r.v === sh && s.sres[r.id]) s.shapes[sh] = true; }); });
     s.dice.forEach(function (d) { if (!s.shapes[d.shape]) { d.shape = 'd6'; d.faces = G.core.newDie('d6').faces; } });
@@ -66,7 +72,8 @@
     s.settings = { sfx: num(se.sfx, 0, 1, 0.7), bgm: num(se.bgm, 0, 1, 0.5), muted: se.muted !== false, notation: ['ko', 'en', 'sci', 'eng'].indexOf(se.notation) >= 0 ? se.notation : 'ko', reduce: !!se.reduce, lang: se.lang === 'en' ? 'en' : 'ko', autoNova: !!se.autoNova, autoCollapse: !!se.autoCollapse };
     s.seenTabs = (s.seenTabs && typeof s.seenTabs === 'object' && !Array.isArray(s.seenTabs)) ? s.seenTabs : { machine: 1, rec: 1, n_upg: 1, n_dice: 1, n_nova: 1, n_col: 1, n_chal: 1 };
     s.layerStart = num(s.layerStart, 0, s.t, 0);
-    s.ended = !!s.ended && !!s.sres.q12; s.endSeen = !!s.endSeen && s.ended;
+    s.ended = !!s.ended && !!s.sres.q12;
+    s.sres.q12 = s.sres.q12;  s.endSeen = !!s.endSeen && s.ended;
     if (st.alignDice > s.dice.length) st.alignDice = 0;
     return s;
   }
