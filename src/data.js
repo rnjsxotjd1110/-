@@ -18,12 +18,12 @@ G.DATA = {
   power: { cost0: 10, costK: 1.8, grow: 1.07 },  // 굴림 힘: P = (1+lv/2)·grow^lv
   wind: { cost0: 30, costK: 2.2, int0: 3.0, intK: 0.92, intMin: 0.05 },
   diceCost: { 3: 1.2e5, 4: 1.5e7, 5: 2e11, 6: 1e15 },
-  forge: { cost0: 150, costK: 2.4, unlock: 3 }, // 주사위 3개부터
+  forge: { cost0: 150, costK: 2.1, unlock: 3 }, // 주사위 3개부터
   maxFaceBase: 6, maxFaceOver: 9,
 
   // 하늘 이벤트
   eventGap: [100, 170],
-  eventLife: 13,
+  eventLife: 18,
 
   // 오프라인
   offlineCapH: 12, offlineEff: 0.5,

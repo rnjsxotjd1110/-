@@ -65,7 +65,7 @@
     if (stage !== nebStage || seedOff !== nebSeed) { nebSeed = seedOff; build(stage); }
     var buf = G.gfx.buf, W = G.gfx.W;
     var drift = t * 2.0;
-    var ox = Math.floor(30 + camX * 0.15 + drift * 0.15) % BW, oy = Math.floor(30 + camY * 0.15) % BH;
+    var ox = Math.floor(40 + camX * 0.15 + Math.sin(t * 0.004) * 38) % BW, oy = Math.floor(30 + camY * 0.15) % BH;
     var hole = arguments[9];
     var DARK = [0, 0, 11, 2, 8, 10, 0, 5, 9, 10, 21, 18, 12, 12, 13, 14, 6, 20, 21, 16, 22, 23, 23, 23];
     for (var y = y0; y < y0 + h; y++) {

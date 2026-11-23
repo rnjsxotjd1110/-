@@ -294,11 +294,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     // 태엽 굴림
     var rolled = [];
     if (d.interval > 0) {
-      s.autoT += dt;
+      s.autoT += dt * eff;
       var n = Math.floor(s.autoT / d.interval);
       if (n > 0) {
         s.autoT -= n * d.interval;
-        n = Math.floor(n * eff + (opts.offline ? 0 : 0));
         var extra = 0;
         if (d.twin > 0) { if (n <= 8) { for (var i = 0; i < n; i++) if (rng() < d.twin) extra++; } else extra = Math.round(n * Math.min(1, d.twin)); }
         var tot = n + extra;

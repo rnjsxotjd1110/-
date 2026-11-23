@@ -195,7 +195,7 @@
         if (A.s.ended && !A.s.endSeen) { A.s.endSeen = true; A.scene = 'ending'; A.endT = 0; if (G.audio) G.audio.play('ending'); }
         checkUnlocks();
         // 이벤트 등장 소리
-        if (A.s.ev.cur && !A.s.ev.cur._snd) { A.s.ev.cur._snd = 1; if (G.audio) G.audio.play('evspawn'); }
+        if (A.s.ev.cur && !A.s.ev.cur._snd) { A.s.ev.cur._snd = 1; if (G.audio) G.audio.play('evspawn'); if (!C.res(A.s, 's2')) A.notify([G.T('ev_appear', G.T('ev_' + A.s.ev.cur.type))], 'ev'); }
       }
       updCut(dt);
       saveT += dt;

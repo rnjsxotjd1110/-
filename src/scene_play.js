@@ -33,6 +33,7 @@
   function topbar(s) {
     gx.rect(0, 0, 640, 20, 13); gx.hline(0, 17, 640, 18); gx.hline(0, 18, 640, 2); gx.hline(0, 19, 640, 12);
     gx.blit(G.spr.icDust, 5, 4);
+    if (U.hitArea('dusttip', 2, 2, 140, 16).over) U.tip([{ t: G.T('tip_dust'), f: 'g11b', c: 12 }], 10, 10);
     var w = F.draw(G.fmt(s.dust), 17, 3, 3, 'g11b', 12);
     var rate = C.production(s);
     F.draw('+' + G.fmt(rate, true) + G.T('per_sec'), 21 + w, 4, 8, 'g9', 12);
@@ -42,7 +43,7 @@
     // 버프
     var B = s.ev.buffs, bx = Math.max(x, 300), d = C.derive(s);
     var hm = C.harmony(s, d);
-    if (hm > 1.005) { var hw = F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 8, 'g9', 12); var hh = U.hitArea('harm', bx, 2, hw, 16); if (hh.over) U.tip([{ t: G.T('harmony', hm.toFixed(2)), f: 'g11b', c: 12 }, { t: G.effText('harmony', C.derive(s).harmonyPer), c: 13 }], bx, 10); bx += hw + 10; }
+    if (hm > 1.005) { var hw = F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 8, 'g9', 12); var hh = U.hitArea('harm', bx, 2, hw, 16); if (hh.over) U.tip([{ t: G.T('harmony', hm.toFixed(2)), f: 'g11b', c: 12 }, { t: G.T('tip_harmony'), c: 13 }, { t: G.effText('harmony', C.derive(s).harmonyPer), c: 13 }], bx, 10); bx += hw + 10; }
     [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12) + 8; });
     [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12) + 8; });
     if (s.chal) F.drawRight(G.nm('chal', s.chal), 592, 4, 17, 'g9', 12);
@@ -100,7 +101,7 @@
     // 잡을 수 있음을 알리는 반짝임 고리
     if (Math.floor(t * 3) % 2 === 0) { gx.pset(p.x - 9, p.y, 3); gx.pset(p.x + 9, p.y, 3); gx.pset(p.x, p.y - 9, 3); gx.pset(p.x, p.y + 9, 3); }
     gx.resetClip();
-    var hit = U.hitArea('event', p.x - 12, p.y - 12, 24, 24);
+    var hit = U.hitArea('event', p.x - 18, p.y - 16, 36, 32);
     if (hit.over) U.tip([{ t: G.T('ev_' + type), f: 'g11b', c: 12 }, { t: evText(type, s), c: 13 }], p.x, p.y);
     if (hit.clicked || (hit.over && U.inp.pressed)) catchEv(s, p);
   }
@@ -131,6 +132,7 @@
       lines.push({ t: G.T('mass') + ' ' + G.fmt(b.m) + (b.t < 10 ? ' / ' + G.fmt(d.th[b.t - 1]) : ''), c: 13 });
       lines.push({ t: G.T('prod') + ' ' + G.fmt(C.bodyRate(s, d, o, b) * C.harmony(s, d) * d.globalMult, true) + G.T('per_sec'), c: 13 });
     } else lines.push({ t: G.T('orb_empty'), c: 14 });
+    lines.push({ t: G.T('tip_rarity'), c: 11 });
     U.tip(lines, mx, my);
   }
 

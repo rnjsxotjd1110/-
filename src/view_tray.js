@@ -124,7 +124,7 @@
       var t = String(sum), w = G.embossMeasure(t, 2);
       G.embossText(t, x + 22 - (w >> 1), y + 14, 2, [4, 8, 9], 'g11b', 12);
     }
-    if (batch) G.font.drawCenter(G.T('n_rolls', G.fmt(batch)), x + 22, y + 46, 8, 'g9', 23);
+    if (batch) G.font.drawCenter(G.T('n_rolls2', G.fmt(batch)), x + 22, y + 46, 8, 'g9', 23);
   }
   function leverHit(mx, my) { return mx >= LEV.x && my >= LEV.y && mx < LEV.x + LEV.w && my < LEV.y + LEV.h; }
   function centerOf(i) { var d = dice[i]; return d ? { x: d._sx || d.tx, y: d._sy || d.ty } : { x: IN.x + IN.w / 2, y: IN.y + 20 }; }

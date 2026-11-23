@@ -47,13 +47,15 @@
     }
     // 정렬 확률
     var pa = 0; Object.keys(d.al).forEach(function (k) { pa += d.al[k]; });
+    var alh = U.hitArea('alignline', X0, ry + 22, W0, 12);
+    if (alh.over) U.tip([{ t: G.T('tip_align'), c: 12 }], U.inp.x, U.inp.y);
     F.draw(G.T('align_pop').replace('!', '') + ' ' + (pa * 100 >= 1 ? (pa * 100).toFixed(1) : (pa * 100).toFixed(2)) + '% · ×' + G.fmt(d.alignMult, true), X0 + 2, ry + 24, 15, 'g9');
   }
 
   // 분포 그래프. carved=true면 깎지 않은 분포 눈금도 표시
   function histogram(s, d, x, y, w, h, withStd) {
     F.draw(G.T('dist'), x + 2, y, 15, 'g9');
-    var orb = d.orbits, n = orb.length;
+    var orb = d.orbits.filter(function (o) { return d.dist[o] > 0 || (withStd && d.std[o] > 0); }), n = orb.length;
     var cw = Math.max(3, Math.floor(w / n)), tw = cw * n, bx = x + Math.floor((w - tw) / 2);
     var by = y + 12 + h;
     var pm = 0; orb.forEach(function (o) { pm = Math.max(pm, d.dist[o] || 0, withStd ? (d.std[o] || 0) : 0); });
@@ -103,8 +105,8 @@
       gx.blit(ic, x + 5, y + 5, false, own || ok ? null : SIL);
       if (ok && Math.floor(A.t * 2) % 2 === 0) { gx.rect(x + 19, y + 2, 2, 2, 3); }
       if (sel && sel.id === u.id) { gx.hline(x - 1, y - 2, 26, 4); gx.hline(x - 1, y + 25, 26, 4); gx.vline(x - 2, y - 1, 26, 4); gx.vline(x + 25, y - 1, 26, 4); }
-      if (h.over) A.selUpg = u.id;
-      if (h.clicked) { A.selUpg = u.id; if (!own && s.dust >= u.cost) { C.buyUpgrade(s, u.id); G.audio.play('buy'); G.orrery.burst(x + 12, y + 12, 10, [4, 3], 30); } else G.audio.play('tab'); }
+      if (h.over && !A.selUpgLock) A.selUpg = u.id;
+      if (h.clicked) { A.selUpgLock = u.id; A.selUpg = u.id; G.audio.play('tab'); }
     });
     if (hidden > 0) {
       var i2 = vis.length, x2 = X0 + (i2 % 8) * 26, y2 = Y0 + 2 + Math.floor(i2 / 8) * 26;
@@ -121,10 +123,11 @@
       if (own2) F.draw(G.T('bought'), X0 + 22, dy + 44, 2, 'g11b');
       else {
         costLine(X0 + 22, dy + 44, sel.cost, s.dust >= sel.cost);
-        if (btn('ugbuy', X0 + W0 - 92, dy + 41, 90, 19, G.T('b_buy'), s.dust >= sel.cost)) C.buyUpgrade(s, sel.id);
+        if (btn('ugbuy', X0 + W0 - 92, dy + 41, 90, 19, G.T('b_buy'), s.dust >= sel.cost)) { C.buyUpgrade(s, sel.id); A.selUpgLock = null; }
       }
     }
-    if (hidden > 0) F.draw(G.T('upg_hidden') + ' (' + hidden + ')', X0 + 2, dy + 70, 15, 'g9');
+    var nextU = G.UPGRADES.filter(function (u) { return !C.upgradeVisible(s, u); })[0];
+    if (nextU) F.draw(G.T('upg_next', G.fmt(nextU.req)), X0 + 2, dy + 70, 15, 'g9');
     // 지금 걸린 효과
     var d = C.derive(s);
     var sy2 = dy + 92;
@@ -163,8 +166,12 @@
     s.dice.forEach(function (die, i) {
       var yy = y + i * 18;
       F.draw(die.shape, X0 + 1, yy + 2, 15, 'g9');
-      die.faces.forEach(function (v, f) {
-        var x = X0 + 22 + f * 15;
+      var order = die.faces.map(function (v, f) { return f; });
+      var base = C.newDie(die.shape).faces;
+      order.sort(function (a, b) { return base[a] - base[b]; });
+      order.forEach(function (f, pos) {
+        var v = die.faces[f];
+        var x = X0 + 22 + pos * 15;
         var sel = A.selFace && A.selFace[0] === i && A.selFace[1] === f;
         var h = U.hitArea('fc' + i + '_' + f, x, yy, 14, 14, fu);
         faceTile(x, yy, die.shape, v, sel, h.over);
@@ -218,7 +225,7 @@
     var y = Y0 + 2;
     if (C.canNova(s)) {
       var g = C.novaGain(s);
-      if (U.button('novabtn', X0, y, W0, 22, G.T('nova_btn'), { style: 'core', font: 'g11b', sfx: 'tap' })) A.startNova();
+      if (U.button('novabtn', X0, y, W0, 22, G.T('nova_btn'), { style: 'core', font: 'g11b', sfx: 'tap' })) { A.confirmText = G.T('nova_confirm', G.fmt(g)); A.confirmYes = G.T('nova_btn'); A.confirmFn = A.startNova; A.overlay = 'confirm'; }
       F.draw(G.T('nova_gain', G.fmt(g)), X0 + 2, y + 27, 7, 'g11b', 12);
       F.draw(G.T('nova_next', G.fmt(C.novaNext(s))), X0 + 2, y + 41, 15, 'g9');
     } else {
@@ -292,7 +299,7 @@
     var y = Y0 + 2;
     if (C.canCollapse(s)) {
       var g = Math.max(1, C.collapseGain(s));
-      if (U.button('colbtn', X0, y, W0, 22, G.T('col_btn'), { style: 'teal', font: 'g11b', sfx: 'tap' })) A.startCollapse();
+      if (U.button('colbtn', X0, y, W0, 22, G.T('col_btn'), { style: 'teal', font: 'g11b', sfx: 'tap' })) { A.confirmText = G.T('col_confirm', G.fmt(g)); A.confirmYes = G.T('col_btn'); A.confirmFn = A.startCollapse; A.overlay = 'confirm'; }
       F.draw(G.T('col_gain', G.fmt(g)), X0 + 2, y + 27, 19, 'g11b', 12);
     } else {
       var cn = s.chal ? G.nm('chal', s.chal) : G.T('col_need');
