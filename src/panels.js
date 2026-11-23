@@ -76,10 +76,10 @@
       if (body > 2 && hgt > 1) gx.vline(xx + body - 1, by - hgt + 2, hgt - 2, hot || lastHit ? 9 : 18);
       if (withStd) { var ps = d.std[o] || 0; if (ps > 0) { var hs = Math.round(ps / pm * h); gx.hline(xx, by - hs, body, 15); } }
       // 아래 숫자
-      var stepL = Math.max(1, Math.ceil((orb[n - 1] >= 10 ? 11 : 6) / cw));
+      var stepL = Math.max(1, Math.ceil((F.measure(String(orb[n - 1]), 'g7') + 4) / cw));
       var showLbl = (o % stepL) === 0;
       var lwid = F.measure(String(o), 'g7');
-      if (showLbl && xx + (body >> 1) - (lwid >> 1) > lastLX + 2) { F.drawCenter(String(o), xx + (body >> 1), by + 3, hot ? 4 : (s.bodies[o] ? 8 : 14), 'g7'); lastLX = xx + (body >> 1) + (lwid >> 1); }
+      if (showLbl && xx + (body >> 1) - (lwid >> 1) > lastLX + 3) { F.drawCenter(String(o), xx + (body >> 1), by + 3, hot ? 4 : (s.bodies[o] ? 8 : 14), 'g7'); lastLX = xx + (body >> 1) + (lwid >> 1); }
       // 막대 위에 마우스
       var ha = U.hitArea('hb' + o, xx, by - h, cw, h + 10);
       if (ha.over) { A.view.hoverOrbitPanel = o; U.tip([{ t: G.T('orb', o), f: 'g11b', c: 12 }, { t: G.T('chance') + ' ' + G.pct(p) + ' · ' + G.T('rarity') + ' ×' + G.fmt(d.rarity(o), true), c: 13 }], U.inp.x, U.inp.y); }
@@ -106,7 +106,7 @@
       if (own) { gx.hline(x + 1, y + 1, 22, 12); }
       var ic = G.spr.cat[u.cat] || G.spr.cat.lens;
       gx.blit(ic, x + 5, y + 5, false, own || ok ? null : SIL);
-      for (var tp = 0; tp <= ti; tp++) gx.pset(x + 20 - tp * 2, y + 20, fc[0]);
+      for (var tp = 0; tp <= ti; tp++) gx.rect(x + 19 - tp * 3, y + 19, 2, 2, fc[0]);
       if (ok && Math.floor(A.t * 2) % 2 === 0) { gx.rect(x + 19, y + 2, 2, 2, 3); }
       if (sel && sel.id === u.id) { gx.hline(x - 1, y - 2, 26, 4); gx.hline(x - 1, y + 25, 26, 4); gx.vline(x - 2, y - 1, 26, 4); gx.vline(x + 25, y - 1, 26, 4); }
       if (h.over && !A.selUpgLock) A.selUpg = u.id;
@@ -147,6 +147,7 @@
     var owned = G.UPGRADES.filter(function (u) { return s.up[u.id]; }).length;
     F.drawRight(owned + '/' + G.UPGRADES.length, X0 + W0 - 2, dy + 10, 15, 'g9');
   }
+  var MEDAL = (function () { var base = []; for (var i = 0; i < 24; i++) base[i] = i; var sets = [[3, 2, 11, 4], [19, 16, 6, 4], [7, 5, 10, 8], [15, 14, 13, 4], [8, 9, 10, 4], [17, 20, 22, 8], [2, 1, 0, 4], [4, 8, 9, 4]]; return sets.map(function (c) { var m = base.slice(); m[3] = c[0]; m[2] = c[1]; m[11] = c[2]; m[4] = c[3]; return m; }); })();
   var SIL = []; for (var si2 = 0; si2 < 24; si2++) SIL[si2] = si2 === 12 ? 12 : 13;
   var DIM = []; for (var di = 0; di < 24; di++) DIM[di] = di; [4, 8, 3, 7, 19, 2].forEach(function (c) { DIM[c] = 15; }); [9, 5, 16, 11, 1, 10].forEach(function (c) { DIM[c] = 14; }); [17, 20].forEach(function (c) { DIM[c] = 14; });
 
@@ -291,7 +292,7 @@
     U.groove(X0, ry2 - 4, W0);
     var lvr = s.lv.refine || 0, cr = C.costRefine(s);
     F.draw(G.T('refine') + ' ' + G.T('lv', lvr), X0 + 2, ry2 + 1, 4, 'g11b', 12);
-    F.draw(G.effText('mass', G.fmt(Math.pow(G.DATA.refine.v, lvr), true)), X0 + 2, ry2 + 12, 8, 'g9');
+    F.draw(G.effText('mass', G.fmt(Math.pow(G.DATA.refine.v, lvr), true)), X0 + 2, ry2 + 15, 8, 'g9');
     gx.blit(G.spr.icCore, X0 + 100, ry2 + 4); F.draw(G.fmt(cr), X0 + 112, ry2 + 2, s.cores >= cr ? 7 : 8, 'g11b', 12);
     if (U.button('refine', X0 + W0 - 62, ry2, 62, 19, G.T('b_refine'), { font: 'g11b', style: 'core', enabled: s.cores >= cr, sfx: 'buy' })) C.buyRefine(s);
   }
@@ -362,7 +363,7 @@
     U.groove(X0, cy2 - 4, W0);
     var lvc = s.lv.compress || 0, cc2 = C.costCompress(s);
     F.draw(G.T('compress') + ' ' + G.T('lv', lvc), X0 + 2, cy2 + 2, 4, 'g11b', 12);
-    F.draw(G.effText('mass', G.fmt(Math.pow(G.DATA.compress.v, lvc), true)), X0 + 2, cy2 + 12, 8, 'g9');
+    F.draw(G.effText('mass', G.fmt(Math.pow(G.DATA.compress.v, lvc), true)), X0 + 2, cy2 + 15, 8, 'g9');
     gx.blit(G.spr.icSing, X0 + 108, cy2 + 4); F.draw(G.fmt(cc2), X0 + 120, cy2 + 2, s.sing >= cc2 ? 19 : 8, 'g11b', 12);
     if (U.button('compress', X0 + W0 - 62, cy2, 62, 19, G.T('b_compress'), { font: 'g11b', style: 'teal', enabled: s.sing >= cc2, sfx: 'buy' })) C.buyCompress(s);
     G.SRESEARCH.forEach(function (r, i) {
@@ -394,7 +395,7 @@
       var hid = !got && G.NAMES.hiddenAch[a[0]];
       G.nine(got ? G.spr.tileOwn : G.spr.tile, x, yy, 24, 26);
       if (hid) F.drawCenter('?', x + 12, yy + 7, 14, 'g11b');
-      else gx.blit(got ? G.spr.medal : G.spr.medalOff, x + 6, yy + 6);
+      else gx.blit(got ? G.spr.medal : G.spr.medalOff, x + 6, yy + 6, false, got ? MEDAL[Math.floor(i / 5) % MEDAL.length] : null);
       var h = U.hitArea('ac' + a[0], x, yy, 24, 26);
       if (h.over) U.tip([{ t: hid ? G.T('ach_hidden') : G.nm('ach', a[0]), f: 'g11b', c: 12 }, { t: hid ? G.T('ach_hidden') : G.nm('ach', a[0], 1), c: 13 }], x, yy);
     });

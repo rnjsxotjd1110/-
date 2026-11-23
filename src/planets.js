@@ -51,7 +51,7 @@
     var gx = G.gfx;
     var LT = LT0;
     if (lb >= 0) { var th = lb / 16 * Math.PI * 2; var v3 = [Math.cos(th) * 0.85, Math.sin(th) * 0.85, 0.55]; var ll = Math.hypot(v3[0], v3[1], v3[2]); LT = [v3[0] / ll, v3[1] / ll, v3[2] / ll]; }
-    var r = TIER_R[tier] + (tier >= 2 && tier <= 7 ? ((seed % 3) - 1) * 0.6 : 0);
+    var r = TIER_R[tier] + (tier >= 2 && tier <= 9 ? ((seed % 3) - 1) * (tier >= 8 ? 0.8 : 0.6) : 0);
     var vari = seed % 3;
     var pad = tier === 5 ? 6 : (tier >= 8 ? 5 : 2);
     var S = Math.ceil(r) * 2 + 1 + pad * 2;

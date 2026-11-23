@@ -218,7 +218,7 @@
     flash: function (s, v) { flashes[s] = Math.max(flashes[s] || 0, v || 1); },
     flashAll: function (v) { return v; },
     beam: function (x, y, s, onHit) { beams.push({ x: x, y: y, s: s, t: 0, onHit: onHit }); },
-    pop: function (x, y, text, c, font, big, ramp, tag) { if (tag) for (var i = pops.length - 1; i >= 0; i--) if (pops[i].tag === tag) pops.splice(i, 1); for (var j = 0; j < pops.length; j++) if (!pops[j].big && Math.abs(pops[j].x - x) < 30 && Math.abs(pops[j].y - y) < 11) y = pops[j].y - 11; pops.push({ tag: tag, x: x, y: y, text: text, c: c, font: font, life: 1, big: big, ramp: ramp }); if (pops.length > 24) pops.shift(); },
+    pop: function (x, y, text, c, font, big, ramp, tag) { if (tag) for (var i = pops.length - 1; i >= 0; i--) if (pops[i].tag === tag) pops.splice(i, 1); for (var j = 0; j < pops.length; j++) { var cyj = pops[j].y - (1 - pops[j].life) * 14; if (!pops[j].big && Math.abs(pops[j].x - x) < 34 && Math.abs(cyj - y) < 11) y = Math.round(cyj) - 11; } pops.push({ tag: tag, x: x, y: y, text: text, c: c, font: font, life: 1, big: big, ramp: ramp }); if (pops.length > 10) pops.shift(); },
     ring: function (s) { rings.push({ s: s, life: 1 }); },
     clearFx: function () { beams.length = 0; parts.length = 0; pops.length = 0; rings.length = 0; flashes = {}; },
     partsCount: function () { return parts.length; }

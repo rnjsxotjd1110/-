@@ -100,6 +100,7 @@
   }
   function drawToast() {
     var t = A.toast; if (!t) return;
+    if (t.t < 0.03 || t.t > 2.77) return;
     var slide = Math.min(1, t.t / 0.18, (2.8 - t.t) / 0.18);
     var w = 0; t.lines.forEach(function (l, i) { w = Math.max(w, G.font.measure(l, i === 0 ? 'g11b' : 'g11')); });
     var icon = t.kind === 'ach' ? G.spr.medal : null;

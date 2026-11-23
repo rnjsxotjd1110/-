@@ -45,10 +45,11 @@
     // 오른쪽: 로고와 메뉴
     var lx = 430;
     var lw = G.embossMeasure('주사위', 3);
-    var l1 = G.getLang() === 'en' ? 'Dice' : '주사위', l2 = G.getLang() === 'en' ? 'Orrery' : '성계', o2 = G.getLang() === 'en' ? 10 : 46;
-    G.embossText(l1, lx + 3, 33, 3, [18, 18, 18], 'g14', 12); G.embossText(l2, lx + o2 + 3, 83, 3, [21, 21, 21], 'g14', 12);
-    G.embossText(l1, lx, 30, 3, [4, 3, 11], 'g14', 12);
-    G.embossText(l2, lx + o2, 80, 3, [8, 7, 10], 'g14', 12);
+    var en = G.getLang() === 'en', lf = en ? 'g14' : 'logo';
+    var l1 = en ? 'Dice' : '주사위', l2 = en ? 'Orrery' : '성계', o2 = en ? 10 : 50;
+    G.embossText(l1, lx + 3, 33, 3, [18, 18, 18], lf, 12); G.embossText(l2, lx + o2 + 3, 83, 3, [21, 21, 21], lf, 12);
+    G.embossText(l1, lx, 30, 3, [4, 3, 11], lf, 12);
+    G.embossText(l2, lx + o2, 80, 3, [8, 7, 10], lf, 12);
     var sub = G.getLang() === 'en' ? '주사위 성계' : 'D I C E   O R R E R Y';
     F.drawOutlined(sub, lx + 2, 130, 3, 'g11b', 12);
     gx.setClip(0, 0, 640, 135); F.draw(sub, lx + 2, 130, 4, 'g11b'); gx.resetClip();
