@@ -13,6 +13,7 @@ const path = require('path');
   await page.goto(url + '?speed=' + (process.argv[2] || 300)); await page.waitForFunction(() => window.__ready);
   await page.mouse.click(400, 600); // 빈 곳 → 새 게임
   await page.waitForTimeout(500);
+  await page.evaluate((k) => { window.__timeScale = k; }, +(process.argv[2] || 300)); // ?speed=는 데모에서만 먹으므로 직접 설정
   await page.evaluate(() => {
     const A = G.app, C = G.core;
     window.__log = [];
