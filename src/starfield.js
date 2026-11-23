@@ -1,0 +1,99 @@
+// 별 배경: 성운(평평한 단계 + 경계 디더) + 깊이가 다른 별 3층 + 반짝임
+(function () {
+  var BW = 720, BH = 420;
+  var neb = null, nebStage = -1;
+  var far = [], mid = [], near = [], galaxies = [];
+  var STAGES = [
+    // 진행 단계별 성운 색 (어두움 -> 밝음)
+    { bands: [21, 18], th: [0.58, 0.7], density: 1 },
+    { bands: [21, 18, 10], th: [0.55, 0.66, 0.78], density: 1.2 },
+    { bands: [23, 22, 20], th: [0.54, 0.65, 0.78], density: 1.4 },
+    { bands: [6, 16, 21], th: [0.55, 0.67, 0.6], density: 1.6, mix: true },
+    { bands: [0, 6, 16, 19], th: [0.52, 0.63, 0.74, 0.84], density: 1.9 }
+  ];
+  function rnd(seed) { var s = seed >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+
+  function build(stage) {
+    var st = STAGES[Math.min(stage, STAGES.length - 1)];
+    neb = new Uint8Array(BW * BH);
+    var fbm = G.planets.fbm, bay = G.gfx.bayer;
+    for (var y = 0; y < BH; y++) for (var x = 0; x < BW; x++) {
+      var v = fbm(x / 120 + stage * 3.1, y / 90, 0.5 + stage, 4);
+      // 대각선 띠 모양으로 성운을 모음
+      var bandShape = Math.exp(-Math.pow((y - BH * 0.35 - (x - BW / 2) * 0.35) / 160, 2));
+      v = v * (0.55 + 0.55 * bandShape);
+      var c = 12;
+      for (var i = 0; i < st.bands.length; i++) {
+        var t = st.th[i];
+        if (v > t + 0.02) c = st.bands[i];
+        else if (v > t - 0.02) { if ((v - t + 0.02) / 0.04 > bay(x, y)) c = st.bands[i]; }
+      }
+      if (st.mix && v > 0.6 && v < 0.66 && ((x + y) % 7 === 0)) c = 21;
+      neb[y * BW + x] = c;
+    }
+    var R = rnd(1234 + stage);
+    far = []; mid = []; near = []; galaxies = [];
+    var nf = Math.round(380 * st.density), nm = Math.round(110 * st.density);
+    for (var a = 0; a < nf; a++) far.push({ x: R() * BW, y: R() * BH, c: [14, 13, 15, 9][(R() * 4) | 0] });
+    for (var b = 0; b < nm; b++) mid.push({ x: R() * BW, y: R() * BH, c: [15, 8, 9, 3][(R() * 4) | 0], p: R() * 6.28 });
+    for (var c2 = 0; c2 < 14 + stage * 3; c2++) near.push({ x: R() * BW, y: R() * BH, p: R() * 6.28, sp: 0.6 + R() * 1.2 });
+    if (stage >= 2) for (var g = 0; g < stage - 1; g++) galaxies.push({ x: 60 + R() * (BW - 120), y: 40 + R() * (BH - 80), f: R() < 0.5 });
+    nebStage = stage;
+  }
+
+  // 먼 은하 (직접 찍은 9x5 나선)
+  var GAL = null;
+  function galSprite() {
+    if (GAL) return GAL;
+    GAL = G.spr.parse([
+      '...ggm...',
+      '.mggpgm..',
+      'mg.pwpgm.',
+      '..mgpggm.',
+      '...mgg...'
+    ]);
+    return GAL;
+  }
+
+  // camX, camY: 카메라 흔들림(작게), t: 시간(초)
+  function draw(stage, t, camX, camY, x0, y0, w, h) {
+    if (stage !== nebStage) build(stage);
+    var buf = G.gfx.buf, W = G.gfx.W;
+    var drift = t * 2.0;
+    var ox = Math.floor(30 + camX * 0.15 + drift * 0.15) % BW, oy = Math.floor(30 + camY * 0.15) % BH;
+    for (var y = y0; y < y0 + h; y++) {
+      var sy = ((y + oy) % BH + BH) % BH;
+      var row = sy * BW;
+      var o = y * W;
+      for (var x = x0; x < x0 + w; x++) {
+        var sx = ((x + ox) % BW + BW) % BW;
+        buf[o + x] = neb[row + sx];
+      }
+    }
+    G.gfx.setClip(x0, y0, w, h);
+    function layer(arr, f, fn) {
+      var dx = camX * f + drift * f, dy = camY * f;
+      for (var i = 0; i < arr.length; i++) {
+        var s = arr[i];
+        var px = ((Math.floor(s.x - dx) % BW) + BW) % BW - 40, py = ((Math.floor(s.y - dy) % BH) + BH) % BH - 30;
+        fn(s, px, py);
+      }
+    }
+    galaxies.forEach(function (g) {
+      var px = ((Math.floor(g.x - camX * 0.05) % BW) + BW) % BW - 40, py = g.y - 30;
+      G.gfx.blit(galSprite(), px, py, g.f);
+    });
+    layer(far, 0.25, function (s, x, y) { G.gfx.pset(x, y, s.c); });
+    layer(mid, 0.5, function (s, x, y) {
+      var tw = Math.sin(t * 1.3 + s.p);
+      G.gfx.pset(x, y, tw > 0.85 ? 4 : s.c);
+    });
+    layer(near, 1.0, function (s, x, y) {
+      var v = Math.sin(t * s.sp + s.p);
+      var f = v > 0.7 ? 2 : (v > 0.1 ? 1 : 0);
+      G.gfx.blit(G.spr.twinkle[f], x - 3, y - 3);
+    });
+    G.gfx.resetClip();
+  }
+  G.starfield = { draw: draw, STAGES: STAGES };
+})();

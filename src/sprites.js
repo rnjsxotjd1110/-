@@ -1,0 +1,315 @@
+// 직접 찍은 픽셀 스프라이트. 글자 하나 = 픽셀 하나. '.' = 투명.
+(function () {
+  // 공통 범례
+  var L = {
+    '.': 255, k: 12, K: 13, H: 3, b: 2, d: 11, r: 18, w: 4, p: 8, c: 9, m: 14, g: 15,
+    o: 7, s: 5, B: 10, R: 17, D: 20, e: 22, x: 23, M: 21, t: 19, T: 16, q: 6, n: 1, N: 0
+  };
+  function parse(rows, legend) {
+    legend = legend || L;
+    var h = rows.length, w = rows[0].length;
+    var s = G.gfx.makeSprite(w, h);
+    for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) {
+      var ch = rows[y][x];
+      var v = legend[ch];
+      s.d[y * w + x] = v === undefined ? 255 : v;
+    }
+    return s;
+  }
+  var S = {};
+
+  // ── 아이콘 16x16 ───────────────────────────────
+  // 굴림 힘: 놋쇠 추
+  S.icPower = parse([
+    '................',
+    '......kkkk......',
+    '.....kHwHbk.....',
+    '.....kHk.dk.....',
+    '......kkkk......',
+    '.....kkkkkk.....',
+    '....kHHHHbbk....',
+    '...kHwHbbbbdk...',
+    '...kHHbbbbbdk...',
+    '..kHHbbbbbbddk..',
+    '..kHbbbbbbbddk..',
+    '.kHbbbbbbbbbddk.',
+    '.kHbbbbbbbbdddk.',
+    '.kbdddddddddrrk.',
+    '..kkkkkkkkkkkk..',
+    '................']);
+  // 태엽 열쇠
+  S.icWind = parse([
+    '................',
+    '..kkkk....kkkk..',
+    '.kHwHbk..kHHbdk.',
+    '.kHHbbdkkHbbbdk.',
+    '.kHbbbdHHbbbddk.',
+    '..kbbddbbbdddk..',
+    '...kkkdbbbdkk...',
+    '......kHbdk.....',
+    '......kHbdk.....',
+    '......kHbdk.....',
+    '......kHbdk.....',
+    '......kHbdkkk...',
+    '......kHbbbbdk..',
+    '......kHbdkkk...',
+    '......kHbbdk....',
+    '.......kkkk.....']);
+  // 주사위 추가
+  S.icDie = parse([
+    '................',
+    '....kkkkkkk.....',
+    '...kwwwwwwpk....',
+    '..kwwwwwwwppk...',
+    '.kkkkkkkkkpk....',
+    '.kwwwwwwwkppk...',
+    '.kwDwwwwwkpck...',
+    '.kwwwwwwwkcpk...',
+    '.kwwwDwwwkpck...',
+    '.kwwwwwwwkcck...',
+    '.kwwwwwDwkck..k.',
+    '.kpppppppkk..kHk',
+    '.kkkkkkkkk..kHwHk',
+    '.............kHk',
+    '..............k.',
+    '................']);
+  // 눈 새기기: 끌과 면
+  S.icChisel = parse([
+    '................',
+    '...........kk...',
+    '..........kgmk..',
+    '.........kgmk...',
+    '........kgmk....',
+    '.......kgmk.....',
+    '......kHbk......',
+    '.....kHbdk......',
+    '.kkkkkHddkkkk...',
+    '.kwwwkddkwwwpk..',
+    '.kwwwwkkwwwwpk..',
+    '.kwwwwwwwDwwpk..',
+    '.kwwDwwwwwwwpk..',
+    '.kwwwwwwwwwwck..',
+    '.kpppppppppcck..',
+    '..kkkkkkkkkkk...']);
+  // 별가루: 네 갈래 반짝이
+  S.icDust = parse([
+    '....k....',
+    '...kwk...',
+    '...kHk...',
+    '.kkHwHkk.',
+    'kwHwwwHdk',
+    '.kkbHbkk.',
+    '...kbk...',
+    '...kdk...',
+    '....k....']);
+  // 별핵
+  S.icCore = parse([
+    '...kkk...',
+    '..kpwpk..',
+    '.kpoooBk.',
+    'kpoosssBk',
+    'kooossBBk',
+    'kossssBBk',
+    '.kssBBBk.',
+    '..kBBBk..',
+    '...kkk...']);
+  // 특이점
+  S.icSing = parse([
+    '...kkk...',
+    '..ktttk..',
+    '.ktkkkTk.',
+    'ktkNNNkTk',
+    'ktkNNNkTk',
+    'ktkNNNkqk',
+    '.kTkkkqk.',
+    '..kTqqk..',
+    '...kkk...']);
+  // 톱니(설정)
+  S.icGear = parse([
+    '...k.k...',
+    '..kgkgk..',
+    '.kgmmmgk.',
+    'kgmkkkmgk',
+    '.gmk.kmg.',
+    'kgmkkkmgk',
+    '.kgmmmgk.',
+    '..kgkgk..',
+    '...k.k...']);
+  S.icSoundOn = parse([
+    '...k.....',
+    '..kgk..g.',
+    'kkgmk.g..',
+    'kgmmk..g.',
+    'kgmmk.g..',
+    'kkgmk..g.',
+    '..kgk....',
+    '...k.....',
+    '.........']);
+  S.icSoundOff = parse([
+    '...k.....',
+    '..kgk....',
+    'kkgmk.R.R',
+    'kgmmk..R.',
+    'kgmmk.R.R',
+    'kkgmk....',
+    '..kgk....',
+    '...k.....',
+    '.........']);
+  S.icLock = parse([
+    '..kkkk...',
+    '.kgkkgk..',
+    '.kgk.kgk.',
+    'kkkkkkkk.',
+    'kHHHHbdk.',
+    'kHbkkbdk.',
+    'kHbbbbdk.',
+    'kbddddrk.',
+    '.kkkkkk..']);
+  // 반짝이는 별 3프레임 (7x7)
+  S.twinkle = [
+    parse(['.......', '.......', '...w...', '..wHw..', '...w...', '.......', '.......']),
+    parse(['.......', '...p...', '...w...', '.pwwwp.', '...w...', '...p...', '.......']),
+    parse(['...p...', '...p...', '..pwp..', 'ppwwwpp', '..pwp..', '...p...', '...p...'])
+  ];
+  // 혜성 머리 (이벤트) 9x9
+  S.comet = parse([
+    '....kkk..',
+    '...kwwpk.',
+    '..kwwwppk',
+    '..kwwppck',
+    '..kpppcck',
+    '...kccck.',
+    '....kkk..',
+    '.........',
+    '.........']);
+  // 메뉴 선택 표시: 작은 주사위 7x7
+  S.menuDie = parse([
+    '.kkkkk.',
+    'kwwwwpk',
+    'kwDwwpk',
+    'kwwDwpk',
+    'kwwwDck',
+    'kppcccK',
+    '.kkkkk.']);
+  // 레버 손잡이(굴리기) 공 10x10
+  S.knob = parse([
+    '...kkkk...',
+    '..kpwwpk..',
+    '.kowwwoBk.',
+    'kowwooosBk',
+    'koooossBBk',
+    'kossssBBBk',
+    'kssssBBBMk',
+    '.kBBBBBMk.',
+    '..kMMMMk..',
+    '...kkkk...']);
+
+  // ── 9-slice 프레임 ─────────────────────────────
+  // 놋쇠 판(두꺼운 테두리 6px). 모서리 금속 리벳은 직접 찍음.
+  function bevelFrame(size, outer, layersTL, layersBR, fill, rivets) {
+    var n = size * 2 + 4, s = G.gfx.makeSprite(n, n);
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      var lt = Math.min(x, y), rb = Math.min(n - 1 - x, n - 1 - y);
+      var c;
+      var dL = x, dT = y, dR = n - 1 - x, dB = n - 1 - y;
+      var m = Math.min(dL, dT, dR, dB);
+      if (m >= size) { c = fill; }
+      else {
+        // 왼쪽 위 vs 오른쪽 아래: 대각선에서는 왼쪽 위가 바깥쪽 절반을 가짐
+        var tl = Math.min(dL, dT), br = Math.min(dR, dB);
+        if (tl < br || (tl === br && x + y < n - 1)) c = layersTL[tl];
+        else c = layersBR[br];
+        if (m === 0) c = outer;
+      }
+      s.d[y * n + x] = c;
+    }
+    // 바깥 모서리 깎기
+    [[0, 0], [n - 1, 0], [0, n - 1], [n - 1, n - 1]].forEach(function (p) { s.d[p[1] * n + p[0]] = 255; });
+    if (rivets) {
+      var R = rivets;
+      [[2, 2], [n - 4, 2], [2, n - 4], [n - 4, n - 4]].forEach(function (p) {
+        s.d[p[1] * n + p[0]] = R[0]; s.d[p[1] * n + p[0] + 1] = R[1];
+        s.d[(p[1] + 1) * n + p[0]] = R[1]; s.d[(p[1] + 1) * n + p[0] + 1] = R[2];
+      });
+    }
+    s.cut = size + 1;
+    return s;
+  }
+  // 바깥 -> 안쪽 순서
+  S.panel = bevelFrame(5, 12, [12, 3, 2, 2, 11, 18], [12, 11, 2, 2, 2, 18], 13, [4, 3, 11]);
+  S.panelThin = bevelFrame(3, 12, [12, 3, 2, 18], [12, 11, 2, 18], 13, null);
+  S.inset = bevelFrame(2, 18, [18, 12, 21], [18, 11, 21], 21, null);
+  S.insetDark = bevelFrame(2, 13, [13, 12, 23], [13, 18, 23], 23, null);
+  S.paper = bevelFrame(2, 12, [12, 4, 4], [12, 9, 8], 4, null);
+  S.btn = bevelFrame(2, 12, [12, 3, 2], [12, 18, 11], 2, null);
+  S.btnHover = bevelFrame(2, 12, [12, 4, 3], [12, 11, 2], 3, null);
+  S.btnDown = bevelFrame(2, 12, [12, 11, 11], [12, 2, 11], 11, null);
+  S.btnOff = bevelFrame(2, 12, [12, 14, 13], [12, 21, 21], 13, null);
+  S.btnCore = bevelFrame(2, 12, [12, 8, 7], [12, 10, 5], 7, null);
+  S.btnCoreHover = bevelFrame(2, 12, [12, 4, 8], [12, 5, 8], 8, null);
+  S.btnTeal = bevelFrame(2, 12, [12, 19, 16], [12, 6, 16], 16, null);
+
+  // 9-slice 그리기 (가운데 채움 색이 13이면 가죽 결 무늬를 얹음)
+  function nine(s, x, y, w, h) {
+    var c = s.cut, n = s.w, gx = G.gfx;
+    var mid = n - 2 * c;
+    for (var j = 0; j < h; j++) {
+      var sy = j < c ? j : (j >= h - c ? n - (h - j) : c + ((j - c) % mid));
+      for (var i = 0; i < w; i++) {
+        var sx = i < c ? i : (i >= w - c ? n - (w - i) : c + ((i - c) % mid));
+        var v = s.d[sy * n + sx];
+        if (v === 13 && s === S.panel && i >= c && j >= c && i < w - c && j < h - c) {
+          var hsh = G.planets.hash(i >> 1, j, 3);
+          if (((j + (i >> 3)) % 3 === 0) && hsh > 0.82) v = 21;
+        }
+        if (v !== 255) gx.pset(x + i, y + j, v);
+      }
+    }
+  }
+
+  // 새겨진 큰 글자: 원본 글자 비트 하나를 k×k 블록으로, 블록 안에 1px 베벨을 찍는다.
+  function embossText(str, x, y, k, ramp, font, outline) {
+    font = font || 'g11b';
+    var gx = G.gfx;
+    var asc = FONTDATA[font].asc, px = x;
+    str = String(str);
+    // 1) 비트맵 합성
+    var cells = [];
+    for (var i = 0; i < str.length; i++) {
+      var g = G.font.glyph(font, str.charCodeAt(i));
+      if (!g) { px += 6 * k; continue; }
+      var top = asc - (g.h + g.yo);
+      for (var r = 0; r < g.h; r++) for (var c = 0; c < g.w; c++) if (g.bits[r * g.w + c]) cells.push([(px - x) / k + g.xo + c, top + r]);
+      px += g.dw * k;
+    }
+    var set = {};
+    cells.forEach(function (p) { set[p[0] + ',' + p[1]] = 1; });
+    function has(a, b) { return !!set[a + ',' + b]; }
+    // 2) 외곽선(1px)
+    if (outline !== undefined) {
+      cells.forEach(function (p) {
+        for (var yy = -1; yy <= k; yy++) for (var xx = -1; xx <= k; xx++) gx.pset(x + p[0] * k + xx, y + p[1] * k + yy + 1, outline);
+      });
+    }
+    // 3) 블록 베벨
+    cells.forEach(function (p) {
+      var bx = x + p[0] * k, by = y + p[1] * k;
+      var up = has(p[0], p[1] - 1), dn = has(p[0], p[1] + 1), lf = has(p[0] - 1, p[1]), rt = has(p[0] + 1, p[1]);
+      for (var yy = 0; yy < k; yy++) for (var xx = 0; xx < k; xx++) {
+        var c = ramp[1];
+        if ((yy === 0 && !up) || (xx === 0 && !lf)) c = ramp[0];
+        if ((yy === k - 1 && !dn) || (xx === k - 1 && !rt)) c = ramp[2];
+        if (yy === k - 1 && !dn && xx === 0 && !lf) c = ramp[1];
+        gx.pset(bx + xx, by + yy, c);
+      }
+    });
+    return px - x;
+  }
+  function embossMeasure(str, k, font) { return G.font.measure(str, font || 'g11b') * k; }
+
+  S.parse = parse;
+  G.spr = S;
+  G.nine = nine;
+  G.embossText = embossText;
+  G.embossMeasure = embossMeasure;
+})();
