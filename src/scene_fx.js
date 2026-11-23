@@ -110,8 +110,9 @@
       yy += wl.length * 14 + 10;
     });
     if (t > 13) {
-      var ek = G.embossMeasure(G.T('cr_game'), 3) > 200 ? 2 : 3;
-      G.embossText(G.T('cr_game'), lx, 200, ek, [4, 3, 11], 'g11b', 12);
+      var lf = G.getLang() === 'en' ? 'g11b' : 'logo';
+      var ek = G.embossMeasure(G.T('cr_game'), 3, lf) > 200 ? 2 : 3;
+      G.embossText(G.T('cr_game'), lx, 200, ek, [4, 3, 11], lf, 12);
       F.drawOutlined(G.T('end_thanks'), lx, 248, 8, 'g11', 12);
     }
     if (t > 14.5) {
@@ -124,7 +125,7 @@
     G.overlays.dim();
     var w = 340, h = 220, x = (640 - w) >> 1, y = (360 - h) >> 1;
     G.nine(G.spr.panel, x, y, w, h);
-    G.embossText(G.T('cr_game'), x + 14, y + 12, 2, [4, 3, 11], 'g11b', 12);
+    G.embossText(G.T('cr_game'), x + 14, y + 12, 2, [4, 3, 11], G.getLang() === 'en' ? 'g11b' : 'logo', 12);
     var rows = [['cr_made', 'cr_made2'], ['cr_font', 'cr_font2'], ['cr_pal', 'cr_pal2'], ['cr_sound', 'cr_sound2'], ['cr_tool', 'cr_tool2']];
     rows.forEach(function (r, i) {
       var yy = y + 52 + i * 28;
