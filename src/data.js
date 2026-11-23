@@ -37,9 +37,9 @@ G.DATA = {
   coreGain: { k: 3, div: 6e6, exp: 0.5 },
   // 중력 붕괴
   collapseTier: 10,
-  collapseHeavy: 2.6, collapseHeavyLate: 1.25,
+  collapseHeavy: 2.6, collapseHeavyLate: 1.25, collapseHeavyN: 6, // 붕괴마다 문턱 ×2.6, N번 뒤로는 ×1.25
   singMassExp: 0.7,             // 특이점 누적에 따른 질량 배율 (1+특이점)^exp             // 붕괴할 때마다 단계 문턱 배율
-  singGain: { k: 1, div: 40, exp: 0.45 },
+  singGain: { k: 1, div: 20, exp: 0.45 },
   trayCapacity: 36,
   perDieMass: 1.15,              // 주사위 하나당 질량 배율
   shapeBonus: { d4: 0.2, d8: 0.12, d12: 1.4 }, // d4 정렬 +20%/개, d8 희소도 지수 +, d12 질량 ×/개
@@ -66,7 +66,7 @@ G.UPGRADES = [
   { id: 'lens3', cat: 'lens', cost: 4e6, req: 2e6, eff: 'prod', v: 2 },
   { id: 'gear2', cat: 'gear', cost: 2.5e7, req: 1.2e7, eff: 'interval', v: 0.55 },
   { id: 'harm2', cat: 'harp', cost: 6e7, req: 3e7, eff: 'harmony', v: 0.01 },
-  { id: 'outer', cat: 'scope', cost: 1.5e8, req: 7e7, eff: 'outerLens', v: 4, pair: 'p4' },
+  { id: 'outer', cat: 'scope', cost: 1.5e8, req: 7e7, eff: 'outerLens', v: 6, pair: 'p4' },
   { id: 'inner', cat: 'lens', cost: 1.5e8, req: 7e7, eff: 'innerLens', v: 4, pair: 'p4' },
   { id: 'lens4', cat: 'lens', cost: 6e8, req: 3e8, eff: 'prod', v: 2.5 },
   { id: 'press', cat: 'weight', cost: 2e9, req: 1e9, eff: 'threshold', v: 0.4 },

@@ -150,7 +150,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * d.alignDamp * (1 + D.shapeBonus.d4 * dice.filter(function (x) { return x.shape === 'd4'; }).length));
     d.manualMult = (d.interval > 0 && d.interval < 0.5) ? 1 : D.manualMult + upSum(s, 'manual');
     // 단계
-    var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, 8)) * Math.pow(D.collapseHeavyLate, Math.max(0, s.collapses - 8));
+    var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, D.collapseHeavyN)) * Math.pow(D.collapseHeavyLate, Math.max(0, s.collapses - D.collapseHeavyN));
     d.th = [];
     for (var t = 2; t <= 10; t++) d.th.push(D.tierTable[Math.min(t, 8) - 2] * Math.pow(D.tierFactorHigh, Math.max(0, t - 8)) * thK);
     d.tierMult = D.tierMultBase + upSum(s, 'tierMult') + resV(s, 'tierMult', 'sum') + sresV(s, 'tierMult', 'sum');

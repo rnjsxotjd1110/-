@@ -2,6 +2,8 @@
 // 사용: node tools/sim.js [전략:opt|normal|random|all] [시드 수] [최대 시간(시)]
 const G = require('../src/core.js');
 const C = G.core;
+// 수치 시험: OVR='{"collapseHeavy":2.2}' 처럼 data.js 값을 덮어씀
+if (process.env.OVR) { const o = JSON.parse(process.env.OVR); for (const k in o) { if (typeof o[k] === 'object' && !Array.isArray(o[k])) Object.assign(G.DATA[k], o[k]); else G.DATA[k] = o[k]; } }
 const strat = process.argv[2] || 'all';
 const SEEDS = +(process.argv[3] || 5);
 const MAXH = +(process.argv[4] || 30);
@@ -34,7 +36,7 @@ function run(kind, seed) {
   const gapEnd = 3600 * 30;
   const dt = 0.5;
   const P = { opt: { click: 3, clickUntil: 3600, catch: 1, react: 1 }, normal: { click: 1, clickUntil: 600, catch: 0.6, react: 8 }, random: { click: 0.5, clickUntil: 120, catch: 0.3, react: 20 }, idle: { click: 1, clickUntil: 60, catch: 0, react: 30 }, noforge: { click: 1, clickUntil: 600, catch: 0.6, react: 8 } }[kind];
-  let nextAct = 0; const runs = []; const cols = []; const CH = { start: 0, quit: [], done: [] };
+  let nextAct = 0; const runs = []; const cols = []; const CH = { start: 0, quit: [], done: [] }; const FAIL = {};
   const bought = () => { if (s.t > 30) { const g = s.t - lastBuyT; if (g > maxGap && s.t < 3600 * 6) { maxGap = g; maxGapAt = s.t; if (process.env.GAPDBG) console.log('gap', Math.round(g), (s.t/3600).toFixed(2), 'runT', Math.round((s.t - s.stats.runStart)/60), 'tier', C.maxTier(s), 'dust', s.dust.toExponential(2), 'cp', C.costPower(s).toExponential(2), 'prod', C.production(s).toExponential(2), 'cores', s.cores, 'col', s.collapses, 'chal', s.chal); } } lastBuyT = s.t; };
   while (s.t < MAXH * 3600) {
     // 손 굴림
@@ -134,11 +136,12 @@ function run(kind, seed) {
         if (G.CHALLENGES.some(c => C.chalStage(s, c.id) >= 1)) mark('chal1');
         if (C.endingReady(s)) mark('chalAll');
         // 과제 시작
-        const nextC = G.CHALLENGES.filter(c => C.chalUnlocked(s, c)).sort((a, b) => C.chalStage(s, a.id) - C.chalStage(s, b.id))[0];
+        // 실패한 단계는 2시간 뒤에 다시. 4~5단계(엔딩에 필요 없음)는 엔딩 조건을 채운 뒤에만
+        const nextC = G.CHALLENGES.filter(c => C.chalUnlocked(s, c) && !(s.t - (FAIL[c.id + C.chalStage(s, c.id)] || -1e9) < 7200) && (C.chalStage(s, c.id) < G.DATA.endChalStage || C.endingReady(s))).sort((a, b) => C.chalStage(s, a.id) - C.chalStage(s, b.id))[0];
         if (nextC && s.novas >= (kind === 'opt' ? 3 : 5) && (s.novas % 2 === 0) && R() < (kind === 'random' ? 0.2 : 1)) { C.startChallenge(s, nextC.id); CH.start++; }
       }
     }
-    if (s.chal && runT > 3600 * (kind === 'opt' ? 1 : 1.5)) { CH.quit.push(s.chal + C.chalStage(s, s.chal)); C.quitChallenge(s); }
+    if (s.chal && runT > 3600 * (kind === 'opt' ? 1 : 1.5)) { CH.quit.push(s.chal + C.chalStage(s, s.chal)); FAIL[s.chal + C.chalStage(s, s.chal)] = s.t; C.quitChallenge(s); }
     if (s._chalLast !== JSON.stringify(s.chalDone)) { s._chalLast = JSON.stringify(s.chalDone); CH.done.push((s.t / 3600).toFixed(1) + 'h:' + Object.keys(s.chalDone).map(k => k + '=' + s.chalDone[k]).join(',')); }
     if (C.canCollapse(s) && (kind === 'random' ? R() < 0.1 : (C.collapseGain(s) >= Math.max(1, s.singAll * (kind === 'opt' ? 0.6 : 0.4)) || s.t - (s._lastCol || 0) > 5400))) { s._lastCol = s.t; cols.push((s.t/3600).toFixed(1)+'h+'+C.collapseGain(s)); C.collapse(s); mark('collapse1'); if (s.collapses >= 3) mark('collapse3'); }
   }

@@ -372,7 +372,7 @@
     }
     var heavy = G.DATA.collapseHeavy;
     var keepR = C.sres(s, 'q4');
-    var warn = F.wrap(G.T(keepR ? 'col_warn_keep' : 'col_warn', s.collapses >= 8 ? G.DATA.collapseHeavyLate : heavy), W0 - 4, 'g9');
+    var warn = F.wrap(G.T(keepR ? 'col_warn_keep' : 'col_warn', s.collapses >= G.DATA.collapseHeavyN ? G.DATA.collapseHeavyLate : heavy), W0 - 4, 'g9');
     warn.forEach(function (l, i) { F.draw(l, X0 + 2, y + 42 + i * 10, 8, 'g9'); });
     if (C.sres(s, 'q11')) {
       var lab = G.T('auto_col') + ' ' + (s.settings.autoCollapse ? G.T('on') : G.T('off'));

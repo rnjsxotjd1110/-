@@ -9,10 +9,10 @@
       if (s.ev.cur) C.catchEvent(s);
       var g = 0;
       while (g++ < 30) {
-        var ups = G.UPGRADES.filter(function (u) { return !s.up[u.id] && C.upgradeVisible(s, u) && s.dust >= u.cost; });
+        var ups = G.UPGRADES.filter(function (u) { return !s.up[u.id] && !C.pairBlocked(s, u) && C.upgradeVisible(s, u) && s.dust >= u.cost; });
         if (ups.length) { C.buyUpgrade(s, ups[0].id); continue; }
         if (s.dust >= C.costDie(s)) { C.buyDie(s); continue; }
-        if (s.moves >= 1 && C.forgeUnlocked(s)) { var bm = C.bestMove(s); if (bm && C.movePip(s, bm.di, bm.from, bm.to)) continue; }
+        if (s.moves >= 1 && C.forgeUnlocked(s) && t % 30 < dt) { var bm = C.bestMove(s); if (bm && C.movePip(s, bm.di, bm.from, bm.to)) continue; }
         if (s.dust >= C.costWind(s) && C.costWind(s) <= C.costPower(s) * 1.5 && (C.derive(s).interval === 0 || C.derive(s).interval > 0.06)) { C.buyWind(s); continue; }
         if (s.dust >= C.costPower(s)) { C.buyPower(s); continue; }
         break;
@@ -38,7 +38,7 @@
     }
     if (name === 'col' || name === 'end') {
       var guard = 0;
-      while (!C.canCollapse(s) && guard++ < 200) { bot(s, 300); if (C.canNova(s) && !C.canCollapse(s)) C.nova(s); }
+      while (!C.canCollapse(s) && guard++ < 200) { bot(s, 300); if (C.canNova(s) && !C.canCollapse(s) && C.novaGain(s) >= Math.max(1, s.coresLayer * 0.4)) C.nova(s); }
       if (C.canCollapse(s)) C.collapse(s);
       s.sing += 200; s.singAll += 200;
       ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'].forEach(function (id) { C.buySres(s, id); });
