@@ -20,7 +20,7 @@
     var CAP = 1e300;
     ['dust', 'dustRun', 'dustAll', 'cores', 'coresLayer', 'coresAll', 'sing', 'singAll', 't'].forEach(function (k) { s[k] = num(s[k], 0, CAP, 0); });
     ['novas', 'collapses', 'forges'].forEach(function (k) { s[k] = int(s[k], 0, 1e9, 0); });
-    s.lv = { power: int(s.lv && s.lv.power, 0, 600, 0), wind: int(s.lv && s.lv.wind, 0, 400, 0), refine: int(s.lv && s.lv.refine, 0, 500, 0), compress: int(s.lv && s.lv.compress, 0, 500, 0) };
+    s.lv = { power: int(s.lv && s.lv.power, 0, 3000, 0), wind: int(s.lv && s.lv.wind, 0, 2000, 0), refine: int(s.lv && s.lv.refine, 0, 500, 0), compress: int(s.lv && s.lv.compress, 0, 500, 0) };
     s.lastSave = num(s.lastSave, 0, 1e15, Date.now());
     s.autoT = num(s.autoT, 0, 100, 0); s.manualCd = 0;
     // 주사위
@@ -64,6 +64,8 @@
     // 설정
     var se = s.settings || {};
     s.settings = { sfx: num(se.sfx, 0, 1, 0.7), bgm: num(se.bgm, 0, 1, 0.5), muted: se.muted !== false, notation: ['ko', 'en', 'sci', 'eng'].indexOf(se.notation) >= 0 ? se.notation : 'ko', reduce: !!se.reduce, lang: se.lang === 'en' ? 'en' : 'ko', autoNova: !!se.autoNova, autoCollapse: !!se.autoCollapse };
+    s.seenTabs = (s.seenTabs && typeof s.seenTabs === 'object' && !Array.isArray(s.seenTabs)) ? s.seenTabs : { machine: 1, rec: 1, n_upg: 1, n_dice: 1, n_nova: 1, n_col: 1, n_chal: 1 };
+    s.layerStart = num(s.layerStart, 0, s.t, 0);
     s.ended = !!s.ended && !!s.sres.q12; s.endSeen = !!s.endSeen && s.ended;
     if (st.alignDice > s.dice.length) st.alignDice = 0;
     return s;

@@ -227,15 +227,18 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var sum = 0; vals.forEach(function (v) { sum += v; });
     var align = vals.length >= 2 && vals.every(function (v) { return v === vals[0]; });
     var B = s.ev.buffs;
+    var noCommon = false;
     if (!align && B.align > 0) { // 행성 정렬 이벤트: 모든 주사위에 같은 눈이 있으면 정렬로 바꿈
-      var v0 = vals[0];
-      if (d.dice.every(function (dd) { return dd.faces.indexOf(v0) >= 0; })) {
+      var common = d.dice[0].faces.filter(function (v) { return d.dice.every(function (dd) { return dd.faces.indexOf(v) >= 0; }); });
+      var v0 = common.length ? common[Math.floor(rng() * common.length)] : null;
+      noCommon = v0 === null;
+      if (v0 !== null) {
         vals = vals.map(function () { return v0; });
         idx = d.dice.map(function (dd) { return dd.faces.indexOf(v0); });
         sum = v0 * vals.length; align = true;
       }
     }
-    if (B.align > 0) B.align--;
+    if (B.align > 0 && (align || noCommon)) B.align--;
     var m = d.power * d.rarity(sum);
     if (align) m *= d.alignMult;
     if (manual) m *= d.manualMult;
@@ -294,7 +297,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (s.dust > s.stats.maxDust) s.stats.maxDust = s.dust;
     s.manualCd = Math.max(0, s.manualCd - dt);
     // 태엽 굴림
-    var rolled = [];
+    var rolled = [], B0 = s.ev.buffs;
     if (d.interval > 0) {
       s.autoT += dt * eff;
       var n = Math.floor(s.autoT / d.interval);
@@ -303,6 +306,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
         var extra = 0;
         if (d.twin > 0) { if (n <= 8) { for (var i = 0; i < n; i++) if (rng() < d.twin) extra++; } else extra = Math.round(n * Math.min(1, d.twin)); }
         var tot = n + extra;
+        while (tot > 0 && ((B0.align || 0) > 0 || (B0.moons || 0) > 0) && tot > 6) { rollOnce(s, false); tot--; }
         if (tot <= 6 && !opts.offline) { for (var j = 0; j < tot; j++) rolled.push(rollOnce(s, false)); }
         else if (tot > 0) {
           var shown = opts.offline ? 0 : 1;

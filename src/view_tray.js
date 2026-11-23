@@ -27,7 +27,7 @@
       return {
         spec: sp, face: results[i], qf: qf, sx: sx, sy: sy, tx: tx, ty: ty,
         th: dist / 12 + Math.PI * 2 * (1 + Math.floor(Math.random() * 2)), wob: (Math.random() - 0.5) * 3,
-        t: -i * 0.06 * far, dur: dur, landed: false, hops: dur > 0.5 ? 3 : 2
+        t: dur < 0.4 ? 0 : -i * 0.06 * far, dur: dur, landed: false, hops: dur > 0.5 ? 3 : 2
       };
     });
     leverT = 1;
@@ -88,7 +88,7 @@
     });
     dice.forEach(function (d, i) {
       var p = diePose(d); if (!p.vis) return;
-      var spr = G.dice3d.render(d.spec, p.q, dsz * (d.spec.shape === 'd12' ? 0.95 : 1), -1);
+      var spr = G.dice3d.render(d.spec, p.q, dsz * (d.spec.shape === 'd12' ? 0.95 : 1), d.spec.shape === 'd4' ? d.face : -1);
       d._sx = p.x; d._sy = p.y - p.hop;
       gx.blit(spr, p.x - spr.R, p.y - spr.R - p.hop + sh);
     });

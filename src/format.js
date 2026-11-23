@@ -39,6 +39,7 @@
       if (j < KO_U.length) {
         var v = n / Math.pow(10000, j);
         if (v >= 9999.5) { v /= 10000; j++; }
+        if (j >= KO_U.length) return (neg ? '-' : '') + sci(n);
         var sv = sig(v);
         out = (+sv >= 1000 ? comma(Math.round(v)) : sv) + KO_U[j];
       } else out = sci(n);

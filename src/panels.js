@@ -186,7 +186,7 @@
     var cy = y + s.dice.length * 18 + 4;
     U.groove(X0, cy, W0);
     cy += 6;
-    if (!fu) F.draw(G.T('forge_lock'), X0 + 2, cy + 4, 15, 'g11');
+    if (!fu) F.draw(C.chalRule(s, 'noForge') ? G.nm('chal', 'c1', 1) : G.T('forge_lock'), X0 + 2, cy + 4, 15, 'g11');
     else if (!A.selFace || !s.dice[A.selFace[0]]) F.draw(G.T('pick_face'), X0 + 2, cy + 4, 15, 'g11');
     else {
       var die2 = s.dice[A.selFace[0]], v2 = die2.faces[A.selFace[1]];
@@ -294,19 +294,17 @@
     var lvr = s.lv.refine || 0, cr = C.costRefine(s);
     F.draw(G.T('refine') + ' ' + G.T('lv', lvr), X0 + 2, ry2 + 1, 4, 'g11b', 12);
     F.draw(G.effText('mass', G.fmt(Math.pow(G.DATA.refine.v, lvr), true)), X0 + 2, ry2 + 15, 8, 'g9');
-    gx.blit(G.spr.icCore, X0 + 100, ry2 + 4); F.draw(G.fmt(cr), X0 + 112, ry2 + 2, s.cores >= cr ? 7 : 8, 'g11b', 12);
-    if (U.button('refine', X0 + W0 - 62, ry2, 62, 19, G.T('b_refine'), { font: 'g11b', style: 'core', enabled: s.cores >= cr, sfx: 'buy' })) C.buyRefine(s);
+    var crw = F.measure(G.fmt(cr), 'g9'); gx.blit(G.spr.icCore, X0 + W0 - 66 - crw - 12, ry2 + 15); F.drawRight(G.fmt(cr), X0 + W0 - 66, ry2 + 15, s.cores >= cr ? 7 : 9, 'g9');
+    if (U.button('refine', X0 + W0 - 62, ry2 + 4, 62, 19, G.T('b_refine'), { font: 'g11b', style: 'core', enabled: s.cores >= cr, sfx: 'buy' })) C.buyRefine(s);
   }
   function challenges(s, y) {
-    F.draw(G.T('chal_goal'), X0 + 2, y, 8, 'g9');
-    y += 11;
     G.CHALLENGES.forEach(function (c, i) {
-      var yy = y + 1 + i * 34;
+      var yy = y + 1 + i * 36;
       if (i > 0) U.groove(X0, yy - 3, W0);
       var done = !!s.chalDone[c.id], act = s.chal === c.id, unl = C.chalUnlocked(s, c);
       F.draw(G.nm('chal', c.id), X0 + 2, yy + 1, done ? 2 : 4, 'g11b', 12);
-      F.draw(G.nm('chal', c.id, 1), X0 + 2, yy + 14, 8, 'g9');
-      F.draw(G.T('chal_reward', G.effText(c.reward, c.v)), X0 + 2, yy + 23, done ? 2 : 15, 'g9');
+      F.draw(G.nm('chal', c.id, 1) + ' · ' + G.T('chal_goal_t', G.nm('tiers', C.chalGoal(c.id))), X0 + 2, yy + 13, 8, 'g9');
+      F.draw(G.T('chal_reward', G.effText(c.reward, c.v)), X0 + 2, yy + 24, done ? 2 : 15, 'g9');
       var bx = X0 + W0 - 62;
       if (done) F.drawRight(G.T('chal_done'), X0 + W0 - 4, yy + 2, 2, 'g11b');
       else if (act) { if (U.button('cq' + c.id, bx, yy + 1, 60, 18, G.T('chal_quit'), { font: 'g11b' })) { A.confirmText = G.T('chal_confirm_quit'); A.confirmYes = G.T('b_quit_chal'); A.confirmFn = function () { C.quitChallenge(s); refreshTray(); }; A.overlay = 'confirm'; } }
@@ -365,8 +363,8 @@
     var lvc = s.lv.compress || 0, cc2 = C.costCompress(s);
     F.draw(G.T('compress') + ' ' + G.T('lv', lvc), X0 + 2, cy2 + 2, 4, 'g11b', 12);
     F.draw(G.effText('mass', G.fmt(Math.pow(G.DATA.compress.v, lvc), true)), X0 + 2, cy2 + 15, 8, 'g9');
-    gx.blit(G.spr.icSing, X0 + 108, cy2 + 4); F.draw(G.fmt(cc2), X0 + 120, cy2 + 2, s.sing >= cc2 ? 19 : 8, 'g11b', 12);
-    if (U.button('compress', X0 + W0 - 62, cy2, 62, 19, G.T('b_compress'), { font: 'g11b', style: 'teal', enabled: s.sing >= cc2, sfx: 'buy' })) C.buyCompress(s);
+    var ccw = F.measure(G.fmt(cc2), 'g9'); gx.blit(G.spr.icSing, X0 + W0 - 66 - ccw - 12, cy2 + 15); F.drawRight(G.fmt(cc2), X0 + W0 - 66, cy2 + 15, s.sing >= cc2 ? 19 : 9, 'g9');
+    if (U.button('compress', X0 + W0 - 62, cy2 + 4, 62, 19, G.T('b_compress'), { font: 'g11b', style: 'teal', enabled: s.sing >= cc2, sfx: 'buy' })) C.buyCompress(s);
     G.SRESEARCH.forEach(function (r, i) {
       var a = -Math.PI / 2 + i / G.SRESEARCH.length * Math.PI * 2;
       var nx = Math.round(cx + Math.cos(a) * R), ny = Math.round(cy + Math.sin(a) * R * 0.66);

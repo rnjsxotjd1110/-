@@ -13,7 +13,8 @@
     cv.addEventListener('mousemove', function (e) { pos(e); });
     cv.addEventListener('mousedown', function (e) { pos(e); inp.down = true; inp.pressed = true; inp.any = true; cv.focus(); e.preventDefault(); if (G.audio) G.audio.unlock(); });
     window.addEventListener('mouseup', function (e) { pos(e); if (inp.down) inp.released = true; inp.down = false; });
-    cv.addEventListener('mouseleave', function () { inp.x = -1; inp.y = -1; });
+    cv.addEventListener('mouseleave', function () { if (!inp.down) { inp.x = -1; inp.y = -1; } });
+    window.addEventListener('mousemove', function (e) { if (inp.down) pos(e); });
     cv.addEventListener('wheel', function (e) { inp.wheel += Math.sign(e.deltaY); e.preventDefault(); }, { passive: false });
     cv.addEventListener('touchstart', function (e) { var t = e.changedTouches[0]; pos(t); inp.down = true; inp.pressed = true; inp.any = true; e.preventDefault(); if (G.audio) G.audio.unlock(); }, { passive: false });
     cv.addEventListener('touchmove', function (e) { var t = e.changedTouches[0]; pos(t); e.preventDefault(); }, { passive: false });

@@ -12,7 +12,7 @@
     var kx = x + 2 + fw - 3;
     var h = U.hitArea(id, x - 2, y - 2, w + 4, 17);
     gx.blit(G.spr.knob, kx - 2, y - 1);
-    if (U.isActive(id) && U.inp.down) { v = Math.max(0, Math.min(1, (U.inp.x - x - 2) / (w - 4))); }
+    if (U.isActive(id) && U.inp.down && U.inp.x >= 0) { v = Math.max(0, Math.min(1, (U.inp.x - x - 2) / (w - 4))); }
     return Math.round(v * 10) / 10;
   }
   function choice(id, x, y, items, cur) {
@@ -99,6 +99,10 @@
     if (!code) return;
     var s = G.save.fromCode(code);
     if (!s) { A.notify([G.T('import_bad')], 'info'); G.audio.play('deny'); return; }
+    if (!fromTitle && A.s) { A.confirmText = G.T('import_confirm'); A.confirmYes = G.T('b_import'); A.confirmFn = function () { applyImport(s); }; A.overlay = 'confirm'; return; }
+    applyImport(s);
+  }
+  function applyImport(s) {
     A.s = s; G.core.invalidate(); G.save.adopt(s); G.save.save(s); A.applySettings(); A.cut = null;
     A.seenTabs = s.seenTabs || { machine: 1, rec: 1, n_upg: 1, n_dice: 1, n_nova: 1, n_col: 1, n_chal: 1 };
     if (!s.settings.muted) G.audio.startBgm(s.collapses > 0 ? 1 : 0);
@@ -127,8 +131,8 @@
     G.nine(G.spr.panel, x, y, w, h);
     var lines = F.wrap(A.confirmText || '', w - 24, 'g11');
     lines.forEach(function (l, i) { F.draw(l, x + 12, y + 12 + i * 13, 4, 'g11', 12); });
-    if (U.button('cy', x + 12, y + h - 30, 120, 20, A.confirmYes || G.T('m_yes'), { font: 'g11b' })) { A.overlay = null; if (A.confirmFn) A.confirmFn(); }
-    if (U.button('cn', x + w - 112, y + h - 30, 100, 20, G.T('m_no'), { font: 'g11b' }) || U.inp.keysPressed.Escape) A.overlay = null;
+    if (U.button('cy', x + 12, y + h - 30, 120, 20, A.confirmYes || G.T('m_yes'), { font: 'g11b' })) { A.overlay = null; var f = A.confirmFn; A.confirmNo = null; A.confirmNoFn = null; if (f) f(); }
+    else if (U.button('cn', x + w - 112, y + h - 30, 100, 20, A.confirmNo || G.T('m_no'), { font: 'g11b' }) || (U.inp.keysPressed.Escape && !A.confirmNoFn)) { A.overlay = null; var nf = A.confirmNoFn; A.confirmNo = null; A.confirmNoFn = null; if (nf) nf(); }
   }
   G.overlays = { settings: settings, away: away, confirm: confirm, dim: dim };
 })();

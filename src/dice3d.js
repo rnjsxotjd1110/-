@@ -215,6 +215,7 @@
           }
         }
       } else if (!sh.pips && facing > 0.5) {
+        if (sh.readDown && highlightFace >= 0) val = die.faces[highlightFace];
         var str = String(val), tw = str.length * 4 - 1;
         var Pc = [pl.n[0] * pl.d, pl.n[1] * pl.d, pl.n[2] * pl.d];
         var Wc = qrot(q, Pc);

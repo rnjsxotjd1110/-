@@ -95,6 +95,7 @@
   // ── 알림 (한 번에 하나, R-065) ───────────────────
   A.notify = function (lines, kind) { A.toasts.push({ lines: lines, kind: kind || 'info', t: 0 }); if (A.toasts.length > 6) A.toasts.splice(0, A.toasts.length - 6); };
   function updToasts(dt) {
+    while (A.toasts.length && A.toasts[0].kind === 'evq' && !(A.s && A.s.ev.cur)) A.toasts.shift();
     if (!A.toast && A.toasts.length) { A.toast = A.toasts.shift(); A.toast.t = 0; if (A.toast.kind === 'ach' && G.audio) G.audio.play('ach'); if (A.toast.kind === 'unlock' && G.audio) G.audio.play('unlock'); }
     if (A.toast) { A.toast.t += dt; if (A.toast.t > 2.8) A.toast = null; }
   }
@@ -169,7 +170,7 @@
     var dt = Math.min(0.1, raw); last = now;
     if (raw > 2 && A.s && (A.scene === 'play' || A.scene === 'ending') && !window.__timeScale) {
       if (raw < 60) { for (var ct = 0; ct < raw; ct += 0.5) C.tick(A.s, Math.min(0.5, raw - ct), {}); }
-      else { var rep = C.offline(A.s, raw); if (rep && raw >= 60 && A.scene === 'play') { A.away = rep; A.overlay = 'away'; } }
+      else { var rep = C.offline(A.s, raw); if (rep && raw >= 60 && A.scene === 'play' && A.overlay !== 'confirm') { A.away = rep; A.overlay = 'away'; } }
     }
     if (window.__freeze) return;
     if (window.__timeScale) dt *= window.__timeScale;
@@ -196,12 +197,15 @@
         while (C.achQueue.length) { var id = C.achQueue.shift(); A.notify([G.T('ach_get'), G.nm('ach', id)], 'ach'); }
         if (A.s.ended && !A.s.endSeen && A.scene !== 'ending') { A.scene = 'ending'; A.endT = 0; if (G.audio) G.audio.play('ending'); }
         checkUnlocks();
+        if (A.lastNovas !== undefined && (A.s.novas !== A.lastNovas || A.s.collapses !== A.lastCols) && !A.cut) { var dd = C.derive(A.s); G.tray.place(dd.dice.map(spec), dd.dice.map(function () { return 0; })); G.orrery.clearFx(); A.shownSum = undefined; if (A.s.collapses !== A.lastCols) G.audio.startBgm(1); }
+        if (A.lastDiceN !== undefined && A.s.dice.length !== A.lastDiceN && !G.tray.rolling()) { var d2 = C.derive(A.s); G.tray.place(d2.dice.map(spec), d2.dice.map(function () { return 0; })); }
+        A.lastNovas = A.s.novas; A.lastCols = A.s.collapses; A.lastDiceN = A.s.dice.length;
         // 이벤트 등장 소리
-        if (A.s.ev.cur && !A.s.ev.cur._snd) { A.s.ev.cur._snd = 1; if (G.audio) G.audio.play('evspawn'); if (!C.res(A.s, 's2')) A.notify([G.T('ev_appear', G.T('ev_' + A.s.ev.cur.type)), G.T('ev_hint')], 'ev'); }
+        if (A.s.ev.cur && !A.s.ev.cur._snd) { A.s.ev.cur._snd = 1; if (G.audio) G.audio.play('evspawn'); if (!C.res(A.s, 's2')) A.notify([G.T('ev_appear', G.T('ev_' + A.s.ev.cur.type)), G.T('ev_hint')], 'evq'); }
       }
       updCut(dt);
       saveT += dt;
-      if (saveT > 15) { saveT = 0; A.s.seenTabs = A.seenTabs; var sr = G.save.save(A.s); if (sr === 'locked' && !A.lockWarned) { A.lockWarned = 1; A.notify([G.T('save_locked'), G.T('save_locked2')], 'info'); } else if (sr === false && !A.failWarned) { A.failWarned = 1; A.notify([G.T('save_fail')], 'info'); } }
+      if (saveT > 15) { saveT = 0; A.s.seenTabs = A.seenTabs; var sr = G.save.save(A.s); if (sr === 'locked' && !A.overlay) { A.confirmText = G.T('save_locked_q'); A.confirmYes = G.T('b_take_over'); A.confirmFn = function () { G.save.adopt(A.s); G.save.save(A.s); }; A.confirmNo = G.T('b_reload'); A.confirmNoFn = function () { A.loadGame(); }; A.overlay = 'confirm'; } else if (sr === false && !A.failWarned) { A.failWarned = 1; A.notify([G.T('save_fail')], 'info'); } }
     }
     G.orrery.update(dt, A.view); G.tray.update(dt);
     updToasts(dt);

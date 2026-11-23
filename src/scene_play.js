@@ -27,7 +27,7 @@
     v.orbits = d.orbits; v.bodies = s.bodies; v.stage = stageOf(s); v.sunForm = sunOf(s);
     var mt = C.maxTier(s), gt = mt < 8 ? 8 : (mt < 10 ? 10 : 0);
     var best = 0; Object.keys(s.bodies).forEach(function (k) { best = Math.max(best, s.bodies[k].m); });
-    var nxt = mt >= 1 && mt < 10 ? d.th[mt - 1] : 0;
+    var nxt = gt ? d.th[gt - 2] : 0;
     v.goal = gt ? [G.T('goal_next', G.nm('tiers', gt)), nxt ? G.fmt(best) + ' / ' + G.fmt(nxt) : ''] : null;
     v.goalTip = gt ? [G.T('goal_now', G.nm('tiers', Math.max(1, mt))), nxt ? G.T('goal_mass', G.fmt(best), G.fmt(nxt)) + ' → ' + G.nm('tiers', mt + 1) : ''] : null;
     A.view = v;
@@ -114,6 +114,9 @@
     if (hit.clicked || (hit.over && U.inp.pressed)) catchEv(s, p);
   }
   function evText(type, s, info) {
+    var k = C.derive(s).eventMult;
+    var nums = { shower: 20 * k, flare: 20 * k, rogue: 30 * k, align: Math.round(3 * k), pulsar: 20 * k, moons: 10 * k };
+    if (nums[type] !== undefined) return G.T('evr_' + type, G.fmt(nums[type]));
     if (type === 'comet') return G.T('evr_comet', G.fmt(info ? info.dust : C.production(s) * 60 * C.derive(s).eventMult + 25));
     if (type === 'meteor') return info ? G.T('evr_meteor', info.sum, G.fmt(info.mass)) : G.T('ev_meteor');
     return G.T('evr_' + type);
