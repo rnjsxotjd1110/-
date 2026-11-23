@@ -57,7 +57,7 @@
     var cw = Math.max(3, Math.floor(w / n)), tw = cw * n, bx = x + Math.floor((w - tw) / 2);
     var by = y + 12 + h;
     var pm = 0; orb.forEach(function (o) { pm = Math.max(pm, d.dist[o] || 0, withStd ? (d.std[o] || 0) : 0); });
-    var hov = A.view && A.view.hoverOrbit, lastS = s.last[0];
+    var hov = A.view && A.view.hoverOrbit, lastS = A.shownSum !== undefined ? A.shownSum : s.last[0], lastLX = -99;
     orb.forEach(function (o, i) {
       var p = d.dist[o] || 0;
       var hgt = Math.max(p > 0 ? 1 : 0, Math.round(p / pm * h));
@@ -73,7 +73,8 @@
       // 아래 숫자
       var stepL = Math.max(1, Math.ceil((orb[n - 1] >= 10 ? 11 : 6) / cw));
       var showLbl = (o % stepL) === 0;
-      if (showLbl) F.drawCenter(String(o), xx + (body >> 1), by + 3, hot ? 4 : (s.bodies[o] ? 8 : 14), 'g7');
+      var lwid = F.measure(String(o), 'g7');
+      if (showLbl && xx + (body >> 1) - (lwid >> 1) > lastLX + 2) { F.drawCenter(String(o), xx + (body >> 1), by + 3, hot ? 4 : (s.bodies[o] ? 8 : 14), 'g7'); lastLX = xx + (body >> 1) + (lwid >> 1); }
       // 막대 위에 마우스
       var ha = U.hitArea('hb' + o, xx, by - h, cw, h + 10);
       if (ha.over) { A.view.hoverOrbitPanel = o; U.tip([{ t: G.T('orb', o), f: 'g11b', c: 12 }, { t: G.T('chance') + ' ' + (p * 100).toFixed(p < 0.01 ? 2 : 1) + '% · ' + G.T('rarity') + ' ×' + G.fmt(d.rarity(o), true), c: 13 }], U.inp.x, U.inp.y); }
@@ -130,7 +131,7 @@
     U.groove(X0, sy2 - 4, W0);
     var rows = [[G.T('prod'), '×' + G.fmt(d.globalMult, true)], [G.T('mass'), '×' + G.fmt(d.power, true)], [G.T('align_pop').replace('!', ''), '×' + G.fmt(d.alignMult, true)],
       [G.T('rarity'), '^' + (G.DATA.rarityExp + G.UPGRADES.filter(function (u) { return s.up[u.id] && u.eff === 'rarity'; }).reduce(function (a, u) { return a + u.v; }, 0)).toFixed(2)],
-      [G.T('harmony', '').replace('×', '').trim(), '+' + (d.harmonyPer * 100).toFixed(1) + '%'], [G.T('wind'), d.interval ? d.interval.toFixed(2) + 's' : '-']];
+      [G.T('harmony', '').replace('×', '').trim(), '+' + (d.harmonyPer * 100).toFixed(1) + '%'], [G.T('roller_s'), d.interval ? d.interval.toFixed(2) + 's' : '-']];
     rows.forEach(function (r, i) {
       var cx2 = X0 + (i % 2) * 106, cy2 = sy2 + 4 + Math.floor(i / 2) * 15;
       F.draw(r[0], cx2 + 2, cy2, 15, 'g9');
@@ -185,14 +186,14 @@
       if (btn('fminus', X0 + W0 - bw, cy, bw, 19, G.T('forge_minus'), ok && v2 > 1)) { if (C.forge(s, A.selFace[0], A.selFace[1], -1)) { G.audio.play('forge'); } }
     }
     cy += 26;
-    histogram(s, d, X0, cy, W0, Math.max(30, Y0 + 250 - cy - 20), true);
-    var ly = Y0 + 282;
+    var shapes = Object.keys(s.shapes).filter(function (k) { return s.shapes[k]; });
+    var ly = shapes.length > 1 ? Y0 + 250 : Y0 + 284;
+    histogram(s, d, X0, cy, W0, Math.max(20, ly - cy - 28), true);
     gx.hline(X0 + 2, ly + 4, 6, 2); F.draw(G.T('dist'), X0 + 11, ly, 15, 'g9');
     gx.hline(X0 + 92, ly + 4, 6, 15); F.draw(G.T('std_dist'), X0 + 101, ly, 15, 'g9');
     // 모양 바꾸기
-    var shapes = Object.keys(s.shapes).filter(function (k) { return s.shapes[k]; });
     if (shapes.length > 1) {
-      var sy = Y0 + 296;
+      var sy = Y0 + 266;
       U.groove(X0, sy - 3, W0);
       var di2 = A.selFace ? A.selFace[0] : 0;
       F.draw(G.T('shape_title') + ' · ' + G.T('tray_cap', C.trayUsed(s.dice), G.DATA.trayCapacity), X0 + 2, sy + 2, 15, 'g9');
@@ -201,7 +202,7 @@
         var cur = s.dice[di2] && s.dice[di2].shape === sh;
         var nd = s.dice.slice(); nd[di2] = { faces: new Array(C.SHAPE_FACES[sh]) };
         var fits = C.trayUsed(nd) <= G.DATA.trayCapacity;
-        if (U.button('sh' + sh, X0 + 2 + k * 52, sy + 15, 48, 18, sh, { enabled: !cur && fits, font: 'g11b' })) { C.setShape(s, di2, sh); A.selFace = null; G.audio.play('forge'); }
+        if (U.button('sh' + sh, X0 + 2 + k * 52, sy + 14, 48, 18, sh, { enabled: !cur && fits, font: 'g11b' })) { C.setShape(s, di2, sh); A.selFace = null; G.audio.play('forge'); }
       });
     }
   }
@@ -219,7 +220,7 @@
       var g = C.novaGain(s);
       if (U.button('novabtn', X0, y, W0, 22, G.T('nova_btn'), { style: 'core', font: 'g11b', sfx: 'tap' })) A.startNova();
       F.draw(G.T('nova_gain', G.fmt(g)), X0 + 2, y + 27, 7, 'g11b', 12);
-      F.drawRight(G.T('nova_next', G.fmt(C.novaNext(s))), X0 + W0 - 2, y + 28, 15, 'g9');
+      F.draw(G.T('nova_next', G.fmt(C.novaNext(s))), X0 + 2, y + 41, 15, 'g9');
     } else {
       F.draw(G.T('nova_need'), X0 + 2, y + 2, 8, F.measure(G.T('nova_need'), 'g11') > W0 - 4 ? 'g9' : 'g11');
       var mt = C.maxTier(s), best = 0;
@@ -231,8 +232,8 @@
     }
     if (C.res(s, 's6')) {
       var lab = G.T('auto_nova') + ' ' + (s.settings.autoNova ? G.T('on') : G.T('off'));
-      var h = U.hitArea('autonova', X0 + W0 - F.measure(lab, 'g9') - 4, y + 40, F.measure(lab, 'g9') + 4, 11);
-      F.drawRight(lab, X0 + W0 - 2, y + 40, s.settings.autoNova ? 3 : 15, 'g9');
+      var h = U.hitArea('autonova', X0 + W0 - F.measure(lab, 'g9') - 4, y + 27, F.measure(lab, 'g9') + 4, 11);
+      F.drawRight(lab, X0 + W0 - 2, y + 28, s.settings.autoNova ? 3 : 15, 'g9');
       if (h.clicked) { s.settings.autoNova = !s.settings.autoNova; G.audio.play('tab'); }
     }
   }
@@ -279,9 +280,9 @@
       F.draw(G.T('chal_reward', G.effText(c.reward, c.v)), X0 + 2, yy + 24, done ? 2 : 15, 'g9');
       var bx = X0 + W0 - 62;
       if (done) F.drawRight(G.T('chal_done'), X0 + W0 - 4, yy + 2, 2, 'g11b');
-      else if (act) { if (U.button('cq' + c.id, bx, yy + 1, 60, 18, G.T('chal_quit'), { font: 'g11b' })) { C.quitChallenge(s); refreshTray(); } }
-      else if (!unl) F.drawRight(G.T('chal_lock', c.req, s.novas), X0 + W0 - 2, yy + 2, 14, 'g9');
-      else if (U.button('cs' + c.id, bx, yy + 1, 60, 18, G.T('chal_start'), { font: 'g11b', enabled: !s.chal })) { C.startChallenge(s, c.id); refreshTray(); G.audio.play('unlock'); }
+      else if (act) { if (U.button('cq' + c.id, bx, yy + 1, 60, 18, G.T('chal_quit'), { font: 'g11b' })) { A.confirmText = G.T('chal_confirm_quit'); A.confirmYes = G.T('b_quit_chal'); A.confirmFn = function () { C.quitChallenge(s); refreshTray(); }; A.overlay = 'confirm'; } }
+      else if (!unl) F.drawRight(G.T('chal_lock', c.req, s.novas), X0 + W0 - 2, yy + 3, 15, 'g9');
+      else if (U.button('cs' + c.id, bx, yy + 1, 60, 18, G.T('chal_start'), { font: 'g11b', enabled: !s.chal })) { A.confirmText = G.nm('chal', c.id) + ' · ' + G.T('chal_confirm_start'); A.confirmYes = G.T('b_start_chal'); A.confirmFn = function () { C.startChallenge(s, c.id); refreshTray(); G.audio.play('unlock'); }; A.overlay = 'confirm'; }
     });
   }
   function refreshTray() { var d = C.derive(A.s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; })); G.orrery.clearFx(); }
@@ -393,7 +394,9 @@
     if (!A.tabOpen(A.tab)) A.tab = 'machine';
     var tw = 0, nv = 0; items.forEach(function (it) { if (!it.hidden) { tw += F.measure(it.label, 'g11'); nv++; } });
     var gap = Math.max(5, Math.min(10, Math.floor((PW - 20 - tw) / Math.max(1, nv - 1))));
-    var nt = U.tabs('tab', PX + 10, PY + 9, items, A.tab, { gap: gap });
+    var tfont = 'g11';
+    if (tw + 5 * (nv - 1) > PW - 20) { tfont = 'g9'; tw = 0; items.forEach(function (it) { if (!it.hidden) tw += F.measure(it.label, 'g9'); }); gap = Math.max(4, Math.floor((PW - 20 - tw) / Math.max(1, nv - 1))); }
+    var nt = U.tabs('tab', PX + 10, PY + 9, items, A.tab, { gap: gap, font: tfont });
     if (nt !== A.tab) { A.tab = nt; A.seenTabs[nt] = 1; }
     U.groove(PX + 8, PY + 26, PW - 16);
     if (A.tab === 'machine') machine(s);

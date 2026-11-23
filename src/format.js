@@ -7,7 +7,8 @@
   function sig(x, d) { // 유효숫자 3자리
     var s = x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2);
     if (d === 0) s = x.toFixed(0);
-    return s.replace(/\.?0+$/, '') || '0';
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s || '0';
   }
   function sci(n) {
     var e = Math.floor(Math.log10(n)); var m = n / Math.pow(10, e);
@@ -21,17 +22,18 @@
   }
   function fmt(n, small) {
     if (n === undefined || n === null || isNaN(n)) return '0';
-    if (!isFinite(n)) return '∞';
+    if (!isFinite(n)) return 'MAX';
     var neg = n < 0; n = Math.abs(n);
     var out;
     if (n < 10000) {
-      if (small && n < 10 && n % 1) out = n.toFixed(n < 1 ? 2 : 1).replace(/\.?0+$/, '');
+      if (small && n < 10 && n % 1) { out = n.toFixed(n < 1 ? 2 : 1); if (out.indexOf('.') >= 0) out = out.replace(/0+$/, '').replace(/\.$/, ''); }
       else out = comma(n);
     } else if (mode === 'sci') out = sci(n);
     else if (mode === 'eng') out = eng(n);
     else if (mode === 'en') {
       var i = Math.floor(Math.log10(n) / 3);
-      if (i < EN_U.length) out = sig(n / Math.pow(1000, i)) + EN_U[i]; else out = sci(n);
+      var ve = n / Math.pow(1000, i); if (ve >= 999.5) { ve /= 1000; i++; }
+      if (i < EN_U.length) out = sig(ve) + EN_U[i]; else out = sci(n);
     } else {
       var j = Math.floor(Math.log10(n) / 4);
       if (j < KO_U.length) {
@@ -43,7 +45,7 @@
     return (neg ? '-' : '') + out;
   }
   function time(sec) {
-    sec = Math.floor(sec);
+    sec = Math.max(0, Math.floor(+sec || 0));
     var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
     var ko = G.getLang && G.getLang() !== 'en';
     if (h > 0) return ko ? h + '시간 ' + m + '분' : h + 'h ' + m + 'm';

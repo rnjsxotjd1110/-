@@ -18,14 +18,15 @@
     A.s = C.newState();
     A.s.settings.sfx = 0.7; A.s.settings.bgm = 0.5;
     if (A.prevSettings) { var keep = A.prevSettings; for (var k in keep) A.s.settings[k] = keep[k]; }
-    C.invalidate(); G.orrery.clearFx();
+    C.invalidate(); G.orrery.clearFx(); A.cut = null; A.pendingRoll = null;
     A.seenTabs = { machine: 1, rec: 1 }; A.tab = 'machine';
     G.tray.place(C.derive(A.s).dice.map(spec), [2, 2]);
     applySettings(); G.save.save(A.s);
   }
   function loadGame() {
     var s = G.save.load(); if (!s) return false;
-    A.s = s; C.invalidate(); G.orrery.clearFx();
+    if (s === 'broken') return 'broken';
+    A.s = s; C.invalidate(); G.orrery.clearFx(); A.cut = null; A.pendingRoll = null; A.toasts.length = 0; A.toast = null;
     applySettings();
     var secs = (Date.now() - (s.lastSave || Date.now())) / 1000;
     var rep = C.offline(s, secs);
@@ -56,6 +57,7 @@
     G.tray.roll(specs, r.idx, dur, function () { landed(r); });
   }
   function landed(r) {
+    A.shownSum = r.sum;
     var sp = G.tray.sumPos();
     var big = r.align || r.rarity >= 8;
     var reduce = A.s.settings.reduce;
@@ -86,8 +88,8 @@
     var r = C.manualRoll(A.s);
     if (!r) return;
     if (G.audio) G.audio.play('lever');
+    if (r.twin) { r.batchTierUps = (r.twin.tierUps || []); r.batch = 2; }
     showRoll(r);
-    if (r.twin) setTimeout(function () { }, 0);
   };
 
   // ── 알림 (한 번에 하나, R-065) ───────────────────
@@ -158,11 +160,16 @@
   // ── 메인 루프 ───────────────────────────────────
   var last = 0, saveT = 0;
   function frame(now) {
-    try { frameInner(now); } catch (e) { console.error(e && e.stack || e); if (!window.__errShown) { window.__errShown = 1; } }
+    try { frameInner(now); } catch (e) { console.error(e && e.stack || e); try { G.gfx.resetClip(); G.gfx.setOffset(0, 0); G.ui.block(false); G.ui.endFrame(); } catch (e2) { } }
     requestAnimationFrame(frame);
   }
   function frameInner(now) {
-    var dt = Math.min(0.1, (now - last) / 1000 || 0); last = now;
+    var raw = (now - last) / 1000 || 0;
+    var dt = Math.min(0.1, raw); last = now;
+    if (raw > 2 && A.scene === 'play' && A.s && !A.cut && !window.__timeScale) {
+      var rep = C.offline(A.s, raw);
+      if (rep && raw >= 60) { A.away = rep; A.overlay = 'away'; }
+    }
     if (window.__freeze) return;
     if (window.__timeScale) dt *= window.__timeScale;
     A.t += dt;
@@ -178,7 +185,8 @@
           if (rolled.length) {
             var r = rolled[rolled.length - 1];
             if (rolled.length > 1) r.batch = (r.batch || 1) + rolled.length - 1;
-            if (!G.tray.rolling() || r.batch) showRoll(r);
+            if (A.pendingRoll) { r.batchTierUps = (r.batchTierUps || []).concat(A.pendingRoll.tierUps || [], A.pendingRoll.batchTierUps || []); }
+            if (!G.tray.rolling() || r.batch) { showRoll(r); A.pendingRoll = null; }
             else A.pendingRoll = r;
           }
         }
@@ -216,9 +224,10 @@
     G.gfx.init(cv); G.ui.bind(cv);
     window.addEventListener('beforeunload', function () { if (A.s && A.scene !== 'title') { A.s.seenTabs = A.seenTabs; G.save.save(A.s); } });
     document.addEventListener('visibilitychange', function () { if (document.hidden && A.s && A.scene !== 'title') { A.s.seenTabs = A.seenTabs; G.save.save(A.s); } });
+    window.addEventListener('blur', function () { G.ui.inp.keys = {}; G.ui.inp.down = false; });
     var q = location.search;
     // 개발·검수용 진입점
-    if (q.indexOf('demo=') >= 0) { G.devDemo(q); } else { var sp = /speed=(\d+)/.exec(q); if (sp) window.__timeScale = +sp[1]; }
+    if (q.indexOf('demo=') >= 0) { G.save.disable(); G.devDemo(q); } else { var sp = /speed=(\d+)/.exec(q); if (sp) window.__timeScale = +sp[1]; }
     requestAnimationFrame(function (t) { last = t; frame(t); });
     setTimeout(function () { window.__ready = true; }, 80);
   }

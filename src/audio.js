@@ -75,6 +75,7 @@
     if (!ctx || !bgmOn) return;
     var tr = TRACKS[bgmTrack];
     var spb = 60 / tr.bpm / 2;
+    if (settings.muted || settings.bgm <= 0) { nextT = ctx.currentTime + 0.2; return; }
     while (nextT < ctx.currentTime + 0.4) {
       var bar = Math.floor(step / 8) % tr.chords.length, ch = tr.chords[bar];
       if (step % 8 === 0) ch.forEach(function (n) { tone(NOTE(n), nextT, spb * 8, 0.03, 'sine', bgmG, null, 0.6); });

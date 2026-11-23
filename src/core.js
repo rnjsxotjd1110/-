@@ -3,6 +3,7 @@ var G = (typeof G !== 'undefined') ? G : {};
 if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = require('./data.js'); }
 (function () {
   var D = G.DATA;
+  var CAP = 1e300;
   var SHAPE_FACES = { d4: 4, d6: 6, d8: 8, d12: 12 };
   var D6_ORDER = [2, 5, 1, 6, 3, 4]; // dice3d d6 면 순서의 기본 눈
   function baseFaces(shape) {
@@ -197,7 +198,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       b = s.bodies[sum] = { m: 0, t: 0, seed: (sum * 7919 + s.novas * 31 + s.collapses * 131) % 997, a0: rng() * Math.PI * 2 };
       if (out) out.born = sum;
     }
-    b.m += m;
+    b.m = Math.min(CAP, b.m + m);
     var nt = tierOf(b.m, d.th);
     if (nt > b.t) {
       var old = b.t;
@@ -224,13 +225,13 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var sum = 0; vals.forEach(function (v) { sum += v; });
     var align = vals.length >= 2 && vals.every(function (v) { return v === vals[0]; });
     var B = s.ev.buffs;
-    if (!align && B.align > 0) { // 행성 정렬 이벤트: 정렬로 바꿈
+    if (!align && B.align > 0) { // 행성 정렬 이벤트: 모든 주사위에 같은 눈이 있으면 정렬로 바꿈
       var v0 = vals[0];
-      vals = vals.map(function () { return v0; });
-      idx = d.dice.map(function (dd) { var j = dd.faces.indexOf(v0); return j < 0 ? 0 : j; });
-      sum = v0 * vals.length; align = true;
-      // 모든 주사위에 그 눈이 있어야 정렬 가능
-      if (!d.dice.every(function (dd) { return dd.faces.indexOf(v0) >= 0; })) { align = false; sum = 0; vals.forEach(function (v) { sum += v; }); }
+      if (d.dice.every(function (dd) { return dd.faces.indexOf(v0) >= 0; })) {
+        vals = vals.map(function () { return v0; });
+        idx = d.dice.map(function (dd) { return dd.faces.indexOf(v0); });
+        sum = v0 * vals.length; align = true;
+      }
     }
     if (B.align > 0) B.align--;
     var m = d.power * d.rarity(sum);
@@ -287,6 +288,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var eff = opts.offline ? offlineEff(s) : 1;
     var g = rate * dt * eff;
     s.dust += g; s.dustRun += g; s.dustAll += g;
+    capAll(s);
     if (s.dust > s.stats.maxDust) s.stats.maxDust = s.dust;
     s.manualCd = Math.max(0, s.manualCd - dt);
     // 태엽 굴림
@@ -326,6 +328,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (sres(s, 'q11') && s.settings.autoCollapse && canCollapse(s)) collapse(s);
     checkAch(s);
     return rolled;
+  }
+  function capAll(s) {
+    ['dust', 'dustRun', 'dustAll', 'cores', 'coresLayer', 'coresAll', 'sing', 'singAll'].forEach(function (k) { if (!(s[k] < CAP)) s[k] = isNaN(s[k]) ? 0 : CAP; });
+    for (var k2 in s.bodies) { var b = s.bodies[k2]; if (!(b.m < CAP)) b.m = isNaN(b.m) ? 1 : CAP; }
   }
   function offlineEff(s) { return res(s, 's3') ? 1 : D.offlineEff; }
 
@@ -439,7 +445,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (!r || !researchAvail(s, r) || s.cores < r.cost) return false;
     s.cores -= r.cost; s.research[id] = 1; invalidate();
     if (r.eff === 'startWind' && s.lv.wind < r.v) s.lv.wind = r.v;
-    if (r.eff === 'startDice') while (s.dice.length < r.v) s.dice.push(newDie());
+    if (r.eff === 'startDice' && !chalRule(s, 'twoDice')) while (s.dice.length < r.v) s.dice.push(newDie());
     return true;
   }
   function sresAvail(s, r) {
@@ -535,7 +541,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (!canCollapse(s)) return null;
     var g = Math.max(1, collapseGain(s));
     s.sing += g; s.singAll += g; s.collapses++;
-    var keep = sres(s, 'q1');
+    var keep = sresV(s, 'keepResearch', 'sum') > 0;
     s.cores = 0; s.coresLayer = 0;
     if (!keep) s.research = {};
     else { s.cores = 0; }
@@ -546,14 +552,15 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
 
   // ── 오프라인 ────────────────────────────────────
   function offline(s, secs) {
-    var cap = (sres(s, 'q7') ? 72 : D.offlineCapH) * 3600;
-    secs = Math.max(0, Math.min(secs, cap));
+    var capH = sres(s, 'q7') ? 72 : D.offlineCapH, cap = capH * 3600;
+    var capped = secs > cap;
+    secs = Math.max(0, Math.min(+secs || 0, cap));
     if (secs < 30) return null;
     var d0 = s.dustAll, r0 = s.stats.rolls, tu0 = s.stats.tierUps, ev0 = s.stats.events;
     var steps = Math.min(600, Math.max(20, Math.floor(secs / 30)));
     var dt = secs / steps;
     for (var i = 0; i < steps; i++) tick(s, dt, { offline: true });
-    return { secs: secs, dust: s.dustAll - d0, rolls: s.stats.rolls - r0, tierUps: s.stats.tierUps - tu0, events: s.stats.events - ev0, eff: offlineEff(s) };
+    return { secs: secs, dust: s.dustAll - d0, rolls: s.stats.rolls - r0, tierUps: s.stats.tierUps - tu0, events: s.stats.events - ev0, eff: offlineEff(s), capped: capped, capH: capH };
   }
 
   // ── 업적 ────────────────────────────────────────
@@ -618,7 +625,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     chalUnlocked: chalUnlocked, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, collapseGain: collapseGain, collapse: collapse,
     spawnEvent: spawnEvent, catchEvent: catchEvent, offline: offline, checkAch: checkAch,
-    achQueue: achQueue, setRng: setRng, newDie: newDie, SHAPE_FACES: SHAPE_FACES, res: res, sres: sres
+    achQueue: achQueue, setRng: setRng, capAll: capAll, newDie: newDie, SHAPE_FACES: SHAPE_FACES, res: res, sres: sres
   };
 })();
 if (typeof module !== 'undefined') module.exports = G;

@@ -19,7 +19,7 @@
     // 초신성
     nova_btn: '초신성 일으키기', nova_need: '적색 왜성이 태어나면 열려요', nova_gain: '별핵 +{0}', nova_next: '다음 별핵까지 질량 {0}',
     research: '연구', challenges: '관측 과제', br0: '성장', br1: '굴림', br2: '하늘',
-    chal_start: '시작하기', chal_quit: '포기하기', chal_goal: '목표: 적색 왜성', chal_done: '완료', chal_reward: '보상: {0}', chal_active: '진행 중', chal_lock: '초신성 {0}번 하면 열려요 ({1}/{0})',
+    chal_start: '시작하기', chal_quit: '포기하기', chal_goal: '목표: 적색 왜성', chal_done: '완료', chal_reward: '보상: {0}', chal_active: '진행 중', chal_lock: '초신성 {1}/{0}',
     auto_nova: '자동 초신성', on: '켜짐', off: '꺼짐',
     // 붕괴
     col_btn: '중력 붕괴시키기', col_need: '중성자별이 태어나면 열려요', col_gain: '특이점 +{0}', col_warn: '별핵과 연구가 사라지고 우주가 {0}배 무거워져요',
@@ -49,17 +49,17 @@
     end1: '모든 궤도가 한 줄로 섰어요.', end2: '주사위는 더 구르지 않아요.', end3: '천구가 완성됐어요.', end_thanks: '플레이해 주셔서 고마워요.', b_continue: '계속하기',
     // 크레딧
     credits: '크레딧', cr_game: '주사위 성계', cr_made: '기획·그림·소리·코드', cr_made2: '1인 개발 (Claude와 함께)', cr_font: '글꼴', cr_font2: '갈무리 (Galmuri) · 이민서 · SIL OFL 1.1', cr_pal: '팔레트', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: '소리', cr_sound2: '코드로 합성', cr_tool: '도구', cr_tool2: 'HTML5 Canvas · Web Audio',
-    sound_on: '소리 켜짐', sound_off: '소리 꺼짐',
+    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
     h_orbit_rule: '합 = 궤도'
   };
   var EN = {
     title_sub: 'DICE ORRERY',
     m_continue: 'Continue', m_new: 'New game', m_settings: 'Settings', m_credits: 'Credits', m_confirmNew: 'Start over? Your current save will be erased.', m_yes: 'Erase and start', m_no: 'Back',
-    tab_machine: 'Machine', tab_upg: 'Parts', tab_dice: 'Dice', tab_nova: 'Nova', tab_col: 'Collapse', tab_rec: 'Records',
+    tab_machine: 'Rig', tab_upg: 'Parts', tab_dice: 'Dice', tab_nova: 'Nova', tab_col: 'Void', tab_rec: 'Log',
     roll: 'Roll', per_sec: '/s',
-    power: 'Roll force', wind: 'Wind-up roller', dice: 'Dice', forge: 'Carve pips',
+    power: 'Force', wind: 'Roller', dice: 'Dice', forge: 'Carve pips',
     b_power: 'Upgrade', b_wind: 'Wind', b_dice: 'Add', b_forge: 'Carve', b_buy: 'Buy', b_research: 'Research',
-    power_eff: 'Mass per roll ×{0}', wind_none: 'Rolls by hand only', wind_eff: 'Rolls every {0}s', wind_max: 'Top speed',
+    power_eff: 'Mass ×{0}', wind_none: 'Rolls by hand only', wind_eff: 'Rolls every {0}s', wind_max: 'Top speed',
     dice_eff: 'Orbits {0}-{1}', dice_max: 'Tray is full', forge_eff: 'One face +1 or −1', forge_lock: 'Opens at 3 dice',
     lv: 'Lv {0}', n_dice: '{0}', n_forge: '{0} cuts',
     dist: 'Sum odds', recent: 'Recent', rarity: 'Rarity',
@@ -69,7 +69,7 @@
     std_dist: 'Uncarved odds',
     nova_btn: 'Go supernova', nova_need: 'Needs a red dwarf', nova_gain: 'Cores +{0}', nova_next: 'Next core at mass {0}',
     research: 'Research', challenges: 'Trials', br0: 'Growth', br1: 'Rolling', br2: 'Sky',
-    chal_start: 'Start', chal_quit: 'Give up', chal_goal: 'Goal: a red dwarf', chal_done: 'Done', chal_reward: 'Reward: {0}', chal_active: 'Active', chal_lock: 'Opens after {0} novas ({1}/{0})',
+    chal_start: 'Start', chal_quit: 'Give up', chal_goal: 'Goal: a red dwarf', chal_done: 'Done', chal_reward: 'Reward: {0}', chal_active: 'Active', chal_lock: 'Novas {1}/{0}',
     auto_nova: 'Auto nova', on: 'On', off: 'Off',
     col_btn: 'Collapse', col_need: 'Needs a neutron star', col_gain: 'Singularity +{0}', col_warn: 'Cores and research are lost. The universe gets {0}× heavier',
     sres: 'Singularity research', ending_need: 'Finish all 6 trials first', auto_col: 'Auto collapse',
@@ -90,7 +90,7 @@
     chal_clear: 'Trial complete', ach_get: 'Feat',
     end1: 'Every orbit stands in one line.', end2: 'The dice roll no more.', end3: 'The orrery is complete.', end_thanks: 'Thank you for playing.', b_continue: 'Keep playing',
     credits: 'Credits', cr_game: 'Dice Orrery', cr_made: 'Design · Art · Sound · Code', cr_made2: 'Solo developer (with Claude)', cr_font: 'Font', cr_font2: 'Galmuri · Lee Minseo · SIL OFL 1.1', cr_pal: 'Palette', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: 'Sound', cr_sound2: 'Synthesized in code', cr_tool: 'Tools', cr_tool2: 'HTML5 Canvas · Web Audio',
-    sound_on: 'Sound on', sound_off: 'Sound off',
+    sound_on: 'Sound on', sound_off: 'Sound off', save_broken: 'Could not load the save', save_broken2: 'The original was kept aside', away_cap: 'Stores up to {0}h', fullscreen: 'Fullscreen', chal_confirm_start: 'Starting a trial restarts this run.', chal_confirm_quit: 'Giving up restarts this run.', b_start_chal: 'Start', b_quit_chal: 'Give up', roller_s: 'Roll gap',
     h_orbit_rule: 'Sum = orbit'
   };
   // 이름표: [ko, en, 효과 ko, 효과 en]

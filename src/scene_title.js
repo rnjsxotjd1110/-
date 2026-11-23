@@ -21,18 +21,23 @@
   }
   function act(key) {
     G.audio.play('tap');
-    if (key === 'continue') { if (A.loadGame()) { A.scene = 'play'; if (!A.s.settings.muted) G.audio.startBgm(A.s.collapses > 0 ? 1 : 0); } else start(); }
+    if (key === 'continue') {
+      var r = A.loadGame();
+      if (r === true) { A.scene = 'play'; if (!A.s.settings.muted) G.audio.startBgm(A.s.collapses > 0 ? 1 : 0); }
+      else if (r === 'broken') { A.notify([G.T('save_broken'), G.T('save_broken2')], 'info'); G.audio.play('deny'); }
+      else start();
+    }
     else if (key === 'new') {
       if (G.save.has()) { A.confirmText = G.T('m_confirmNew'); A.confirmYes = G.T('m_yes'); A.confirmFn = start; A.overlay = 'confirm'; }
       else start();
-    } else if (key === 'settings') { if (!A.s) { var p = G.save.load(); A.s = p || G.core.newState(); A.tmpTitle = !p; } A.overlay = 'settings'; }
+    } else if (key === 'settings') { if (!A.s) { var p = G.save.load(); A.s = (p && p !== 'broken') ? p : G.core.newState(); } A.overlay = 'settings'; }
     else if (key === 'credits') A.overlay = 'credits';
   }
   function start() { A.prevSettings = A.s ? A.s.settings : null; A.newGame(); A.scene = 'play'; if (!A.s.settings.muted) G.audio.startBgm(0); }
   function draw(dt) {
     var v = decoView();
     var saved = null;
-    if (!A.titleInfo) { var p = G.save.load(); A.titleInfo = p ? { stage: G.stageOf(p), sun: G.sunOf(p), lang: p.settings.lang } : { stage: 0, sun: 0 }; if (p) { G.setLang(p.settings.lang); G.setNotation(p.settings.notation); } }
+    if (!A.titleInfo) { var p = G.save.load(); if (p === 'broken') p = null; A.titleInfo = p ? { stage: G.stageOf(p), sun: G.sunOf(p), lang: p.settings.lang } : { stage: 0, sun: 0 }; if (p) { G.setLang(p.settings.lang); G.setNotation(p.settings.notation); } }
     v.stage = A.titleInfo.stage; v.sunForm = A.titleInfo.sun;
     G.starfield.draw(v.stage, A.t, 0, 0, 0, 0, 640, 360, 1);
     U.block(!!A.overlay);

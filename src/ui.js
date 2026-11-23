@@ -7,9 +7,8 @@
   function bind(cv) {
     function pos(e) {
       var r = cv.getBoundingClientRect();
-      var k = G.gfx.getScale();
-      inp.x = Math.floor((e.clientX - r.left) / k);
-      inp.y = Math.floor((e.clientY - r.top) / k);
+      inp.x = Math.floor((e.clientX - r.left) / r.width * 640);
+      inp.y = Math.floor((e.clientY - r.top) / r.height * 360);
     }
     cv.addEventListener('mousemove', function (e) { pos(e); });
     cv.addEventListener('mousedown', function (e) { pos(e); inp.down = true; inp.pressed = true; inp.any = true; cv.focus(); e.preventDefault(); if (G.audio) G.audio.unlock(); });
@@ -80,12 +79,13 @@
     var gap = opts.gap || 10;
     items.forEach(function (it) {
       if (it.hidden) return;
-      var w = G.font.measure(it.label, 'g11');
+      var tf = opts.font || 'g11';
+      var w = G.font.measure(it.label, tf);
       var r = hitArea(id + it.key, px - 3, y - 2, w + 6, 16, it.enabled !== false);
       var sel = current === it.key;
       var col = sel ? 4 : (r.over ? 8 : 15);
       if (it.enabled === false) col = 14;
-      G.font.draw(it.label, px, y, col, 'g11', 12);
+      G.font.draw(it.label, px, y + (tf === 'g9' ? 2 : 0), col, tf, 12);
       if (sel) { G.gfx.rect(px, y + 13, w, 2, 3); }
       if (it.dot) { G.gfx.rect(px + w - 1, y - 2, 2, 2, 17); }
       if (r.clicked) { out = it.key; if (G.audio) G.audio.play('tab'); }
@@ -117,5 +117,5 @@
   function grooveV(x, y, h) { G.gfx.vline(x, y, h, 12); G.gfx.vline(x + 1, y, h, 11); }
 
   G.ui = { inp: inp, bind: bind, endFrame: endFrame, over: over, hitArea: hitArea, button: button, tabs: tabs, tip: tip, drawTooltip: drawTooltip, groove: groove, grooveV: grooveV,
-    resetHover: function () { hoverId = null; }, hover: function () { return hoverId; }, block: function (b) { blocked = !!b; } };
+    resetHover: function () { hoverId = null; }, isActive: function (id) { return activeId === id; }, hover: function () { return hoverId; }, block: function (b) { blocked = !!b; } };
 })();

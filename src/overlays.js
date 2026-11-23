@@ -12,7 +12,7 @@
     var kx = x + 2 + fw - 3;
     var h = U.hitArea(id, x - 2, y - 2, w + 4, 17);
     gx.blit(G.spr.knob, kx - 2, y - 1);
-    if (h.state === 'down' || (h.over && U.inp.down)) { v = Math.max(0, Math.min(1, (U.inp.x - x - 2) / (w - 4))); }
+    if (U.isActive(id) && U.inp.down) { v = Math.max(0, Math.min(1, (U.inp.x - x - 2) / (w - 4))); }
     return Math.round(v * 20) / 20;
   }
   function choice(id, x, y, items, cur) {
@@ -30,24 +30,24 @@
   }
   function settings(s, fromTitle) {
     dim();
-    var w = 316, h = 262, x = (640 - w) >> 1, y = (360 - h) >> 1;
+    var w = 316, h = fromTitle ? 236 : 262, x = (640 - w) >> 1, y = (360 - h) >> 1;
     G.nine(G.spr.panel, x, y, w, h);
     F.draw(G.T('set_title'), x + 12, y + 10, 4, 'g11b', 12);
     U.groove(x + 8, y + 26, w - 16);
-    var st = s.settings, lx = x + 14, vx = x + 112, yy = y + 36;
+    var st = s.settings, lx = x + 14, vx = x + 124, yy = y + 36;
     // 소리
     F.draw(G.T('set_mute'), lx, yy, 15, 'g11');
     var m = choice('mute', vx, yy, [[false, G.T('on')], [true, G.T('off')]], !!st.muted);
     if (m !== !!st.muted) { st.muted = m; G.audio.unlock(); A.applySettings(); if (!m) G.audio.startBgm(s.collapses > 0 ? 1 : 0); }
     yy += 22;
     F.draw(G.T('set_sfx'), lx, yy, 15, 'g11');
-    var nv = slider('ssfx', vx, yy, 150, st.sfx === undefined ? 0.7 : st.sfx);
-    F.draw(Math.round(nv * 10) + '/10', vx + 158, yy, 8, 'g9');
+    var nv = slider('ssfx', vx, yy, 140, st.sfx === undefined ? 0.7 : st.sfx);
+    F.draw(Math.round(nv * 10) + '/10', vx + 146, yy, 8, 'g9');
     if (nv !== st.sfx) { st.sfx = nv; A.applySettings(); }
     yy += 20;
     F.draw(G.T('set_bgm'), lx, yy, 15, 'g11');
-    var nb = slider('sbgm', vx, yy, 150, st.bgm === undefined ? 0.5 : st.bgm);
-    F.draw(Math.round(nb * 10) + '/10', vx + 158, yy, 8, 'g9');
+    var nb = slider('sbgm', vx, yy, 140, st.bgm === undefined ? 0.5 : st.bgm);
+    F.draw(Math.round(nb * 10) + '/10', vx + 146, yy, 8, 'g9');
     if (nb !== st.bgm) { st.bgm = nb; A.applySettings(); }
     yy += 22;
     F.draw(G.T('set_notation'), lx, yy, 15, 'g11');
@@ -60,7 +60,7 @@
     yy += 22;
     F.draw(G.T('set_lang'), lx, yy, 15, 'g11');
     var lg = choice('lang', vx, yy, [['ko', '한국어'], ['en', 'English']], st.lang);
-    if (lg !== st.lang) { st.lang = lg; A.applySettings(); }
+    if (lg !== st.lang) { st.lang = lg; if (lg === 'en' && st.notation === 'ko') st.notation = 'en'; if (lg === 'ko' && st.notation === 'en') st.notation = 'ko'; A.applySettings(); A.titleInfo = null; }
     yy += 24;
     U.groove(x + 8, yy, w - 16);
     yy += 8;
@@ -71,13 +71,19 @@
       if (U.button('im', lx + (bw + 6) * 2, yy, bw, 19, G.T('b_import'), { font: 'g11b' })) importSave();
       yy += 25;
       if (U.button('cr', lx, yy, bw, 19, G.T('b_credits'), { font: 'g11b' })) A.overlay = 'credits';
-      if (U.button('tt', lx + bw + 6, yy, bw, 19, G.T('b_title'), { font: 'g11b' })) { s.seenTabs = A.seenTabs; G.save.save(s); A.overlay = null; A.scene = 'title'; }
+      if (U.button('tt', lx + bw + 6, yy, bw, 19, G.T('b_title'), { font: 'g11b' })) { s.seenTabs = A.seenTabs; G.save.save(s); A.overlay = null; A.scene = 'title'; A.cut = null; A.titleInfo = null; G.orrery.clearFx(); A.toasts.length = 0; A.toast = null; }
+      if (U.button('fs', lx, yy + 25, bw, 19, G.T('fullscreen'), { font: 'g11b' })) toggleFs();
+      yy += 25;
     } else {
       if (U.button('im', lx, yy, bw, 19, G.T('b_import'), { font: 'g11b' })) importSave(true);
       if (U.button('cr', lx + bw + 6, yy, bw, 19, G.T('b_credits'), { font: 'g11b' })) A.overlay = 'credits';
+      if (U.button('fs', lx + (bw + 6) * 2, yy, bw, 19, G.T('fullscreen'), { font: 'g11b' })) toggleFs();
       yy += 25;
     }
-    if (U.button('cl', lx + (bw + 6) * 2, yy, bw, 19, G.T('b_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) { A.overlay = null; if (A.s) G.save.save(A.s); }
+    if (U.button('cl', lx + (bw + 6) * 2, yy, bw, 19, G.T('b_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) { A.overlay = null; if (A.s && !fromTitle) G.save.save(A.s); if (fromTitle && G.save.has()) { var sv = G.save.load(); if (sv && sv !== 'broken') { sv.settings = s.settings; var keep = sv.lastSave; localStorage.setItem(G.save.KEY, JSON.stringify(sv)); } } }
+  }
+  function toggleFs() {
+    try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) { }
   }
   function exportSave(s) {
     var code = G.save.toCode(s);
@@ -92,7 +98,9 @@
     if (!code) return;
     var s = G.save.fromCode(code);
     if (!s) { A.notify([G.T('import_bad')], 'info'); G.audio.play('deny'); return; }
-    A.s = s; G.core.invalidate(); G.save.save(s); A.applySettings();
+    A.s = s; G.core.invalidate(); G.save.save(s); A.applySettings(); A.cut = null;
+    A.seenTabs = s.seenTabs || { machine: 1, rec: 1, n_upg: 1, n_dice: 1, n_nova: 1, n_col: 1, n_chal: 1 };
+    if (!s.settings.muted) G.audio.startBgm(s.collapses > 0 ? 1 : 0);
     var d = G.core.derive(s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; }));
     G.orrery.clearFx(); A.overlay = null; A.scene = 'play';
     A.notify([G.T('import_ok')], 'info');
@@ -108,7 +116,7 @@
     gx.blit(G.spr.icDust, x + 14, y + 37);
     F.draw(G.T('away_dust', G.fmt(r.dust)), x + 27, y + 35, 3, 'g11b', 12);
     F.draw(G.T('away_rolls', G.fmt(r.rolls)) + ' · ' + G.T('away_tiers', G.fmt(r.tierUps)), x + 14, y + 54, 8, 'g11');
-    F.draw(G.T('away_eff', Math.round(r.eff * 100)), x + 14, y + 72, 15, 'g9');
+    F.draw(G.T('away_eff', Math.round(r.eff * 100)) + (r.capped ? ' · ' + G.T('away_cap', r.capH) : ''), x + 14, y + 72, 15, 'g9');
     if (U.button('awayok', x + w - 92, y + h - 30, 80, 20, G.T('b_ok'), { font: 'g11b', sfx: 'buy' }) || U.inp.keysPressed.Enter) { A.overlay = null; A.away = null; }
   }
   function confirm(s) {

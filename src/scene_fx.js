@@ -98,25 +98,24 @@
     var t = A.endT, s = A.s;
     var v = G.scenePlay.buildView(s);
     v.alignK = Math.min(1, t / 4);
-    O.draw(v, A.t, {});
-    G.tray.draw({ reduce: true }); G.orrery.drawPops();
-    G.nine(G.spr.panel, 416, 20, 224, 340);
-    G.overlays.dim();
-    // 문장 하나씩
-    var lines = [G.T('end1'), G.T('end2'), G.T('end3')];
+    G.starfield.draw(4, A.t, 0, 0, 0, 0, 640, 360);
+    O.draw(v, A.t, { noRuler: true });
+    // 오른쪽: 문장 하나씩
+    var lx = 430, lines = [G.T('end1'), G.T('end2'), G.T('end3')];
+    var yy = 70;
     lines.forEach(function (l, i) {
       var st = 4.5 + i * 2.6;
-      if (t < st) return;
-      var col = t - st < 0.3 ? 8 : 4;
-      F.drawCenter(l, 320, 200 + i * 18, col, 'g11b', 12);
+      var wl = F.wrap(l, 200, 'g11b');
+      if (t >= st) wl.forEach(function (w2, j) { F.drawOutlined(w2, lx, yy + j * 14, t - st < 0.3 ? 8 : 4, 'g11b', 12); });
+      yy += wl.length * 14 + 10;
     });
     if (t > 13) {
-      G.embossText(G.T('cr_game'), 320 - (G.embossMeasure(G.T('cr_game'), 3) >> 1), 270, 3, [4, 3, 11], 'g11b', 12);
-      F.drawCenter(G.T('end_thanks'), 320, 314, 15, 'g11', 12);
+      G.embossText(G.T('cr_game'), lx, 200, 3, [4, 3, 11], 'g11b', 12);
+      F.drawOutlined(G.T('end_thanks'), lx, 248, 8, 'g11', 12);
     }
     if (t > 14.5) {
-      if (U.button('endc', 270, 334, 100, 20, G.T('b_continue'), { font: 'g11b' })) { v.alignK = 0; A.scene = 'play'; G.save.save(s); }
-    }
+      if (U.button('endc', lx, 274, 110, 20, G.T('b_continue'), { font: 'g11b' })) { v.alignK = 0; A.scene = 'play'; G.save.save(s); }
+    } else if (t > 4 && t < 13 && U.inp.released) A.endT = 13;
   }
 
   // ── 크레딧 ─────────────────────────────────────

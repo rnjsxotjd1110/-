@@ -108,12 +108,15 @@
     ctx.imageSmoothingEnabled = false;
     fit();
     window.addEventListener('resize', fit);
+    document.addEventListener('fullscreenchange', function () { setTimeout(fit, 50); });
   }
   function fit() {
-    var k = Math.max(1, Math.floor(Math.min(window.innerWidth / W, window.innerHeight / H)));
+    var fit = Math.min(window.innerWidth / W, window.innerHeight / H);
+    // 정수 배율. 창이 원래 크기보다 작을 때만 어쩔 수 없이 축소
+    var k = fit >= 1 ? Math.floor(fit) : fit;
     scale = k;
-    canvas.style.width = (W * k) + 'px';
-    canvas.style.height = (H * k) + 'px';
+    canvas.style.width = Math.floor(W * k) + 'px';
+    canvas.style.height = Math.floor(H * k) + 'px';
   }
   function present() {
     for (var i = 0; i < W * H; i++) u32[i] = lut[buf[i]];

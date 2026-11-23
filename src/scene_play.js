@@ -43,15 +43,15 @@
     var B = s.ev.buffs, bx = Math.max(x, 300), d = C.derive(s);
     var hm = C.harmony(s, d);
     if (hm > 1.005) { var hw = F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 8, 'g9', 12); var hh = U.hitArea('harm', bx, 2, hw, 16); if (hh.over) U.tip([{ t: G.T('harmony', hm.toFixed(2)), f: 'g11b', c: 12 }, { t: G.effText('harmony', C.derive(s).harmonyPer), c: 13 }], bx, 10); bx += hw + 10; }
-    [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12) + 8; });
-    [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12) + 8; });
-    if (s.chal) F.draw(G.nm('chal', s.chal), 520 - F.measure(G.nm('chal', s.chal), 'g9'), 4, 17, 'g9', 12);
+    [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12) + 8; });
+    [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12) + 8; });
+    if (s.chal) F.drawRight(G.nm('chal', s.chal), 592, 4, 17, 'g9', 12);
     // 소리, 설정
     var sm = U.hitArea('snd', 598, 2, 16, 16);
     gx.blit(s.settings.muted ? G.spr.icMute11 : G.spr.icSnd11, 600, 4);
     if (sm.over) U.tip([{ t: s.settings.muted ? G.T('sound_off') : G.T('sound_on'), c: 12 }], 600, 10);
     if (sm.clicked) { s.settings.muted = !s.settings.muted; G.audio.unlock(); A.applySettings(); if (!s.settings.muted) { G.audio.startBgm(s.collapses > 0 ? 1 : 0); G.audio.play('tap'); } }
-    var gm = U.hitArea('gear', 618, 2, 16, 16);
+    var gm = U.hitArea('gear', 618, 2, 16, 16, !A.cut);
     gx.blit(G.spr.icGear11, 621, 4);
     if (gm.clicked) { A.overlay = 'settings'; G.audio.play('tap'); }
     if (sm.over || gm.over) { }
@@ -150,7 +150,7 @@
     var lh = U.hitArea('lever', G.tray.LEV.x, G.tray.LEV.y, G.tray.LEV.w, G.tray.LEV.h, !cut);
     G.tray.draw({ leverHot: lh.over || (s.stats.rolls === 0 && Math.floor(A.t * 2.5) % 2 === 0), leverHeld: lh.state === 'down', reduce: s.settings.reduce });
     G.orrery.drawPops();
-    G.tray.drawBadge(s.last[0], A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
+    G.tray.drawBadge(A.shownSum, A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
     var feltHit = U.hitArea('felt', G.tray.IN.x, G.tray.IN.y, G.tray.IN.w, G.tray.IN.h, !cut);
     if ((lh.clicked || feltHit.clicked) && !A.overlay) A.doManualRoll();
     if (U.inp.keysPressed.Space && !A.overlay && !cut) A.doManualRoll();

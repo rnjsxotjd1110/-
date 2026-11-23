@@ -119,6 +119,7 @@
     if (first !== undefined) {
       var xa = CX + L.map[first].rx, xb = CX + L.map[lastS].rx;
       gx.hline(xa, RY + 3, xb - xa + 1, 11);
+      var rulerLast = -99;
       G.font.draw(G.T('h_orbit_rule'), V.x + 6, RY + 3, 15, 'g9');
       st.orbits.forEach(function (s, i) {
         var o = L.map[s];
@@ -130,9 +131,10 @@
         if (hot) for (var yy = CY + 2; yy < RY - 3; yy += 3) gx.pset(x, yy, f > 0.2 ? 2 : 18);
         var label = String(s);
         var lw = G.font.measure(label, 'g7');
-        var kk = Math.max(1, Math.ceil((s >= 10 ? 13 : 8) / L.sp));
-        if (kk > 1 && kk % 2 && s >= 10) kk++;
+        var kk = Math.max(1, Math.ceil((lastS >= 10 ? 12 : 8) / L.sp));
         if (s % kk !== 0) return;
+        if (x - (lw >> 1) <= rulerLast + 2) return;
+        rulerLast = x + (lw >> 1);
         var row = 0;
         G.font.draw(label, x - (lw >> 1), RY + 7, hot ? 4 : (st.bodies[s] ? 8 : 15), 'g7');
       });
