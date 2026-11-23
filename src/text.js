@@ -51,6 +51,7 @@
     credits: '크레딧', cr_game: '주사위 성계', cr_made: '기획·그림·소리·코드', cr_made2: '1인 개발 (Claude와 함께)', cr_font: '글꼴', cr_font2: '갈무리 (Galmuri) · 이민서 · SIL OFL 1.1', cr_pal: '팔레트', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: '소리', cr_sound2: '코드로 합성', cr_tool: '도구', cr_tool2: 'HTML5 Canvas · Web Audio',
     save_locked: '다른 창에서 실행 중이에요', save_locked2: '이 창은 저장하지 않아요', save_fail: '저장하지 못했어요', export_title: '저장 코드', col_confirm_keep: '특이점 {0}개를 얻어요. 별핵·별핵 정제는 처음으로 돌아가고 연구는 남아요.', col_warn_keep: '별핵이 사라지고 우주가 {0}배 무거워져요', pick_die: '바꿀 주사위의 면을 고르세요',
     save_locked_q: '다른 창에서 더 최근에 저장했어요. 어느 쪽 진행을 남길까요?', b_take_over: '이 창으로 저장하기', b_reload: '다시 불러오기', import_confirm: '가져오면 지금 진행이 저장 코드의 진행으로 바뀌어요.', chal_goal_t: '목표 {0}',
+    layer_bonus: '층 진행 보너스 ×{0} (층 50분에 최대)',
     refine: '별핵 정제', compress: '특이점 압축', b_refine: '정제하기', b_compress: '압축하기',
     sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요. 별핵·연구·업적은 남아요.', col_confirm: '특이점 {0}개를 얻어요. 별핵·연구·별핵 정제가 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '천체가 많고 단계가 높을수록 모든 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
     h_orbit_rule: '합 = 궤도'
@@ -95,6 +96,7 @@
     credits: 'Credits', cr_game: 'Dice Orrery', cr_made: 'Design · Art · Sound · Code', cr_made2: 'Solo developer (with Claude)', cr_font: 'Font', cr_font2: 'Galmuri · Lee Minseo · SIL OFL 1.1', cr_pal: 'Palette', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: 'Sound', cr_sound2: 'Synthesized in code', cr_tool: 'Tools', cr_tool2: 'HTML5 Canvas · Web Audio',
     save_locked: 'Running in another window', save_locked2: 'This window will not save', save_fail: 'Could not save', export_title: 'Save code', col_confirm_keep: 'Gain {0} singularities. Cores and refining reset, research stays.', col_warn_keep: 'Cores are lost. The universe gets {0}× heavier', pick_die: 'Pick a face of the die to swap',
     save_locked_q: 'Another window saved more recently. Which progress do you keep?', b_take_over: 'Keep this one', b_reload: 'Reload', import_confirm: 'Importing replaces your current progress.', chal_goal_t: 'Goal {0}',
+    layer_bonus: 'Layer progress ×{0} (max at 50 min)',
     refine: 'Core refining', compress: 'Compression', b_refine: 'Refine', b_compress: 'Compress',
     sound_on: 'Sound on', sound_off: 'Sound off', upg_next: 'Next part at {0} stardust this run', nova_confirm: 'Gain {0} cores and restart this run. Cores, research and feats stay.', col_confirm: 'Gain {0} singularities. Cores, research and refining reset.', tip_align: 'All dice show the same face: an alignment. That roll gains much more mass.', tip_rarity: 'Rarer sums add more mass per hit.', tip_harmony: 'Output grows with the total stage of all bodies.', tip_dust: 'Stardust', ev_appear: '{0} passing by', n_rolls2: '{0} rolls', save_broken: 'Could not load the save', save_broken2: 'The original was kept aside', away_cap: 'Stores up to {0}h', fullscreen: 'Fullscreen', chal_confirm_start: 'Starting a trial restarts this run.', chal_confirm_quit: 'Giving up restarts this run.', b_start_chal: 'Start', b_quit_chal: 'Give up', roller_s: 'Roll gap',
     h_orbit_rule: 'Sum = orbit'
@@ -105,7 +107,7 @@
     up: {
       lens1: ['별빛 렌즈 I', 'Starlight Lens I'], heavy: ['무거운 눈', 'Weighted Pips'], felt: ['매끈한 펠트', 'Smooth Felt'], harm1: ['조화의 현 I', 'Harmony String I'],
       reson: ['공명 궤도', 'Resonant Orbits'], net: ['혜성 그물', 'Comet Net'], lens2: ['별빛 렌즈 II', 'Starlight Lens II'], scope: ['깊은 망원경', 'Deep Telescope'],
-      hand: ['손의 기억', 'Muscle Memory'], grav: ['중력 추', 'Gravity Weight'], twin: ['쌍둥이 쟁반', 'Twin Tray'], debris: ['잔해 회수', 'Debris Salvage'],
+      hand: ['단단한 쟁반', 'Sturdy Tray'], grav: ['중력 추', 'Gravity Weight'], twin: ['쌍둥이 쟁반', 'Twin Tray'], debris: ['잔해 회수', 'Debris Salvage'],
       lens3: ['별빛 렌즈 III', 'Starlight Lens III'], alres: ['정렬 파문', 'Alignment Ripple'], gear2: ['이중 톱니', 'Double Gear'], harm2: ['조화의 현 II', 'Harmony String II'],
       outer: ['바깥 고리 렌즈', 'Outer Ring Lens'], inner: ['안쪽 고리 렌즈', 'Inner Ring Lens'], lens4: ['별빛 렌즈 IV', 'Starlight Lens IV'], press: ['질량 압축기', 'Mass Press'],
       heavy2: ['납 눈', 'Lead Pips'], reson2: ['공명 궤도 II', 'Resonant Orbits II'], lens5: ['별빛 렌즈 V', 'Starlight Lens V'], scope2: ['심우주 망원경', 'Deep-space Telescope'],

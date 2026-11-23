@@ -97,7 +97,7 @@ G.RESEARCH = [
   { id: 's3', br: 2, cost: 4, eff: 'offline', v: 1 },
   { id: 's4', br: 2, cost: 10, eff: 'autoUpgrade', v: 1 },
   { id: 's5', br: 2, cost: 25, eff: 'autoBuy', v: 1 },
-  { id: 's6', br: 2, cost: 60, eff: 'autoNova', v: 1 }
+  { id: 's6', br: 2, cost: 200, eff: 'autoNova', v: 1 }
 ];
 
 // 관측 과제
@@ -123,7 +123,7 @@ G.SRESEARCH = [
   { id: 'q9', cost: 34, eff: 'coreX', v: 5 },
   { id: 'q10', cost: 55, eff: 'tierMult', v: 0.25 },
   { id: 'q11', cost: 89, eff: 'autoCollapse', v: 1 },
-  { id: 'q12', cost: 900, eff: 'ending', v: 1 }
+  { id: 'q12', cost: 1500, eff: 'ending', v: 1 }
 ];
 
 G.EVENTS = ['comet', 'shower', 'flare', 'rogue', 'align', 'pulsar', 'meteor', 'moons'];

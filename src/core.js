@@ -108,7 +108,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.stdMin = Math.min.apply(null, keys); d.stdMax = Math.max.apply(null, keys);
     // 희소도: 지금(깎은) 분포 기준. 표준 범위를 넘는 바깥 궤도는 칸마다 추가 배율.
     var pmax = 0; Object.keys(d.dist).forEach(function (k) { pmax = Math.max(pmax, d.dist[k]); });
-    var rexp = D.rarityExp + upSum(s, 'rarity') + D.shapeBonus.d8 * dice.filter(function (x) { return x.shape === 'd8'; }).length;
+    var rexp = D.rarityExp + upSum(s, 'rarity') + D.shapeBonus.d8 * Math.min(2, dice.filter(function (x) { return x.shape === 'd8'; }).length);
     d.rarity = function (sum) {
       var p = d.dist[sum] || d.std[sum];
       var r = p ? Math.pow(pmax / p, rexp) : 1;
@@ -514,7 +514,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       if (!s.shapes[shape]) shape = 'd6';
       s.dice.push(keepFaces && od && od.shape === shape && !chalRule(s, 'noForge') ? { shape: shape, faces: od.faces.slice() } : newDie(shape));
     }
-    if (!keepFaces) s.forges = 0;
+    if (!keepFaces) s.forges = 0; else s.forges = Math.floor(s.forges / 2);
     s.ev.buffs = {}; s.ev.cur = null;
     s.last = [];
     s.stats.runStart = s.t;
@@ -551,6 +551,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var runMin = (s.t - (s.layerStart || 0)) / 60;
     return Math.floor(D.singGain.k * Math.pow((s.coresLayer + novaGain(s)) / D.singGain.div, D.singGain.exp) * Math.min(1, 0.4 + runMin / 50));
   }
+  function layerBonus(s) { return Math.min(1, 0.4 + (s.t - (s.layerStart || 0)) / 60 / 50); }
   function collapse(s) {
     if (!canCollapse(s)) return null;
     var g = Math.max(1, collapseGain(s));
@@ -637,7 +638,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
     canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
     chalUnlocked: chalUnlocked, chalGoal: chalGoal, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
-    canCollapse: canCollapse, collapseGain: collapseGain, collapse: collapse,
+    canCollapse: canCollapse, layerBonus: layerBonus, collapseGain: collapseGain, collapse: collapse,
     spawnEvent: spawnEvent, catchEvent: catchEvent, offline: offline, checkAch: checkAch,
     achQueue: achQueue, chalQueue: chalQueue, setRng: setRng, capAll: capAll, newDie: newDie, SHAPE_FACES: SHAPE_FACES, res: res, sres: sres
   };

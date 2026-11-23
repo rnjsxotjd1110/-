@@ -321,6 +321,7 @@
       var g = Math.max(1, C.collapseGain(s));
       if (U.button('colbtn', X0, y, W0, 22, G.T('col_btn'), { style: 'teal', font: 'g11b', sfx: 'tap' })) { A.confirmText = G.T(C.sres(s, 'q4') ? 'col_confirm_keep' : 'col_confirm', G.fmt(g)); A.confirmYes = G.T('col_btn'); A.confirmFn = A.startCollapse; A.overlay = 'confirm'; }
       F.draw(G.T('col_gain', G.fmt(g)), X0 + 2, y + 27, 19, 'g11b', 12);
+      F.drawRight(G.T('layer_bonus', C.layerBonus(s).toFixed(2)).split(' (')[0], X0 + W0 - 2, y + 29, 8, 'g9');
     } else {
       var cn = s.chal ? G.nm('chal', s.chal) : G.T('col_need');
       F.draw(cn, X0 + 2, y + 2, 8, F.measure(cn, 'g11') > W0 - 4 ? 'g9' : 'g11');
