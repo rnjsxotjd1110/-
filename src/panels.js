@@ -49,7 +49,7 @@
     var pa = 0; Object.keys(d.al).forEach(function (k) { pa += d.al[k]; });
     var alh = U.hitArea('alignline', X0, ry + 22, W0, 12);
     if (alh.over) U.tip([{ t: G.T('tip_align'), c: 12 }], U.inp.x, U.inp.y);
-    F.draw(G.T('align_pop').replace('!', '') + ' ' + (pa * 100 >= 1 ? (pa * 100).toFixed(1) : (pa * 100).toFixed(2)) + '% · ×' + G.fmt(d.alignMult, true), X0 + 2, ry + 24, 8, 'g9');
+    F.draw(G.T('align_pop').replace('!', '') + ' ' + G.pct(pa) + ' · ×' + G.fmt(d.alignMult, true), X0 + 2, ry + 24, 8, 'g9');
   }
 
   // 분포 그래프. carved=true면 깎지 않은 분포 눈금도 표시
@@ -79,7 +79,7 @@
       if (showLbl && xx + (body >> 1) - (lwid >> 1) > lastLX + 2) { F.drawCenter(String(o), xx + (body >> 1), by + 3, hot ? 4 : (s.bodies[o] ? 8 : 14), 'g7'); lastLX = xx + (body >> 1) + (lwid >> 1); }
       // 막대 위에 마우스
       var ha = U.hitArea('hb' + o, xx, by - h, cw, h + 10);
-      if (ha.over) { A.view.hoverOrbitPanel = o; U.tip([{ t: G.T('orb', o), f: 'g11b', c: 12 }, { t: G.T('chance') + ' ' + (p * 100).toFixed(p < 0.01 ? 2 : 1) + '% · ' + G.T('rarity') + ' ×' + G.fmt(d.rarity(o), true), c: 13 }], U.inp.x, U.inp.y); }
+      if (ha.over) { A.view.hoverOrbitPanel = o; U.tip([{ t: G.T('orb', o), f: 'g11b', c: 12 }, { t: G.T('chance') + ' ' + G.pct(p) + ' · ' + G.T('rarity') + ' ×' + G.fmt(d.rarity(o), true), c: 13 }], U.inp.x, U.inp.y); }
     });
     gx.hline(bx, by + 1, tw, 18);
   }
@@ -142,7 +142,7 @@
       F.drawRight(r[1], cx2 + 100, cy2 - 1, 4, 'g11b');
     });
     var owned = G.UPGRADES.filter(function (u) { return s.up[u.id]; }).length;
-    F.draw(owned + '/' + G.UPGRADES.length, X0 + W0 - F.measure(owned + '/' + G.UPGRADES.length, 'g9') - 2, dy + 70, 15, 'g9');
+    F.drawRight(owned + '/' + G.UPGRADES.length, X0 + W0 - 2, dy + 10, 15, 'g9');
   }
   var SIL = []; for (var si2 = 0; si2 < 24; si2++) SIL[si2] = si2 === 12 ? 12 : 13;
   var DIM = []; for (var di = 0; di < 24; di++) DIM[di] = di; [4, 8, 3, 7, 19, 2].forEach(function (c) { DIM[c] = 15; }); [9, 5, 16, 11, 1, 10].forEach(function (c) { DIM[c] = 14; }); [17, 20].forEach(function (c) { DIM[c] = 14; });
@@ -203,14 +203,16 @@
     if (shapes.length > 1) {
       var sy = Y0 + 266;
       U.groove(X0, sy - 3, W0);
-      var di2 = A.selFace ? A.selFace[0] : 0;
+      var di2 = A.selFace ? A.selFace[0] : -1;
       F.draw(G.T('shape_title') + ' · ' + G.T('tray_cap', C.trayUsed(s.dice), G.DATA.trayCapacity), X0 + 2, sy + 2, 15, 'g9');
+      if (di2 < 0) F.draw(G.T('pick_die'), X0 + 2, sy + 17, 8, 'g11');
       ['d4', 'd6', 'd8', 'd12'].forEach(function (sh, k) {
         if (!s.shapes[sh]) return;
+        if (di2 < 0) return;
         var cur = s.dice[di2] && s.dice[di2].shape === sh;
         var nd = s.dice.slice(); nd[di2] = { faces: new Array(C.SHAPE_FACES[sh]) };
         var fits = C.trayUsed(nd) <= G.DATA.trayCapacity;
-        if (U.button('sh' + sh, X0 + 2 + k * 52, sy + 14, 48, 18, sh, { enabled: !cur && fits, font: 'g11b' })) { C.setShape(s, di2, sh); A.selFace = null; G.audio.play('forge'); }
+        if (U.button('sh' + sh, X0 + 2 + k * 52, sy + 14, 48, 18, sh, { enabled: !cur && fits, font: 'g11b' })) { C.setShape(s, di2, sh); A.selFace = null; G.audio.play('forge'); refreshTray(); }
       });
     }
   }
@@ -249,7 +251,7 @@
   function novaPanel(s) {
     novaTop(s);
     var chalOpen = s.novas >= 3 || s.collapses > 0;
-    var ty = Y0 + 54;
+    var ty = Y0 + 57;
     if (chalOpen) A.sub.nova = U.tabs('nsub', X0 + 2, ty, [{ key: 'res', label: G.T('research') }, { key: 'chal', label: G.T('challenges') }], A.sub.nova, { gap: 14 });
     else F.draw(G.T('research'), X0 + 2, ty, 4, 'g11');
     U.groove(X0, ty + 17, W0);
@@ -262,10 +264,10 @@
       F.drawCenter(G.T('br' + br), cols[br], y + 1, 8, 'g11b', 12);
       var list = G.RESEARCH.filter(function (r) { return r.br === br; });
       list.forEach(function (r, i) {
-        var cx = cols[br], cy = y + 30 + i * 36;
+        var cx = cols[br], cy = y + 26 + i * 32;
         var own = !!s.research[r.id], av = C.researchAvail(s, r), ok = av && s.cores >= r.cost;
         if (i > 0) { // 놋쇠 연결 막대
-          var py = cy - 36 + 12;
+          var py = cy - 32 + 12;
           gx.rect(cx - 1, py, 2, cy - 12 - py, own ? 2 : 18);
           if (own) gx.vline(cx - 1, py, cy - 12 - py, 3);
         }
@@ -278,15 +280,25 @@
         if (h.clicked) { if (ok) { C.buyResearch(s, r.id); G.audio.play('unlock'); G.orrery.burst(cx, cy, 14, [4, 3, 7], 30); } else G.audio.play('deny'); }
       });
     });
+    // 별핵 정제 (반복)
+    var ry2 = Y0 + 284;
+    U.groove(X0, ry2 - 4, W0);
+    var lvr = s.lv.refine || 0, cr = C.costRefine(s);
+    F.draw(G.T('refine') + ' ' + G.T('lv', lvr), X0 + 2, ry2 + 2, 4, 'g11b', 12);
+    F.draw(G.effText('mass', G.fmt(Math.pow(G.DATA.refine.v, lvr))), X0 + 2, ry2 + 15, 8, 'g9');
+    gx.blit(G.spr.icCore, X0 + 108, ry2 + 4); F.draw(G.fmt(cr), X0 + 120, ry2 + 2, s.cores >= cr ? 7 : 8, 'g11b', 12);
+    if (U.button('refine', X0 + W0 - 62, ry2, 62, 19, G.T('b_refine'), { font: 'g11b', style: 'core', enabled: s.cores >= cr, sfx: 'buy' })) C.buyRefine(s);
   }
   function challenges(s, y) {
+    F.draw(G.T('chal_goal'), X0 + 2, y, 8, 'g9');
+    y += 11;
     G.CHALLENGES.forEach(function (c, i) {
-      var yy = y + 1 + i * 37;
+      var yy = y + 1 + i * 35;
       if (i > 0) U.groove(X0, yy - 3, W0);
       var done = !!s.chalDone[c.id], act = s.chal === c.id, unl = C.chalUnlocked(s, c);
       F.draw(G.nm('chal', c.id), X0 + 2, yy + 1, done ? 2 : 4, 'g11b', 12);
-      F.draw(G.nm('chal', c.id, 1), X0 + 2, yy + 14, 8, 'g9');
-      F.draw(G.T('chal_reward', G.effText(c.reward, c.v)), X0 + 2, yy + 24, done ? 2 : 15, 'g9');
+      F.draw(G.nm('chal', c.id, 1), X0 + 2, yy + 13, 8, 'g9');
+      F.draw(G.T('chal_reward', G.effText(c.reward, c.v)), X0 + 2, yy + 22, done ? 2 : 15, 'g9');
       var bx = X0 + W0 - 62;
       if (done) F.drawRight(G.T('chal_done'), X0 + W0 - 4, yy + 2, 2, 'g11b');
       else if (act) { if (U.button('cq' + c.id, bx, yy + 1, 60, 18, G.T('chal_quit'), { font: 'g11b' })) { A.confirmText = G.T('chal_confirm_quit'); A.confirmYes = G.T('b_quit_chal'); A.confirmFn = function () { C.quitChallenge(s); refreshTray(); }; A.overlay = 'confirm'; } }
@@ -301,7 +313,7 @@
     var y = Y0 + 2;
     if (C.canCollapse(s)) {
       var g = Math.max(1, C.collapseGain(s));
-      if (U.button('colbtn', X0, y, W0, 22, G.T('col_btn'), { style: 'teal', font: 'g11b', sfx: 'tap' })) { A.confirmText = G.T('col_confirm', G.fmt(g)); A.confirmYes = G.T('col_btn'); A.confirmFn = A.startCollapse; A.overlay = 'confirm'; }
+      if (U.button('colbtn', X0, y, W0, 22, G.T('col_btn'), { style: 'teal', font: 'g11b', sfx: 'tap' })) { A.confirmText = G.T(C.sres(s, 'q4') ? 'col_confirm_keep' : 'col_confirm', G.fmt(g)); A.confirmYes = G.T('col_btn'); A.confirmFn = A.startCollapse; A.overlay = 'confirm'; }
       F.draw(G.T('col_gain', G.fmt(g)), X0 + 2, y + 27, 19, 'g11b', 12);
     } else {
       var cn = s.chal ? G.nm('chal', s.chal) : G.T('col_need');
@@ -312,7 +324,8 @@
       F.draw(G.nm('tiers', Math.max(1, C.maxTier(s))) + ' → ' + G.nm('tiers', 10), X0 + 2, y + 29, 15, 'g9');
     }
     var heavy = G.DATA.collapseHeavy;
-    var warn = F.wrap(G.T('col_warn', s.collapses >= 8 ? G.DATA.collapseHeavyLate : heavy), W0 - 4, 'g9');
+    var keepR = C.sres(s, 'q4');
+    var warn = F.wrap(G.T(keepR ? 'col_warn_keep' : 'col_warn', s.collapses >= 8 ? G.DATA.collapseHeavyLate : heavy), W0 - 4, 'g9');
     warn.forEach(function (l, i) { F.draw(l, X0 + 2, y + 42 + i * 10, 8, 'g9'); });
     if (C.sres(s, 'q11')) {
       var lab = G.T('auto_col') + ' ' + (s.settings.autoCollapse ? G.T('on') : G.T('off'));
@@ -321,7 +334,7 @@
       if (h.clicked) { s.settings.autoCollapse = !s.settings.autoCollapse; G.audio.play('tab'); }
     }
     // 특이점 연구: 블랙홀 둘레의 고리
-    var cx = X0 + W0 / 2, cy = Y0 + 210, R = 82;
+    var cx = X0 + W0 / 2, cy = Y0 + 196, R = 82;
     U.groove(X0, Y0 + 80, W0);
     F.draw(G.T('sres'), X0 + 2, Y0 + 86, 4, 'g11');
     // 블랙홀
@@ -338,6 +351,14 @@
       }
     }
     for (var ai = 0; ai < 180; ai++) { if (ai % 2) continue; var aa = ai / 180 * Math.PI * 2; gx.pset(Math.round(cx + Math.cos(aa) * R), Math.round(cy + Math.sin(aa) * R * 0.66), 16); }
+    // 특이점 압축 (반복)
+    var cy2 = Y0 + 290;
+    U.groove(X0, cy2 - 4, W0);
+    var lvc = s.lv.compress || 0, cc2 = C.costCompress(s);
+    F.draw(G.T('compress') + ' ' + G.T('lv', lvc), X0 + 2, cy2 + 2, 4, 'g11b', 12);
+    F.draw(G.effText('mass', G.fmt(Math.pow(G.DATA.compress.v, lvc))), X0 + 2, cy2 + 15, 8, 'g9');
+    gx.blit(G.spr.icSing, X0 + 108, cy2 + 4); F.draw(G.fmt(cc2), X0 + 120, cy2 + 2, s.sing >= cc2 ? 19 : 8, 'g11b', 12);
+    if (U.button('compress', X0 + W0 - 62, cy2, 62, 19, G.T('b_compress'), { font: 'g11b', style: 'teal', enabled: s.sing >= cc2, sfx: 'buy' })) C.buyCompress(s);
     G.SRESEARCH.forEach(function (r, i) {
       var a = -Math.PI / 2 + i / G.SRESEARCH.length * Math.PI * 2;
       var nx = Math.round(cx + Math.cos(a) * R), ny = Math.round(cy + Math.sin(a) * R * 0.66);

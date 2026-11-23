@@ -37,7 +37,7 @@
     var w = F.draw(G.fmt(s.dust), 17, 3, 3, 'g11b', 12);
     var rate = C.production(s);
     F.draw('+' + G.fmt(rate, true) + G.T('per_sec'), 21 + w, 4, 8, 'g9', 12);
-    var x = 150;
+    var x = Math.max(150, 21 + w + F.measure('+' + G.fmt(rate, true) + G.T('per_sec'), 'g9') + 12);
     if (s.coresAll > 0 || s.novas > 0) { gx.blit(G.spr.icCore, x, 4); x += F.draw(G.fmt(s.cores), x + 12, 3, 7, 'g11b', 12) + 22; }
     if (s.singAll > 0 || s.collapses > 0) { gx.blit(G.spr.icSing, x, 4); x += F.draw(G.fmt(s.sing), x + 12, 3, 19, 'g11b', 12) + 22; }
     // 버프
@@ -101,7 +101,7 @@
     // 잡을 수 있음을 알리는 반짝임 고리
     if (Math.floor(t * 3) % 2 === 0) { gx.pset(p.x - 9, p.y, 3); gx.pset(p.x + 9, p.y, 3); gx.pset(p.x, p.y - 9, 3); gx.pset(p.x, p.y + 9, 3); }
     gx.resetClip();
-    var hit = U.hitArea('event', p.x - 18, p.y - 16, 36, 32);
+    var hx0 = Math.max(0, p.x - 18), hit = U.hitArea('event', hx0, Math.max(20, p.y - 16), Math.max(0, Math.min(416, p.x + 18) - hx0), 32);
     if (hit.over) U.tip([{ t: G.T('ev_' + type), f: 'g11b', c: 12 }, { t: evText(type, s), c: 13 }], p.x, p.y);
     if (hit.clicked || (hit.over && U.inp.pressed)) catchEv(s, p);
   }
@@ -127,7 +127,7 @@
     var d = C.derive(s), b = s.bodies[o];
     var lines = [{ t: G.T('orb', o) + (b ? ' · ' + G.nm('tiers', b.t) : ''), f: 'g11b', c: 12 }];
     var p = d.dist[o] || 0;
-    lines.push({ t: G.T('chance') + ' ' + (p * 100 >= 1 ? (p * 100).toFixed(1) : (p * 100).toFixed(2)) + '% · ' + G.T('rarity') + ' ×' + G.fmt(d.rarity(o), true), c: 13 });
+    lines.push({ t: G.T('chance') + ' ' + G.pct(p) + ' · ' + G.T('rarity') + ' ×' + G.fmt(d.rarity(o), true), c: 13 });
     if (b) {
       lines.push({ t: G.T('mass') + ' ' + G.fmt(b.m) + (b.t < 10 ? ' / ' + G.fmt(d.th[b.t - 1]) : ''), c: 13 });
       lines.push({ t: G.T('prod') + ' ' + G.fmt(C.bodyRate(s, d, o, b) * C.harmony(s, d) * d.globalMult, true) + G.T('per_sec'), c: 13 });
@@ -143,7 +143,7 @@
     if (A.shake > 0 && !s.settings.reduce) { shx = Math.round((Math.random() - 0.5) * 3); shy = Math.round((Math.random() - 0.5) * 3); }
     gx.setOffset(shx, shy);
     var cut = A.cut;
-    U.block(!!A.overlay);
+    U.block(!!A.overlay || !!cut);
     if (cut && G.sceneFx.cutDraw(cut, v, A.t)) { /* 연출이 성계를 대신 그림 */ }
     else G.orrery.draw(v, A.t, {});
     gx.setOffset(0, 0);
@@ -156,6 +156,8 @@
     var feltHit = U.hitArea('felt', G.tray.IN.x, G.tray.IN.y, G.tray.IN.w, G.tray.IN.h, !cut);
     if ((lh.clicked || feltHit.clicked) && !A.overlay) A.doManualRoll();
     if (U.inp.keysPressed.Space && !A.overlay && !cut) A.doManualRoll();
+    // 누르고 있으면 반복 (연타 불필요)
+    if (!A.overlay && !cut && (U.inp.keys.Space || ((lh.state === 'down' || feltHit.state === 'down') && U.inp.down)) && s.manualCd <= 0) { A.holdT = (A.holdT || 0) + dt; if (A.holdT > 0.35) A.doManualRoll(); } else if (!U.inp.down && !U.inp.keys.Space) A.holdT = 0;
     // 궤도 툴팁
     if (!A.overlay && !cut && U.inp.y >= 20 && U.inp.y < 244 && U.inp.x < 416 && !U.hover()) orbitTip(s, v, U.inp.x, U.inp.y);
     else v.hoverOrbit = null;

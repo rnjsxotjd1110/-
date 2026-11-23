@@ -52,5 +52,6 @@
     if (m > 0) return ko ? m + '분 ' + s + '초' : m + 'm ' + s + 's';
     return ko ? s + '초' : s + 's';
   }
+  G.pct = function (p) { var v = p * 100; if (v > 0 && v < 0.01) return '<0.01%'; return (v >= 1 ? v.toFixed(1) : v.toFixed(2)) + '%'; };
   G.fmt = fmt; G.fmtTime = time; G.setNotation = function (m) { mode = m; };
 })();

@@ -37,7 +37,7 @@
   function draw(dt) {
     var v = decoView();
     var saved = null;
-    if (!A.titleInfo) { var p = G.save.load(); if (p === 'broken') p = null; A.titleInfo = p ? { stage: G.stageOf(p), sun: G.sunOf(p), lang: p.settings.lang } : { stage: 0, sun: 0 }; if (p) { G.setLang(p.settings.lang); G.setNotation(p.settings.notation); } }
+    if (!A.titleInfo) { var p = G.save.load(); if (p === 'broken') p = null; if (A.s && p) p.settings = A.s.settings; A.titleInfo = p ? { stage: G.stageOf(p), sun: G.sunOf(p), lang: p.settings.lang } : { stage: 0, sun: 0 }; if (p) { G.setLang(p.settings.lang); G.setNotation(p.settings.notation); } }
     v.stage = A.titleInfo.stage; v.sunForm = A.titleInfo.sun;
     G.starfield.draw(v.stage, A.t, 0, 0, 0, 0, 640, 360, 1);
     U.block(!!A.overlay);
@@ -71,11 +71,13 @@
       if (U.inp.keysPressed.ArrowUp) { sel = (sel + it.length - 1) % it.length; G.audio.play('tab'); }
       if (U.inp.keysPressed.Enter || U.inp.keysPressed.Space) act(it[sel][0]);
       // 빈 곳 누르면 시작
-      if (U.inp.released && !anyHit && !U.over(598, 336, 40, 20)) act(it[0][0] === 'continue' ? 'continue' : 'new');
+      if (U.inp.released && !anyHit && !U.over(598, 330, 42, 30)) act(it[0][0] === 'continue' ? 'continue' : 'new');
     }
     // 소리 아이콘
     var muted = A.s ? A.s.settings.muted : true;
     gx.blit(muted ? G.spr.icMute11 : G.spr.icSnd11, 620, 342);
+    var sh2 = U.hitArea('tsnd', 614, 336, 24, 22);
+    if (sh2.clicked) { if (!A.s) { var p2 = G.save.load(); A.s = (p2 && p2 !== 'broken') ? p2 : G.core.newState(); } A.s.settings.muted = !A.s.settings.muted; G.audio.unlock(); A.applySettings(); if (!A.s.settings.muted) { G.audio.startBgm(0); G.audio.play('tap'); } }
     F.draw('v1.0', 432, 344, 14, 'g7');
     U.block(false);
     if (A.overlay === 'settings') G.overlays.settings(A.s, true);

@@ -3,7 +3,7 @@ var G = (typeof G !== 'undefined') ? G : {};
 G.DATA = {
   version: 1,
   // 천체 단계 문턱 (질량). 1단계는 질량이 생기는 순간.
-  tierTable: [10, 120, 1200, 9000, 6e4, 2.5e5, 9e5], tierFactorHigh: 16,  // 2~8단계 문턱, 9·10단계는 ×High
+  tierTable: [10, 120, 1500, 1.5e4, 1.2e5, 6e5, 2.5e6], tierFactorHigh: 45,  // 2~8단계 문턱, 9·10단계는 ×High
   tierMultBase: 1.35,           // 단계 배율 = base^(단계-1)
   prodPerMass: 0.3,             // 질량^massExp 1당 초당 별가루
   massExp: 0.6,
@@ -12,10 +12,10 @@ G.DATA = {
   outerRarityStep: 1.6,         // 표준 범위 밖 궤도 한 칸마다
   alignBase: 2,                 // 정렬 배율 = alignBase + 주사위 수
   manualMult: 2,                // 손 굴림 배율
-  manualCooldown: 0.2,          // 손 굴림 최소 간격(초)
+  manualCooldown: 0.4,          // 손 굴림 최소 간격(초)
 
   // 반복 구매
-  power: { cost0: 10, costK: 1.8, grow: 1.07 },  // 굴림 힘: P = (1+lv/2)·grow^lv
+  power: { cost0: 10, costK: 1.8, grow: 1.075 },  // 굴림 힘: P = (1+lv/2)·grow^lv
   wind: { cost0: 30, costK: 2.2, int0: 3.0, intK: 0.92, intMin: 0.05 },
   diceCost: { 3: 1.2e5, 4: 1.5e7, 5: 2e11, 6: 1e15 },
   forge: { cost0: 150, costK: 2.1, unlock: 3 }, // 주사위 3개부터
@@ -33,38 +33,43 @@ G.DATA = {
   coreGain: { k: 3, div: 6e6, exp: 0.5 },
   // 중력 붕괴
   collapseTier: 10,
-  collapseHeavy: 2.4, collapseHeavyLate: 1.5,
+  collapseHeavy: 2.6, collapseHeavyLate: 1.6,
   singMassExp: 0.7,             // 특이점 누적에 따른 질량 배율 (1+특이점)^exp             // 붕괴할 때마다 단계 문턱 배율
-  singGain: { k: 1, div: 40, exp: 0.6 },
-  trayCapacity: 36
+  singGain: { k: 1, div: 40, exp: 0.45 },
+  trayCapacity: 36,
+  perDieMass: 1.08,              // 주사위 하나당 질량 배율
+  shapeBonus: { d4: 1.5, d8: 0.06, d12: 1.6 }, // d4 정렬 ×, d8 희소도 지수 +, d12 질량 ×
+  chalTier: 9,                  // 관측 과제 목표 단계
+  refine: { cost0: 60, costK: 3.5, v: 1.25 },     // 별핵 정제: 질량 ×2 반복
+  compress: { cost0: 10, costK: 2.4, v: 1.6 }     // 특이점 압축: 질량 ×3 반복
 };
 
 // 일회성 개량 (별가루). eff: 효과 키, v: 값, req: 해금 조건(이번 판 누적 별가루)
 G.UPGRADES = [
   { id: 'lens1', cat: 'lens', cost: 60, req: 25, eff: 'prod', v: 1.5 },
   { id: 'heavy', cat: 'ring', cost: 250, req: 120, eff: 'align', v: 2 },
-  { id: 'felt', cat: 'gear', cost: 600, req: 300, eff: 'interval', v: 0.8 },
+  { id: 'felt', cat: 'gear', cost: 600, req: 300, eff: 'interval', v: 0.7 },
   { id: 'harm1', cat: 'harp', cost: 1800, req: 900, eff: 'harmony', v: 0.01 },
   { id: 'reson', cat: 'orbit', cost: 4500, req: 2500, eff: 'neighbor', v: 0.1 },
   { id: 'net', cat: 'comet', cost: 8000, req: 4000, eff: 'event', v: 2 },
   { id: 'lens2', cat: 'lens', cost: 2e4, req: 1e4, eff: 'prod', v: 2 },
   { id: 'scope', cat: 'scope', cost: 6e4, req: 3e4, eff: 'rarity', v: 0.08 },
-  { id: 'hand', cat: 'hand', cost: 1.2e5, req: 6e4, eff: 'manual', v: 1 },
+  { id: 'hand', cat: 'hand', cost: 1.2e5, req: 6e4, eff: 'mass', v: 2 },
   { id: 'grav', cat: 'weight', cost: 2.5e5, req: 1.2e5, eff: 'tierMult', v: 0.1 },
   { id: 'twin', cat: 'dice', cost: 6e5, req: 3e5, eff: 'twin', v: 0.15 },
   { id: 'debris', cat: 'comet', cost: 1.5e6, req: 8e5, eff: 'debris', v: 30 },
   { id: 'lens3', cat: 'lens', cost: 4e6, req: 2e6, eff: 'prod', v: 2 },
   { id: 'alres', cat: 'ring', cost: 1e7, req: 5e6, eff: 'alignSpread', v: 0.5 },
-  { id: 'gear2', cat: 'gear', cost: 2.5e7, req: 1.2e7, eff: 'interval', v: 0.7 },
+  { id: 'gear2', cat: 'gear', cost: 2.5e7, req: 1.2e7, eff: 'interval', v: 0.55 },
   { id: 'harm2', cat: 'harp', cost: 6e7, req: 3e7, eff: 'harmony', v: 0.01 },
   { id: 'outer', cat: 'scope', cost: 1.5e8, req: 7e7, eff: 'outerLens', v: 3 },
   { id: 'inner', cat: 'lens', cost: 1.5e8, req: 7e7, eff: 'innerLens', v: 3 },
   { id: 'lens4', cat: 'lens', cost: 6e8, req: 3e8, eff: 'prod', v: 2.5 },
-  { id: 'press', cat: 'weight', cost: 2e9, req: 1e9, eff: 'threshold', v: 0.7 },
+  { id: 'press', cat: 'weight', cost: 2e9, req: 1e9, eff: 'threshold', v: 0.4 },
   { id: 'heavy2', cat: 'ring', cost: 8e9, req: 4e9, eff: 'align', v: 3 },
   { id: 'reson2', cat: 'orbit', cost: 3e10, req: 1.5e10, eff: 'neighbor', v: 0.15 },
   { id: 'lens5', cat: 'lens', cost: 1.5e11, req: 7e10, eff: 'prod', v: 3 },
-  { id: 'scope2', cat: 'scope', cost: 8e11, req: 4e11, eff: 'rarity', v: 0.08 },
+  { id: 'scope2', cat: 'scope', cost: 8e11, req: 4e11, eff: 'rarity', v: 0.12 },
   { id: 'gear3', cat: 'gear', cost: 4e12, req: 2e12, eff: 'interval', v: 0.6 },
   { id: 'grav2', cat: 'weight', cost: 2e13, req: 1e13, eff: 'tierMult', v: 0.1 },
   { id: 'harm3', cat: 'harp', cost: 1e14, req: 5e13, eff: 'harmony', v: 0.015 },
@@ -118,7 +123,7 @@ G.SRESEARCH = [
   { id: 'q9', cost: 34, eff: 'coreX', v: 5 },
   { id: 'q10', cost: 55, eff: 'tierMult', v: 0.25 },
   { id: 'q11', cost: 89, eff: 'autoCollapse', v: 1 },
-  { id: 'q12', cost: 600, eff: 'ending', v: 1 }
+  { id: 'q12', cost: 400, eff: 'ending', v: 1 }
 ];
 
 G.EVENTS = ['comet', 'shower', 'flare', 'rogue', 'align', 'pulsar', 'meteor', 'moons'];

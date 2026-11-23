@@ -66,7 +66,7 @@
     yy += 8;
     var bw = 94;
     if (!fromTitle) {
-      if (U.button('sv', lx, yy, bw, 19, G.T('b_save'), { font: 'g11b' })) { s.seenTabs = A.seenTabs; G.save.save(s); A.notify([G.T('saved')], 'info'); }
+      if (U.button('sv', lx, yy, bw, 19, G.T('b_save'), { font: 'g11b' })) { s.seenTabs = A.seenTabs; var rr = G.save.save(s); A.notify([rr === true ? G.T('saved') : (rr === 'locked' ? G.T('save_locked') : G.T('save_fail'))], 'info'); }
       if (U.button('ex', lx + bw + 6, yy, bw, 19, G.T('b_export'), { font: 'g11b' })) exportSave(s);
       if (U.button('im', lx + (bw + 6) * 2, yy, bw, 19, G.T('b_import'), { font: 'g11b' })) importSave();
       yy += 25;
@@ -80,17 +80,18 @@
       if (U.button('fs', lx + (bw + 6) * 2, yy, bw, 19, G.T('fullscreen'), { font: 'g11b' })) toggleFs();
       yy += 25;
     }
-    if (U.button('cl', lx + (bw + 6) * 2, yy, bw, 19, G.T('b_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) { A.overlay = null; if (A.s && !fromTitle) G.save.save(A.s); if (fromTitle && G.save.has()) { var sv = G.save.load(); if (sv && sv !== 'broken') { sv.settings = s.settings; var keep = sv.lastSave; localStorage.setItem(G.save.KEY, JSON.stringify(sv)); } } }
+    if (U.button('cl', lx + (bw + 6) * 2, yy, bw, 19, G.T('b_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) { A.overlay = null; if (A.s && !fromTitle) G.save.save(A.s); if (fromTitle && G.save.has()) { try { var raw = JSON.parse(localStorage.getItem(G.save.KEY)); raw.settings = s.settings; localStorage.setItem(G.save.KEY, JSON.stringify(raw)); } catch (e) { } } A.titleInfo = null; }
   }
   function toggleFs() {
     try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) { }
   }
   function exportSave(s) {
     var code = G.save.toCode(s);
-    var ok = false;
-    try { if (navigator.clipboard) { navigator.clipboard.writeText(code); ok = true; } } catch (e) { }
-    if (!ok) { try { window.prompt(G.T('exported'), code); } catch (e) { } }
-    A.notify([G.T('exported')], 'info');
+    function fallback() { try { window.prompt(G.T('export_title'), code); } catch (e) { } }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(function () { A.notify([G.T('exported')], 'info'); }, fallback);
+      else fallback();
+    } catch (e) { fallback(); }
   }
   function importSave(fromTitle) {
     var code = null;

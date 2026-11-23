@@ -166,9 +166,9 @@
   function frameInner(now) {
     var raw = (now - last) / 1000 || 0;
     var dt = Math.min(0.1, raw); last = now;
-    if (raw > 2 && A.scene === 'play' && A.s && !A.cut && !window.__timeScale) {
-      var rep = C.offline(A.s, raw);
-      if (rep && raw >= 60) { A.away = rep; A.overlay = 'away'; }
+    if (raw > 2 && A.s && (A.scene === 'play' || A.scene === 'ending') && !window.__timeScale) {
+      if (raw < 30) { for (var ct = 0; ct < raw; ct += 0.5) C.tick(A.s, Math.min(0.5, raw - ct), {}); }
+      else { var rep = C.offline(A.s, raw); if (rep && raw >= 60 && A.scene === 'play') { A.away = rep; A.overlay = 'away'; } }
     }
     if (window.__freeze) return;
     if (window.__timeScale) dt *= window.__timeScale;
@@ -177,7 +177,7 @@
     var gx = G.gfx;
     G.ui.resetHover();
     if (A.scene === 'play' && A.s) {
-      if (!A.cut && A.overlay !== 'away' && A.scene !== 'ending') {
+      if (!A.cut && A.overlay !== 'confirm' && A.scene !== 'ending') {
         var steps = window.__timeScale && window.__timeScale > 4 ? Math.ceil(dt / 0.1) : 1;
         var sdt = dt / steps;
         for (var i = 0; i < steps; i++) {
@@ -191,6 +191,7 @@
           }
         }
         if (A.pendingRoll && !G.tray.rolling()) { showRoll(A.pendingRoll); A.pendingRoll = null; }
+        while (C.chalQueue.length) { var cid = C.chalQueue.shift(); A.notify([G.T('chal_clear'), G.nm('chal', cid)], 'ach'); if (G.audio) G.audio.play('chal'); }
         while (C.achQueue.length) { var id = C.achQueue.shift(); A.notify([G.T('ach_get'), G.nm('ach', id)], 'ach'); }
         if (A.s.ended && !A.s.endSeen) { A.s.endSeen = true; A.scene = 'ending'; A.endT = 0; if (G.audio) G.audio.play('ending'); }
         checkUnlocks();
@@ -199,7 +200,7 @@
       }
       updCut(dt);
       saveT += dt;
-      if (saveT > 15) { saveT = 0; A.s.seenTabs = A.seenTabs; G.save.save(A.s); }
+      if (saveT > 15) { saveT = 0; A.s.seenTabs = A.seenTabs; var sr = G.save.save(A.s); if (sr === 'locked' && !A.lockWarned) { A.lockWarned = 1; A.notify([G.T('save_locked'), G.T('save_locked2')], 'info'); } else if (sr === false && !A.failWarned) { A.failWarned = 1; A.notify([G.T('save_fail')], 'info'); } }
     }
     G.orrery.update(dt, A.view); G.tray.update(dt);
     updToasts(dt);
@@ -222,7 +223,7 @@
   function boot() {
     var cv = document.getElementById('screen');
     G.gfx.init(cv); G.ui.bind(cv);
-    window.addEventListener('beforeunload', function () { if (A.s && A.scene !== 'title') { A.s.seenTabs = A.seenTabs; G.save.save(A.s); } });
+    window.addEventListener('beforeunload', function () { if (A.s && A.scene !== 'title' && !document.hidden) { A.s.seenTabs = A.seenTabs; G.save.save(A.s); } G.save.release(); });
     document.addEventListener('visibilitychange', function () { if (document.hidden && A.s && A.scene !== 'title') { A.s.seenTabs = A.seenTabs; G.save.save(A.s); } });
     window.addEventListener('blur', function () { G.ui.inp.keys = {}; G.ui.inp.down = false; });
     var q = location.search;

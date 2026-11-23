@@ -110,7 +110,8 @@
       yy += wl.length * 14 + 10;
     });
     if (t > 13) {
-      G.embossText(G.T('cr_game'), lx, 200, 3, [4, 3, 11], 'g11b', 12);
+      var ek = G.embossMeasure(G.T('cr_game'), 3) > 200 ? 2 : 3;
+      G.embossText(G.T('cr_game'), lx, 200, ek, [4, 3, 11], 'g11b', 12);
       F.drawOutlined(G.T('end_thanks'), lx, 248, 8, 'g11', 12);
     }
     if (t > 14.5) {

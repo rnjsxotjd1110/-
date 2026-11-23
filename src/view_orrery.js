@@ -148,6 +148,8 @@
         var lw = G.font.measure(label, 'g7');
         var kk = Math.max(1, Math.ceil((G.font.measure(String(lastS), 'g7') + 4) / L.sp));
         if (s % kk !== 0) return;
+        if (x - (lw >> 1) <= rulerLast + 2) return;
+        rulerLast = x + (lw >> 1);
         var row = 0;
         G.font.draw(label, x - (lw >> 1), RY + 7, hot ? 4 : (st.bodies[s] ? 8 : 15), 'g7');
       });

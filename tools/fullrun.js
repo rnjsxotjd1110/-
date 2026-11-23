@@ -36,6 +36,8 @@ const path = require('path');
       }
       G.RESEARCH.filter(r => C.researchAvail(s, r) && s.cores >= r.cost).slice(0, 1).forEach(r => C.buyResearch(s, r.id));
       G.SRESEARCH.filter(r => C.sresAvail(s, r) && s.sing >= r.cost && (r.eff !== 'ending' || Object.keys(s.chalDone).length >= 6)).slice(0, 1).forEach(r => C.buySres(s, r.id));
+      const nextS = G.SRESEARCH.find(r => !s.sres[r.id]); if (s.sing >= C.costCompress(s) && (!nextS || C.costCompress(s) < s.sing * 0.3)) C.buyCompress(s);
+      if (G.RESEARCH.every(r => s.research[r.id]) && s.cores >= C.costRefine(s)) C.buyRefine(s);
       if (Object.keys(s.shapes).length > 1 && s.shapes.d12 && s.dice[0].shape !== 'd12') { C.setShape(s, 0, 'd12'); }
       const runT = s.t - s.stats.runStart;
       if (C.canCollapse(s) && (C.collapseGain(s) >= Math.max(1, s.singAll * 0.4) || runT > 5400)) { window.__log.push('collapse ' + (s.t / 3600).toFixed(2)); A.startCollapse(); return; }

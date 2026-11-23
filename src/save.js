@@ -2,6 +2,7 @@
 (function () {
   var KEY = 'diceOrrery.save.v1';
   var disabled = false;
+  var TAB = Math.random().toString(36).slice(2), OWN = KEY + '.owner';
   function merge(def, got) {
     if (got === null || got === undefined) return def;
     if (typeof def !== 'object' || def === null || Array.isArray(def)) return typeof got === typeof def || def === null ? got : def;
@@ -13,13 +14,13 @@
   }
   function num(v, lo, hi, def) { v = +v; if (!isFinite(v)) return v === Infinity ? hi : def; return Math.max(lo, Math.min(hi, v)); }
   function int(v, lo, hi, def) { return Math.floor(num(v, lo, hi, def)); }
-  function valid(s) { return s && typeof s === 'object' && !Array.isArray(s) && Array.isArray(s.dice) && s.dice.length >= 1; }
+  function valid(s) { if (!s || typeof s !== 'object' || Array.isArray(s) || typeof s.v !== 'number' || typeof s.dust !== 'number') return false; if (!Array.isArray(s.dice)) s.dice = []; return true; }
   function idSet(list) { var o = {}; list.forEach(function (x) { o[x.id || x[0]] = 1; }); return o; }
   function sanitize(s) {
     var CAP = 1e300;
     ['dust', 'dustRun', 'dustAll', 'cores', 'coresLayer', 'coresAll', 'sing', 'singAll', 't'].forEach(function (k) { s[k] = num(s[k], 0, CAP, 0); });
     ['novas', 'collapses', 'forges'].forEach(function (k) { s[k] = int(s[k], 0, 1e9, 0); });
-    s.lv = { power: int(s.lv && s.lv.power, 0, 5000, 0), wind: int(s.lv && s.lv.wind, 0, 5000, 0) };
+    s.lv = { power: int(s.lv && s.lv.power, 0, 5000, 0), wind: int(s.lv && s.lv.wind, 0, 5000, 0), refine: int(s.lv && s.lv.refine, 0, 500, 0), compress: int(s.lv && s.lv.compress, 0, 500, 0) };
     s.lastSave = num(s.lastSave, 0, 1e15, Date.now());
     s.autoT = num(s.autoT, 0, 100, 0); s.manualCd = 0;
     // 주사위
@@ -32,11 +33,14 @@
     });
     while (dice.length < 2) dice.push(G.core.newDie('d6'));
     var used = 0; dice = dice.filter(function (d) { used += d.faces.length; return used <= G.DATA.trayCapacity; });
+    var maxD = s.sres && s.sres.q6 ? 6 : 5, maxF = s.research && s.research.g6 ? 9 : 6;
+    dice = dice.slice(0, maxD);
+    dice.forEach(function (d) { if (d.shape === 'd6') d.faces = d.faces.map(function (f) { return Math.min(f, maxF); }); });
     s.dice = dice;
     // 천체
     var nb = {};
     Object.keys(s.bodies || {}).forEach(function (k) {
-      var b = s.bodies[k], key = int(k, 1, 200, -1);
+      var b = s.bodies[k], key = int(k, 1, 80, -1);
       if (key < 1 || !b || typeof b !== 'object') return;
       var m = num(b.m, 0, CAP, 0); if (m <= 0) return;
       nb[key] = { m: m, t: int(b.t, 1, 10, 1), seed: int(b.seed, 0, 1e6, key), a0: num(b.a0, -1e6, 1e6, 0) };
@@ -46,13 +50,13 @@
     function clean(obj, ids) { var o = {}; Object.keys(obj || {}).forEach(function (k) { if (ids[k] && obj[k]) o[k] = 1; }); return o; }
     s.up = clean(s.up, idSet(G.UPGRADES)); s.research = clean(s.research, idSet(G.RESEARCH)); s.sres = clean(s.sres, idSet(G.SRESEARCH));
     s.chalDone = clean(s.chalDone, idSet(G.CHALLENGES));
-    if (s.chal && !idSet(G.CHALLENGES)[s.chal]) s.chal = null;
+    if (s.chal && (!idSet(G.CHALLENGES)[s.chal] || s.chalDone[s.chal])) s.chal = null;
     var ach = {}; Object.keys(s.ach || {}).forEach(function (k) { if (idSet(G.ACH)[k]) ach[k] = int(s.ach[k], 0, 1e12, 0); }); s.ach = ach;
     s.shapes = { d6: true }; ['d4', 'd8', 'd12'].forEach(function (sh) { G.SRESEARCH.forEach(function (r) { if (r.v === sh && s.sres[r.id]) s.shapes[sh] = true; }); });
     s.dice.forEach(function (d) { if (!s.shapes[d.shape]) { d.shape = 'd6'; d.faces = G.core.newDie('d6').faces; } });
     // 이벤트·버프
     var B = (s.ev && s.ev.buffs) || {};
-    s.ev = { next: num(s.ev && s.ev.next, 0, 400, 60), cur: null, buffs: { flare: num(B.flare, 0, 60, 0), pulsar: num(B.pulsar, 0, 60, 0), rogue: num(B.rogue, 0, 60, 0), shower: int(B.shower, 0, 200, 0), align: int(B.align, 0, 20, 0), moons: int(B.moons, 0, 100, 0) }, seen: (s.ev && typeof s.ev.seen === 'object' && s.ev.seen) || {}, seenFirst: !!(s.ev && s.ev.seenFirst) };
+    s.ev = { next: num(s.ev && s.ev.next, 0, 400, 60), cur: null, buffs: { flare: num(B.flare, 0, 60, 0), pulsar: num(B.pulsar, 0, 60, 0), rogue: num(B.rogue, 0, 60, 0), shower: int(B.shower, 0, 200, 0), align: int(B.align, 0, 20, 0), moons: int(B.moons, 0, 100, 0) }, seen: (function () { var o = {}, sv = (s.ev && s.ev.seen) || {}; G.EVENTS.forEach(function (e) { if (sv[e]) o[e] = 1; }); return o; })(), seenFirst: !!(s.ev && s.ev.seenFirst) };
     // 통계
     var st = s.stats || {};
     Object.keys(st).forEach(function (k) { if (typeof st[k] === 'number' || typeof st[k] === 'string') st[k] = num(st[k], 0, CAP, 0); });
@@ -60,11 +64,20 @@
     // 설정
     var se = s.settings || {};
     s.settings = { sfx: num(se.sfx, 0, 1, 0.7), bgm: num(se.bgm, 0, 1, 0.5), muted: se.muted !== false, notation: ['ko', 'en', 'sci', 'eng'].indexOf(se.notation) >= 0 ? se.notation : 'ko', reduce: !!se.reduce, lang: se.lang === 'en' ? 'en' : 'ko', autoNova: !!se.autoNova, autoCollapse: !!se.autoCollapse };
-    s.ended = !!s.ended; s.endSeen = !!s.endSeen;
+    s.ended = !!s.ended && !!s.sres.q12; s.endSeen = !!s.endSeen && s.ended;
+    if (st.alignDice > s.dice.length) st.alignDice = 0;
     return s;
   }
   function serialize(s) { G.core.capAll(s); s.lastSave = Date.now(); return JSON.stringify(s); }
-  function save(s) { if (disabled) return false; try { localStorage.setItem(KEY, serialize(s)); return true; } catch (e) { return false; } }
+  function save(s) {
+    if (disabled) return false;
+    try {
+      var o = JSON.parse(localStorage.getItem(OWN) || 'null');
+      if (o && o.id !== TAB && Date.now() - o.t < 40000) return 'locked';
+      localStorage.setItem(OWN, JSON.stringify({ id: TAB, t: Date.now() }));
+      localStorage.setItem(KEY, serialize(s)); return true;
+    } catch (e) { return false; }
+  }
   function parse(raw) {
     try {
       var got = JSON.parse(raw); if (!valid(got)) return null;
@@ -90,5 +103,5 @@
       return parse(decodeURIComponent(escape(atob(code.slice(4)))));
     } catch (e) { return null; }
   }
-  G.save = { save: save, load: load, has: has, wipe: wipe, toCode: toCode, fromCode: fromCode, KEY: KEY, disable: function () { disabled = true; } };
+  G.save = { save: save, load: load, has: has, wipe: wipe, toCode: toCode, fromCode: fromCode, KEY: KEY, disable: function () { disabled = true; }, release: function () { try { var o = JSON.parse(localStorage.getItem(OWN) || 'null'); if (o && o.id === TAB) localStorage.removeItem(OWN); } catch (e) { } } };
 })();

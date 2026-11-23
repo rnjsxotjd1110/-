@@ -44,7 +44,7 @@ function run(kind, seed) {
     // 손 굴림
     if (s.t < P.clickUntil || C.derive(s).interval === 0) {
       const n = P.click * dt;
-      for (let i = 0; i < Math.floor(n + R()); i++) { s.manualCd = 0; C.manualRoll(s); }
+      for (let i = 0; i < Math.floor(Math.min(n, dt / G.DATA.manualCooldown) + R()); i++) { s.manualCd = 0; C.manualRoll(s); }
     }
     C.tick(s, dt, {});
     if (s.ev.cur && s.ev.cur.life < 10) { if (R() < P.catch) C.catchEvent(s); else s.ev.cur = null; }
@@ -83,6 +83,8 @@ function run(kind, seed) {
     // 연구
     if (s.cores > 0) {
       let g = 0;
+      while (g++ < 20 && G.RESEARCH.every(r => s.research[r.id] || !C.researchAvail(s, r) || s.cores < r.cost) && s.cores >= C.costRefine(s) * (G.RESEARCH.every(r => s.research[r.id]) ? 1 : 3)) C.buyRefine(s);
+      g = 0;
       while (g++ < 20) {
         const av = G.RESEARCH.filter(r => C.researchAvail(s, r) && s.cores >= r.cost).sort((a, b) => a.cost - b.cost);
         if (!av.length) break; C.buyResearch(s, av[0].id);
@@ -94,6 +96,8 @@ function run(kind, seed) {
         const av = G.SRESEARCH.filter(r => C.sresAvail(s, r) && s.sing >= r.cost && (r.eff !== 'ending' || Object.keys(s.chalDone).length >= 6)).sort((a, b) => a.cost - b.cost);
         if (!av.length) break; C.buySres(s, av[0].id);
       }
+      g = 0; const nextS = G.SRESEARCH.find(r => !s.sres[r.id]);
+      while (g++ < 20 && s.sing >= C.costCompress(s) && (!nextS || C.costCompress(s) < s.sing * 0.3)) C.buyCompress(s);
     }
     // 주사위 모양 고르기 (해금된 모양으로 기대 질량 최대)
     if (Object.keys(s.shapes).length > 1 && s.t - (s._shapeT || 0) > 600 && kind !== 'random') {

@@ -23,14 +23,14 @@ const path = require('path');
   let s = await st();
   ok(s.scene === 'play', '빈 곳을 누르면 시작 (' + s.scene + ')');
   // 레버 10번
-  for (let i = 0; i < 12; i++) { await click(376, 300); await page.waitForTimeout(230); }
+  for (let i = 0; i < 12; i++) { await click(376, 300); await page.waitForTimeout(450); }
   await page.waitForTimeout(1200);
   s = await st();
   ok(s.rolls >= 10, '레버로 굴림 ' + s.rolls + '번');
   ok(s.bodies >= 3, '천체 생김 ' + s.bodies + '개');
   // 스페이스
   const r0 = s.rolls;
-  for (let i = 0; i < 5; i++) { await page.keyboard.press('Space'); await page.waitForTimeout(230); }
+  for (let i = 0; i < 5; i++) { await page.keyboard.press('Space'); await page.waitForTimeout(450); }
   s = await st(); ok(s.rolls >= r0 + 4, '스페이스로 굴림');
   // 구매: 굴림 힘 버튼 (첫 판 왼쪽 위 버튼)
   await page.evaluate(() => { G.app.s.dust = 1000; });

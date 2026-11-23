@@ -108,7 +108,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.stdMin = Math.min.apply(null, keys); d.stdMax = Math.max.apply(null, keys);
     // 희소도: 지금(깎은) 분포 기준. 표준 범위를 넘는 바깥 궤도는 칸마다 추가 배율.
     var pmax = 0; Object.keys(d.dist).forEach(function (k) { pmax = Math.max(pmax, d.dist[k]); });
-    var rexp = D.rarityExp + upSum(s, 'rarity');
+    var rexp = D.rarityExp + upSum(s, 'rarity') + D.shapeBonus.d8 * dice.filter(function (x) { return x.shape === 'd8'; }).length;
     d.rarity = function (sum) {
       var p = d.dist[sum] || d.std[sum];
       var r = p ? Math.pow(pmax / p, rexp) : 1;
@@ -128,6 +128,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var lp = s.lv.power;
     d.power = (1 + lp * 0.5) * Math.pow(D.power.grow, lp);
     d.massMult = resV(s, 'mass') * sresV(s, 'mass') * (res(s, 'g4') ? Math.pow(1 + s.coresLayer, 0.6) : 1) * Math.pow(1 + s.singAll, D.singMassExp);
+    var nd12 = dice.filter(function (x) { return x.shape === 'd12'; }).length;
+    d.massMult *= Math.pow(D.perDieMass, dice.length) * Math.pow(D.shapeBonus.d12, nd12) * Math.pow(D.refine.v, s.lv.refine || 0) * Math.pow(D.compress.v, s.lv.compress || 0);
     d.power *= d.massMult;
     // 태엽 간격
     var lw = s.lv.wind;
@@ -138,8 +140,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.interval = lw > 0 ? Math.max(D.wind.intMin * (s.ev.buffs.pulsar > 0 ? 0.34 : 1), iv) : 0;
     d.rollsPerSec = d.interval ? 1 / d.interval : 0;
     d.twin = upSum(s, 'twin') + resV(s, 'twin', 'sum');
-    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * d.alignDamp);
-    d.manualMult = D.manualMult + upSum(s, 'manual');
+    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * d.alignDamp * Math.pow(D.shapeBonus.d4, dice.filter(function (x) { return x.shape === 'd4'; }).length));
+    d.manualMult = (d.interval > 0 && d.interval < 0.5) ? 1 : D.manualMult + upSum(s, 'manual');
     // 단계
     var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, 8)) * Math.pow(D.collapseHeavyLate, Math.max(0, s.collapses - 8));
     d.th = [];
@@ -321,6 +323,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       if (s.ev.next <= 0) spawnEvent(s);
     }
     // 자동화
+    if (s.chal && maxTier(s) >= D.chalTier) { s.chalDone[s.chal] = 1; chalQueue.push(s.chal); s.chal = null; invalidate(); }
     if (res(s, 's5')) autoBuy(s);
     if (res(s, 's4')) autoUpgrade(s);
     if (res(s, 's6') && s.settings.autoNova && canNova(s) && novaGain(s) >= Math.max(1, Math.floor(s.coresLayer * 0.25))) nova(s);
@@ -329,7 +332,9 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     return rolled;
   }
   function capAll(s) {
-    ['dust', 'dustRun', 'dustAll', 'cores', 'coresLayer', 'coresAll', 'sing', 'singAll'].forEach(function (k) { if (!(s[k] < CAP)) s[k] = isNaN(s[k]) ? 0 : CAP; });
+    ['dust', 'dustRun', 'dustAll', 'cores', 'coresLayer', 'coresAll', 'sing', 'singAll'].forEach(function (k) { if (!(s[k] < CAP)) s[k] = isNaN(s[k]) ? 0 : CAP; if (s[k] < 0) s[k] = 0; });
+    ['power', 'wind', 'refine', 'compress'].forEach(function (k) { if (!(s.lv[k] >= 0)) { s.lv[k] = 0; invalidate(); } });
+    if (!(s.t >= 0)) s.t = 0; if (!(s.stats.rolls >= 0)) s.stats.rolls = 0;
     for (var k2 in s.bodies) { var b = s.bodies[k2]; if (!(b.m < CAP)) b.m = isNaN(b.m) ? 1 : CAP; }
   }
   function offlineEff(s) { return res(s, 's3') ? 1 : D.offlineEff; }
@@ -413,6 +418,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (!spend(s, costForge(s))) return false;
     die.faces[fi] = nv; s.forges++; invalidate(); return true;
   }
+  function costRefine(s) { return D.refine.cost0 * Math.pow(D.refine.costK, s.lv.refine || 0); }
+  function costCompress(s) { return D.compress.cost0 * Math.pow(D.compress.costK, s.lv.compress || 0); }
+  function buyRefine(s) { var c = costRefine(s); if (!(s.cores >= c)) return false; s.cores -= c; s.lv.refine = (s.lv.refine || 0) + 1; invalidate(); return true; }
+  function buyCompress(s) { var c = costCompress(s); if (!(s.sing >= c)) return false; s.sing -= c; s.lv.compress = (s.lv.compress || 0) + 1; invalidate(); return true; }
   function upgradeVisible(s, u) { return s.dustRun >= u.req || s.up[u.id]; }
   function buyUpgrade(s, id) {
     var u = G.UPGRADES.filter(function (x) { return x.id === id; })[0];
@@ -490,7 +499,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var keepFaces = res(s, 'r4');
     var oldDice = s.dice;
     s.dust = 0; s.dustRun = 0; s.bodies = {}; s.up = {}; s.autoT = 0;
-    s.lv = { power: 0, wind: res(s, 'r1') ? 6 : 0 };
+    s.lv = { power: 0, wind: res(s, 'r1') ? 6 : 0, refine: s.lv.refine || 0, compress: s.lv.compress || 0 };
     var nd = res(s, 'r2') ? 3 : 2;
     if (chalRule(s, 'twoDice')) nd = 2;
     s.dice = [];
@@ -517,7 +526,6 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var info = { gain: g, chalDone: null, time: s.t - s.stats.runStart };
     s.cores += g; s.coresLayer += g; s.coresAll += g; s.novas++; invalidate();
     if (!s.stats.fastestNova || info.time < s.stats.fastestNova) s.stats.fastestNova = info.time;
-    if (s.chal) { s.chalDone[s.chal] = 1; info.chalDone = s.chal; s.chal = null; }
     resetRun(s);
     checkAch(s);
     return info;
@@ -541,7 +549,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var g = Math.max(1, collapseGain(s));
     s.sing += g; s.singAll += g; s.collapses++;
     var keep = sresV(s, 'keepResearch', 'sum') > 0;
-    s.cores = 0; s.coresLayer = 0;
+    s.cores = 0; s.coresLayer = 0; s.lv.refine = 0;
     if (!keep) s.research = {};
     else { s.cores = 0; }
     resetRun(s);
@@ -587,8 +595,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     ['face9', function (s) { return s.dice.some(function (d) { return d.shape === 'd6' && d.faces.indexOf(9) >= 0; }); }],
     ['dust6', function (s) { return s.stats.maxDust >= 1e6; }],
     ['dust12', function (s) { return s.stats.maxDust >= 1e12; }],
-    ['dust24', function (s) { return s.stats.maxDust >= 1e24; }],
-    ['dust48', function (s) { return s.stats.maxDust >= 1e48; }],
+    ['dust24', function (s) { return s.stats.maxDust >= 1e18; }],
+    ['dust48', function (s) { return s.stats.maxDust >= 1e21; }],
     ['ev1', function (s) { return s.stats.events >= 1; }],
     ['ev25', function (s) { return s.stats.events >= 25; }],
     ['evAll', function (s) { return Object.keys(s.ev.seen).length >= 8; }],
@@ -606,7 +614,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     ['streak5', function (s) { return s.stats.streak >= 5; }],
     ['ending', function (s) { return s.ended; }]
   ];
-  var achQueue = [];
+  var achQueue = [], chalQueue = [];
   function checkAch(s) {
     for (var i = 0; i < G.ACH.length; i++) {
       var a = G.ACH[i];
@@ -619,12 +627,12 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     production: production, bodyRate: bodyRate, harmony: harmony, tierOf: tierOf,
     costPower: costPower, costWind: costWind, costDie: costDie, costForge: costForge, maxDice: maxDice, forgeUnlocked: forgeUnlocked, maxFace: maxFace,
     buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, forge: forge, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible,
-    buyResearch: buyResearch, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
+    buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
     canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
     chalUnlocked: chalUnlocked, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, collapseGain: collapseGain, collapse: collapse,
     spawnEvent: spawnEvent, catchEvent: catchEvent, offline: offline, checkAch: checkAch,
-    achQueue: achQueue, setRng: setRng, capAll: capAll, newDie: newDie, SHAPE_FACES: SHAPE_FACES, res: res, sres: sres
+    achQueue: achQueue, chalQueue: chalQueue, setRng: setRng, capAll: capAll, newDie: newDie, SHAPE_FACES: SHAPE_FACES, res: res, sres: sres
   };
 })();
 if (typeof module !== 'undefined') module.exports = G;
