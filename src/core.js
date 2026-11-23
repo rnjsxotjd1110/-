@@ -112,7 +112,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.rarity = function (sum) {
       var p = d.dist[sum] || d.std[sum];
       var r = p ? Math.pow(pmax / p, rexp) : 1;
-      if (sum > d.stdMax) r *= Math.pow(D.outerRarityStep, sum - d.stdMax);
+      if (sum > d.stdMax) r *= Math.min(8, Math.pow(D.outerRarityStep, sum - d.stdMax));
       return r;
     };
     // 정렬 확률이 깎기로 높아지면 정렬 배율은 그만큼 줄어든다 (기대값 유지)
@@ -127,7 +127,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     // 굴림 힘
     var lp = s.lv.power;
     d.power = (1 + lp * 0.5) * Math.pow(D.power.grow, lp);
-    d.massMult = resV(s, 'mass') * sresV(s, 'mass') * (res(s, 'g4') ? Math.pow(1 + s.coresLayer, 0.6) : 1) * Math.pow(1 + s.singAll, D.singMassExp);
+    d.massMult = upProd(s, 'mass') * resV(s, 'mass') * sresV(s, 'mass') * (res(s, 'g4') ? Math.pow(1 + s.coresLayer, 0.4) : 1) * Math.pow(1 + s.singAll, D.singMassExp);
     var nd12 = dice.filter(function (x) { return x.shape === 'd12'; }).length;
     d.massMult *= Math.pow(D.perDieMass, dice.length) * Math.pow(D.shapeBonus.d12, nd12) * Math.pow(D.refine.v, s.lv.refine || 0) * Math.pow(D.compress.v, s.lv.compress || 0);
     d.power *= d.massMult;
@@ -140,10 +140,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.interval = lw > 0 ? Math.max(D.wind.intMin * (s.ev.buffs.pulsar > 0 ? 0.34 : 1), iv) : 0;
     d.rollsPerSec = d.interval ? 1 / d.interval : 0;
     d.twin = upSum(s, 'twin') + resV(s, 'twin', 'sum');
-    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * d.alignDamp * Math.pow(D.shapeBonus.d4, dice.filter(function (x) { return x.shape === 'd4'; }).length));
+    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * d.alignDamp * (1 + D.shapeBonus.d4 * dice.filter(function (x) { return x.shape === 'd4'; }).length));
     d.manualMult = (d.interval > 0 && d.interval < 0.5) ? 1 : D.manualMult + upSum(s, 'manual');
     // 단계
-    var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, 8)) * Math.pow(D.collapseHeavyLate, Math.max(0, Math.min(s.collapses, 14) - 8));
+    var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, 8)) * Math.pow(D.collapseHeavyLate, Math.max(0, s.collapses - 8));
     d.th = [];
     for (var t = 2; t <= 10; t++) d.th.push(D.tierTable[Math.min(t, 8) - 2] * Math.pow(D.tierFactorHigh, Math.max(0, t - 8)) * thK);
     d.tierMult = D.tierMultBase + upSum(s, 'tierMult') + resV(s, 'tierMult', 'sum') + sresV(s, 'tierMult', 'sum');
@@ -323,7 +323,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       if (s.ev.next <= 0) spawnEvent(s);
     }
     // 자동화
-    if (s.chal && maxTier(s) >= D.chalTier) { s.chalDone[s.chal] = 1; chalQueue.push(s.chal); s.chal = null; invalidate(); }
+    if (s.chal && maxTier(s) >= chalGoal(s.chal)) { s.chalDone[s.chal] = 1; chalQueue.push(s.chal); s.chal = null; invalidate(); }
     if (res(s, 's5')) autoBuy(s);
     if (res(s, 's4')) autoUpgrade(s);
     if (res(s, 's6') && s.settings.autoNova && canNova(s) && novaGain(s) >= Math.max(1, Math.floor(s.coresLayer * 0.25))) nova(s);
@@ -530,6 +530,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     checkAch(s);
     return info;
   }
+  function chalGoal(id) { var i = G.CHALLENGES.map(function (c) { return c.id; }).indexOf(id); return i >= 3 ? 10 : D.chalTier; }
   function chalUnlocked(s, c) { return s.novas >= c.req || s.collapses > 0; }
   function startChallenge(s, id) {
     var c = G.CHALLENGES.filter(function (x) { return x.id === id; })[0];
@@ -542,12 +543,13 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function canCollapse(s) { return maxTier(s) >= D.collapseTier && !s.chal; }
   function collapseGain(s) {
     if (!canCollapse(s)) return 0;
-    return Math.floor(D.singGain.k * Math.pow((s.coresLayer + novaGain(s)) / D.singGain.div, D.singGain.exp));
+    var runMin = (s.t - (s.layerStart || 0)) / 60;
+    return Math.floor(D.singGain.k * Math.pow((s.coresLayer + novaGain(s)) / D.singGain.div, D.singGain.exp) * Math.min(1, 0.4 + runMin / 50));
   }
   function collapse(s) {
     if (!canCollapse(s)) return null;
     var g = Math.max(1, collapseGain(s));
-    s.sing += g; s.singAll += g; s.collapses++;
+    s.sing += g; s.singAll += g; s.collapses++; s.forges = 0; s.layerStart = s.t;
     var keep = sresV(s, 'keepResearch', 'sum') > 0;
     s.cores = 0; s.coresLayer = 0; s.lv.refine = 0;
     if (!keep) s.research = {};
@@ -629,7 +631,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, forge: forge, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible,
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
     canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
-    chalUnlocked: chalUnlocked, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
+    chalUnlocked: chalUnlocked, chalGoal: chalGoal, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, collapseGain: collapseGain, collapse: collapse,
     spawnEvent: spawnEvent, catchEvent: catchEvent, offline: offline, checkAch: checkAch,
     achQueue: achQueue, chalQueue: chalQueue, setRng: setRng, capAll: capAll, newDie: newDie, SHAPE_FACES: SHAPE_FACES, res: res, sres: sres

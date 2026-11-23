@@ -3,7 +3,7 @@ var G = (typeof G !== 'undefined') ? G : {};
 G.DATA = {
   version: 1,
   // 천체 단계 문턱 (질량). 1단계는 질량이 생기는 순간.
-  tierTable: [10, 120, 1500, 1.5e4, 1.2e5, 6e5, 2.5e6], tierFactorHigh: 45,  // 2~8단계 문턱, 9·10단계는 ×High
+  tierTable: [10, 120, 1500, 2e4, 3e5, 2.5e6, 1.5e7], tierFactorHigh: 45,  // 2~8단계 문턱, 9·10단계는 ×High (붕괴 무거움 포함)
   tierMultBase: 1.35,           // 단계 배율 = base^(단계-1)
   prodPerMass: 0.3,             // 질량^massExp 1당 초당 별가루
   massExp: 0.6,
@@ -33,15 +33,15 @@ G.DATA = {
   coreGain: { k: 3, div: 6e6, exp: 0.5 },
   // 중력 붕괴
   collapseTier: 10,
-  collapseHeavy: 2.6, collapseHeavyLate: 1.4,
+  collapseHeavy: 2.6, collapseHeavyLate: 1.25,
   singMassExp: 0.7,             // 특이점 누적에 따른 질량 배율 (1+특이점)^exp             // 붕괴할 때마다 단계 문턱 배율
   singGain: { k: 1, div: 40, exp: 0.45 },
   trayCapacity: 36,
-  perDieMass: 1.08,              // 주사위 하나당 질량 배율
-  shapeBonus: { d4: 1.5, d8: 0.06, d12: 1.6 }, // d4 정렬 ×, d8 희소도 지수 +, d12 질량 ×
+  perDieMass: 1.15,              // 주사위 하나당 질량 배율
+  shapeBonus: { d4: 0.2, d8: 0.12, d12: 1.4 }, // d4 정렬 +20%/개, d8 희소도 지수 +, d12 질량 ×/개
   chalTier: 9,                  // 관측 과제 목표 단계
-  refine: { cost0: 60, costK: 3.5, v: 1.25 },     // 별핵 정제: 질량 ×2 반복
-  compress: { cost0: 10, costK: 2.4, v: 1.6 }     // 특이점 압축: 질량 ×3 반복
+  refine: { cost0: 60, costK: 3, v: 1.5 },     // 별핵 정제: 질량 ×1.5 반복
+  compress: { cost0: 10, costK: 2, v: 2 }     // 특이점 압축: 질량 ×2 반복
 };
 
 // 일회성 개량 (별가루). eff: 효과 키, v: 값, req: 해금 조건(이번 판 누적 별가루)
@@ -123,7 +123,7 @@ G.SRESEARCH = [
   { id: 'q9', cost: 34, eff: 'coreX', v: 5 },
   { id: 'q10', cost: 55, eff: 'tierMult', v: 0.25 },
   { id: 'q11', cost: 89, eff: 'autoCollapse', v: 1 },
-  { id: 'q12', cost: 1200, eff: 'ending', v: 1 }
+  { id: 'q12', cost: 900, eff: 'ending', v: 1 }
 ];
 
 G.EVENTS = ['comet', 'shower', 'flare', 'rogue', 'align', 'pulsar', 'meteor', 'moons'];
