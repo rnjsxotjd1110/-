@@ -25,6 +25,8 @@
     var d = C.derive(s);
     var v = A.view || {};
     v.orbits = d.orbits; v.bodies = s.bodies; v.stage = stageOf(s); v.sunForm = sunOf(s);
+    var mt = C.maxTier(s), gt = s.novas === 0 ? 8 : (s.collapses === 0 && mt >= 8 ? 10 : 0);
+    v.goal = gt && mt < gt ? [G.T('goal_next', G.nm('tiers', gt)), G.T('goal_now', G.nm('tiers', Math.max(1, mt)))] : null;
     A.view = v;
     return v;
   }

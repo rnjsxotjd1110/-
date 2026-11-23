@@ -15,7 +15,7 @@
     // 주사위 탭
     pick_face: '새길 면을 고르세요', forge_plus: '+1 새기기', forge_minus: '-1 깎기', face_max: '이 면은 더 못 새겨요', face_min: '이 면은 더 못 깎아요',
     shape_title: '주사위 모양', tray_cap: '쟁반 칸 {0}/{1}', change_shape: '바꾸기',
-    std_dist: '깎지 않은 분포',
+    std_dist: '새기기 전 분포', dist_now: '지금 분포', goal_next: '다음: {0}', goal_now: '지금 {0}', total_mass: '총질량 {0} / {1}', tip_forge: '드문 합이 자주 나오게 새기면 그 궤도가 빨리 자라요.', ev_hint: '눌러서 잡아요', nova_keep: '별핵·연구·업적은 남아요.', tip_power: '한 번 굴릴 때 붙는 질량이 늘어요.', tip_wind: '태엽이 주사위를 자동으로 굴려요.', tip_dice: '주사위가 늘면 궤도가 바깥으로 늘어나요.', tip_forge2: '주사위 면의 눈을 바꿔 합의 분포를 바꿔요.', n_bodies: '천체',
     // 초신성
     nova_btn: '초신성 일으키기', nova_need: '적색 왜성이 태어나면 열려요', nova_gain: '별핵 +{0}', nova_next: '총질량이 {0}에 닿으면 별핵 +1',
     research: '연구', challenges: '관측 과제', br0: '성장', br1: '굴림', br2: '하늘',
@@ -26,7 +26,7 @@
     sres: '특이점 연구', ending_need: '관측 과제 6개를 끝내야 열려요', auto_col: '자동 붕괴',
     // 기록
     ach: '업적', stats: '통계', ach_hidden: '???',
-    st_time: '플레이 시간', st_rolls: '굴림', st_manual: '손 굴림', st_aligns: '정렬', st_events: '잡은 이벤트', st_best: '가장 큰 천체', st_hit: '가장 무거운 한 번', st_rare: '가장 드문 궤도', st_novas: '초신성', st_cols: '중력 붕괴', st_cores: '모은 별핵', st_sing: '모은 특이점', st_dust: '모은 별가루', st_fast: '가장 빠른 초신성',
+    st_time: '플레이 시간', st_rolls: '굴림', st_manual: '손 굴림', st_aligns: '정렬', st_events: '잡은 이벤트', st_best: '가장 큰 천체', st_hit: '가장 무거운 한 번', st_rare: '가장 높은 희소도', st_novas: '초신성', st_cols: '중력 붕괴', st_cores: '모은 별핵', st_sing: '모은 특이점', st_dust: '모은 별가루', st_fast: '가장 빠른 초신성',
     // 설정
     set_title: '설정', set_sfx: '효과음', set_bgm: '배경음', set_mute: '소리', set_notation: '숫자 표기', set_reduce: '연출 줄이기', set_lang: '언어',
     not_ko: '만·억·조', not_en: 'K·M·B', not_sci: '1.2e9', not_eng: '12e9',
@@ -51,7 +51,7 @@
     credits: '크레딧', cr_game: '주사위 성계', cr_made: '기획·그림·소리·코드', cr_made2: '1인 개발 (Claude와 함께)', cr_font: '글꼴', cr_font2: '갈무리 (Galmuri) · 이민서 · SIL OFL 1.1', cr_pal: '팔레트', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: '소리', cr_sound2: '코드로 합성', cr_tool: '도구', cr_tool2: 'HTML5 Canvas · Web Audio',
     save_locked: '다른 창에서 실행 중이에요', save_locked2: '이 창은 저장하지 않아요', save_fail: '저장하지 못했어요', export_title: '저장 코드', col_confirm_keep: '특이점 {0}개를 얻어요. 별핵은 처음으로 돌아가고 연구는 남아요.', col_warn_keep: '별핵이 사라지고 우주가 {0}배 무거워져요', pick_die: '바꿀 주사위의 면을 고르세요',
     refine: '별핵 정제', compress: '특이점 압축', b_refine: '정제하기', b_compress: '압축하기',
-    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요.', col_confirm: '특이점 {0}개를 얻어요. 별핵과 연구도 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '모든 천체 단계의 합만큼 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
+    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요. 별핵·연구·업적은 남아요.', col_confirm: '특이점 {0}개를 얻어요. 별핵과 연구도 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '천체가 많고 단계가 높을수록 모든 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
     h_orbit_rule: '합 = 궤도'
   };
   var EN = {
@@ -68,7 +68,7 @@
     upg_hidden: 'Gather more to reveal', bought: 'Owned',
     pick_face: 'Pick a face to carve', forge_plus: '+1 Carve', forge_minus: '-1 Shave', face_max: 'This face is at its limit', face_min: 'This face is at its limit',
     shape_title: 'Die shapes', tray_cap: 'Tray {0}/{1}', change_shape: 'Swap',
-    std_dist: 'Uncarved odds',
+    std_dist: 'Before carving', dist_now: 'Now', goal_next: 'Next: {0}', goal_now: 'now {0}', total_mass: 'Total mass {0} / {1}', tip_forge: 'Carve so rare sums come up more and those orbits grow fast.', ev_hint: 'Click to catch', nova_keep: 'Cores, research and feats stay.', tip_power: 'More mass per roll.', tip_wind: 'The roller rolls dice for you.', tip_dice: 'More dice push the orbits outward.', tip_forge2: 'Change face pips to reshape the odds.', n_bodies: 'Bodies',
     nova_btn: 'Go supernova', nova_need: 'Needs a red dwarf', nova_gain: 'Cores +{0}', nova_next: 'Next core at mass {0}',
     research: 'Research', challenges: 'Trials', br0: 'Growth', br1: 'Rolling', br2: 'Sky',
     chal_start: 'Start', chal_quit: 'Give up', chal_goal: 'Goal: form a white dwarf under the rule', chal_done: 'Done', chal_reward: 'Reward: {0}', chal_active: 'Active', chal_lock: 'Novas {1}/{0}',
@@ -94,7 +94,7 @@
     credits: 'Credits', cr_game: 'Dice Orrery', cr_made: 'Design · Art · Sound · Code', cr_made2: 'Solo developer (with Claude)', cr_font: 'Font', cr_font2: 'Galmuri · Lee Minseo · SIL OFL 1.1', cr_pal: 'Palette', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: 'Sound', cr_sound2: 'Synthesized in code', cr_tool: 'Tools', cr_tool2: 'HTML5 Canvas · Web Audio',
     save_locked: 'Running in another window', save_locked2: 'This window will not save', save_fail: 'Could not save', export_title: 'Save code', col_confirm_keep: 'Gain {0} singularities. Cores reset, research stays.', col_warn_keep: 'Cores are lost. The universe gets {0}× heavier', pick_die: 'Pick a face of the die to swap',
     refine: 'Core refining', compress: 'Compression', b_refine: 'Refine', b_compress: 'Compress',
-    sound_on: 'Sound on', sound_off: 'Sound off', upg_next: 'Next part at {0} stardust this run', nova_confirm: 'Gain {0} cores and restart this run.', col_confirm: 'Gain {0} singularities. Cores and research reset too.', tip_align: 'All dice show the same face: an alignment. That roll gains much more mass.', tip_rarity: 'Rarer sums add more mass per hit.', tip_harmony: 'Output grows with the total stage of all bodies.', tip_dust: 'Stardust', ev_appear: '{0} passing by', n_rolls2: '{0} rolls', save_broken: 'Could not load the save', save_broken2: 'The original was kept aside', away_cap: 'Stores up to {0}h', fullscreen: 'Fullscreen', chal_confirm_start: 'Starting a trial restarts this run.', chal_confirm_quit: 'Giving up restarts this run.', b_start_chal: 'Start', b_quit_chal: 'Give up', roller_s: 'Roll gap',
+    sound_on: 'Sound on', sound_off: 'Sound off', upg_next: 'Next part at {0} stardust this run', nova_confirm: 'Gain {0} cores and restart this run. Cores, research and feats stay.', col_confirm: 'Gain {0} singularities. Cores and research reset too.', tip_align: 'All dice show the same face: an alignment. That roll gains much more mass.', tip_rarity: 'Rarer sums add more mass per hit.', tip_harmony: 'Output grows with the total stage of all bodies.', tip_dust: 'Stardust', ev_appear: '{0} passing by', n_rolls2: '{0} rolls', save_broken: 'Could not load the save', save_broken2: 'The original was kept aside', away_cap: 'Stores up to {0}h', fullscreen: 'Fullscreen', chal_confirm_start: 'Starting a trial restarts this run.', chal_confirm_quit: 'Giving up restarts this run.', b_start_chal: 'Start', b_quit_chal: 'Give up', roller_s: 'Roll gap',
     h_orbit_rule: 'Sum = orbit'
   };
   // 이름표: [ko, en, 효과 ko, 효과 en]
@@ -153,7 +153,7 @@
       case 'harmony': return (ko ? '단계마다 조화 +' : 'Harmony per stage +') + Math.round(v * 1000) / 10 + '%';
       case 'neighbor': return (ko ? '이웃 궤도마다 생산 +' : 'Output per neighbor +') + Math.round(v * 100) + '%';
       case 'event': return ko ? '하늘 이벤트 효과 ×2, 더 자주' : 'Sky events ×2, more often';
-      case 'rarity': return (ko ? '희소도 지수 +' : 'Rarity power +') + v;
+      case 'rarity': return ko ? '드문 궤도가 더 크게 자라요' : 'Rare orbits grow even more';
       case 'manual': return (ko ? '손 굴림 배율 +' : 'Hand roll bonus +') + v;
       case 'tierMult': return (ko ? '단계 배율 +' : 'Stage bonus +') + v;
       case 'twin': return ko ? Math.round(v * 100) + '% 확률로 한 번 더 굴림' : Math.round(v * 100) + '% chance to roll again';

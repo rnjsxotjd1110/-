@@ -17,7 +17,7 @@ G.DATA = {
   // 반복 구매
   power: { cost0: 10, costK: 1.8, grow: 1.075 },  // 굴림 힘: P = (1+lv/2)·grow^lv
   wind: { cost0: 30, costK: 2.2, int0: 3.0, intK: 0.92, intMin: 0.05 },
-  diceCost: { 3: 1.2e5, 4: 1.5e7, 5: 2e11, 6: 1e15 },
+  diceCost: { 3: 1.2e5, 4: 1.5e7, 5: 5e9, 6: 1e14 },
   forge: { cost0: 150, costK: 2.1, unlock: 3 }, // 주사위 3개부터
   maxFaceBase: 6, maxFaceOver: 9,
 
@@ -33,7 +33,7 @@ G.DATA = {
   coreGain: { k: 3, div: 6e6, exp: 0.5 },
   // 중력 붕괴
   collapseTier: 10,
-  collapseHeavy: 2.6, collapseHeavyLate: 1.6,
+  collapseHeavy: 2.6, collapseHeavyLate: 1.4,
   singMassExp: 0.7,             // 특이점 누적에 따른 질량 배율 (1+특이점)^exp             // 붕괴할 때마다 단계 문턱 배율
   singGain: { k: 1, div: 40, exp: 0.45 },
   trayCapacity: 36,
@@ -123,7 +123,7 @@ G.SRESEARCH = [
   { id: 'q9', cost: 34, eff: 'coreX', v: 5 },
   { id: 'q10', cost: 55, eff: 'tierMult', v: 0.25 },
   { id: 'q11', cost: 89, eff: 'autoCollapse', v: 1 },
-  { id: 'q12', cost: 400, eff: 'ending', v: 1 }
+  { id: 'q12', cost: 1200, eff: 'ending', v: 1 }
 ];
 
 G.EVENTS = ['comet', 'shower', 'flare', 'rogue', 'align', 'pulsar', 'meteor', 'moons'];

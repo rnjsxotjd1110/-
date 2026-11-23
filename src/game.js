@@ -149,7 +149,7 @@
       c.done = true;
       if (c.kind === 'nova') { var info = C.nova(A.s); if (info && info.chalDone) { A.notify([G.T('chal_clear'), G.nm('chal', info.chalDone)], 'ach'); if (G.audio) G.audio.play('chal'); } }
       else { C.collapse(A.s); G.audio.startBgm(1); }
-      G.orrery.clearFx();
+      G.orrery.clearFx(); A.shownSum = undefined;
       var d = C.derive(A.s);
       G.tray.place(d.dice.map(spec), d.dice.map(function () { return 0; }));
       G.save.save(A.s);
@@ -196,7 +196,7 @@
         if (A.s.ended && !A.s.endSeen) { A.s.endSeen = true; A.scene = 'ending'; A.endT = 0; if (G.audio) G.audio.play('ending'); }
         checkUnlocks();
         // 이벤트 등장 소리
-        if (A.s.ev.cur && !A.s.ev.cur._snd) { A.s.ev.cur._snd = 1; if (G.audio) G.audio.play('evspawn'); if (!C.res(A.s, 's2')) A.notify([G.T('ev_appear', G.T('ev_' + A.s.ev.cur.type))], 'ev'); }
+        if (A.s.ev.cur && !A.s.ev.cur._snd) { A.s.ev.cur._snd = 1; if (G.audio) G.audio.play('evspawn'); if (!C.res(A.s, 's2')) A.notify([G.T('ev_appear', G.T('ev_' + A.s.ev.cur.type)), G.T('ev_hint')], 'ev'); }
       }
       updCut(dt);
       saveT += dt;

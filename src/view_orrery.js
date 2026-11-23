@@ -135,7 +135,8 @@
       var xa = CX + L.map[first].rx, xb = CX + L.map[lastS].rx;
       gx.hline(xa, RY + 3, xb - xa + 1, 11);
       var rulerLast = -99;
-      G.font.draw(G.T('h_orbit_rule'), V.x + 6, RY + 3, 15, 'g9');
+      if (st.goal) { var gw = G.font.draw(st.goal[0], V.x + 6, RY + 3, 4, 'g9'); G.font.draw('· ' + st.goal[1], V.x + 10 + gw, RY + 3, 15, 'g9'); }
+      else G.font.draw(G.T('h_orbit_rule'), V.x + 6, RY + 3, 15, 'g9');
       st.orbits.forEach(function (s, i) {
         var o = L.map[s];
         var x = CX + o.rx;
