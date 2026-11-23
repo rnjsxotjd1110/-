@@ -191,6 +191,21 @@
     'kwwwDck',
     'kppcccK',
     '.kkkkk.']);
+  S.knobBig = parse([
+    '....kkkkkk....',
+    '...kpwwwwpk...',
+    '..kpwwwwoosk..',
+    '.kowwwwooossk.',
+    'kooowwoooosssk',
+    'koooooooosssBk',
+    'koooooossssBBk',
+    'kosoossssssBBk',
+    'kssssssssBBBBk',
+    'kssssssBBBBBMk',
+    '.kBsBBBBBBBMk.',
+    '..kBBBBBBMMk..',
+    '...kMMMMMMk...',
+    '....kkkkkk....']);
   // 레버 손잡이(굴리기) 공 10x10
   S.knob = parse([
     '...kkkk...',
@@ -203,6 +218,234 @@
     '.kBBBBBMk.',
     '..kMMMMk..',
     '...kkkk...']);
+
+
+  // ── 개량 분류 아이콘 14x14 ─────────────────────
+  S.cat = {};
+  S.cat.lens = parse([
+    '....kkkkk.....',
+    '...kgmmmgk....',
+    '..kgtTTqmgk...',
+    '.kgtwtTTqmk...',
+    '.kgTtTTqqmk...',
+    '.kgTTTqqqmk...',
+    '.kgqTqqqNmk...',
+    '..kgqqqNmk....',
+    '...kggmmkk....',
+    '....kkkkHbk...',
+    '.........kHbk.',
+    '..........kHbk',
+    '...........kdk',
+    '............k.']);
+  S.cat.ring = parse([
+    '..............',
+    '....kkkkkk....',
+    '..kkHHHHHbkk..',
+    '.kHHkkkkkkbdk.',
+    'kHbk......kddk',
+    'kHk........kdk',
+    'kbk...kk...kdk',
+    'kbk..kwpk..kdk',
+    'kdk..kpck..krk',
+    'kddk..kk..krrk',
+    '.kddkkkkkkrrk.',
+    '..kkdddrrrkk..',
+    '....kkkkkk....',
+    '..............']);
+  S.cat.gear = parse([
+    '.....kkkk.....',
+    '..kk.kHbk.kk..',
+    '.kHbkkHbkkbdk.',
+    '.kbHHHbbbbddk.',
+    '..kHbbkkbbdk..',
+    'kkHbbk..kbddkk',
+    'kHHbk....kbdrk',
+    'kHbbk....kddrk',
+    'kkbbdk..kddrkk',
+    '..kbddkkddrk..',
+    '.kbddddddrrrk.',
+    '.kddkkddkkrrk.',
+    '..kk.kdrk.kk..',
+    '.....kkkk.....']);
+  S.cat.harp = parse([
+    '..kkk.........',
+    '.kHbdk........',
+    '.kbkkdk.......',
+    '.kbk.kdkk.....',
+    '.kbkg.kddkk...',
+    '.kbkg.g.kddk..',
+    '.kbkg.g.gkdk..',
+    '.kbkg.g.g.kdk.',
+    '.kbkg.g.g.kdk.',
+    '.kbkg.g.g.kdk.',
+    '.kbkg.g.g.kdk.',
+    '.kbkkkkkkkkdk.',
+    '.kbHHHbbbbddk.',
+    '..kkkkkkkkkk..']);
+  S.cat.orbit = parse([
+    '..............',
+    '.....kkkk.....',
+    '...kk....kk...',
+    '..k..........k',
+    '.k....kk....k.',
+    'k....kwHk...k.',
+    'k...kHbdk..k..',
+    'k...kbddk.kpk.',
+    '.k...kkk.kwck.',
+    '..k.......kk..',
+    '...kk...kk....',
+    '.....kkk......',
+    '..............',
+    '..............']);
+  S.cat.comet = parse([
+    '..........kkk.',
+    '.........kwwpk',
+    '........kwwppk',
+    '.......kpwpcck',
+    '......kgpcck..',
+    '.....kggckk...',
+    '....kgmmk.....',
+    '...kgmmk......',
+    '..kgmmk.......',
+    '.kgmk.........',
+    'kgmk..........',
+    'kmk...........',
+    'kk............',
+    '..............']);
+  S.cat.scope = parse([
+    '..........kk..',
+    '.........kHbk.',
+    '........kHbbdk',
+    '.......kHbbdk.',
+    '......kHbbdk..',
+    '.....kHbbdk...',
+    '....kHbbdk....',
+    '...kwHbdk.....',
+    '..kkkkdk......',
+    '.....kk.......',
+    '....kgk.......',
+    '...kgkgk......',
+    '..kgk.kgk.....',
+    '..kk...kk.....']);
+  S.cat.hand = parse([
+    '..............',
+    '...kkkkkkk....',
+    '..kwwwwwwpk...',
+    '..kwDwwwDpk...',
+    '..kwwwDwwpk...',
+    '..kwDwwwDck...',
+    '..kpppppcck...',
+    '...kkkkkkk....',
+    '..............',
+    '..kk..kk..kk..',
+    '.kHbk.kHbkkHbk',
+    '.kbdk.kbdkkbdk',
+    '..kk..kk..kk..',
+    '..............']);
+  S.cat.weight = parse([
+    '.....kkkk.....',
+    '....kHkkdk....',
+    '....kbk.dk....',
+    '...kkkkkkkk...',
+    '..kHHHHbbbdk..',
+    '..kHwHbbbbdk..',
+    '.kHHbbbbbbddk.',
+    '.kHbbkkkbbddk.',
+    '.kHbbkkkbbddk.',
+    'kHbbbbbbbbdddk',
+    'kHbbbbbbbbdddk',
+    'kbdddddddddrrk',
+    '.kkkkkkkkkkkk.',
+    '..............']);
+  S.cat.dice = parse([
+    '..............',
+    '.kkkkkk.......',
+    'kwwwwwpk......',
+    'kwDwwwpk......',
+    'kwwDwwpkkkkk..',
+    'kwwwDkkwwwwpk.',
+    'kppppkwDwwDpk.',
+    '.kkkkkwwwwwpk.',
+    '.....kwDwwDpk.',
+    '.....kwwwwwck.',
+    '.....kpppppck.',
+    '......kkkkkk..',
+    '..............',
+    '..............']);
+  // 메달 (업적) 12x14
+  S.medal = parse([
+    '..kRk..kRk..',
+    '..kRDkkDRk..',
+    '...kRDDRk...',
+    '....kkkk....',
+    '...kHHbbk...',
+    '..kHwHbbdk..',
+    '.kHHbbbbddk.',
+    '.kHbbkkbddk.',
+    '.kHbbkkbddk.',
+    '.kbbbbbbddk.',
+    '..kbbbbddk..',
+    '...kddddk...',
+    '....kkkk....',
+    '............']);
+  S.medalOff = parse([
+    '..kmk..kmk..',
+    '..kmKkkKmk..',
+    '...kmKKmk...',
+    '....kkkk....',
+    '...kKKKKk...',
+    '..kKmKKKKk..',
+    '.kKKKKKKKKk.',
+    '.kKKKkkKKKk.',
+    '.kKKKkkKKKk.',
+    '.kKKKKKKKKk.',
+    '..kKKKKKKk..',
+    '...kKKKKk...',
+    '....kkkk....',
+    '............']);
+  // 연구 별 (7x7): 산 것, 살 수 있음, 잠김
+  S.starOn = parse(['...w...', '...H...', '.wHwHw.', 'wHwwwHw', '.wHwHw.', '...H...', '...w...']);
+  S.starAvail = parse(['...b...', '..kbk..', '.kbHbk.', 'bbHwHbb', '.kbHbk.', '..kbk..', '...b...']);
+  S.starOff = parse(['.......', '...m...', '..mKm..', '.mKKKm.', '..mKm..', '...m...', '.......']);
+  S.sresOn = parse(['...t...', '..ttt..', '.tt4tt.', 'tt444tt', '.tt4tt.', '..ttt..', '...t...'].map(function (r) { return r.replace(/4/g, 'w'); }));
+  S.sresAvail = parse(['...T...', '..kTk..', '.kTtTk.', 'TTtwtTT', '.kTtTk.', '..kTk..', '...T...']);
+  // 상단 바 아이콘 11x11
+  S.icGear11 = parse([
+    '....k.k....',
+    '..kkgkgkk..',
+    '.kgggggggk.',
+    '.kggmmmggk.',
+    'kggmkkkmggk',
+    '.gmk...kmg.',
+    'kggmkkkmggk',
+    '.kggmmmggk.',
+    '.kgggggggk.',
+    '..kkgkgkk..',
+    '....k.k....']);
+  S.icSnd11 = parse([
+    '.....k.....',
+    '....kgk..g.',
+    'kkkkgmk.g..',
+    'kgggmmk..g.',
+    'kgmmmmk...g',
+    'kgmmmmk..g.',
+    'kgggmmk.g..',
+    'kkkkgmk..g.',
+    '....kgk....',
+    '.....k.....',
+    '...........']);
+  S.icMute11 = parse([
+    '.....k.....',
+    '....kgk....',
+    'kkkkgmk....',
+    'kgggmmk.R.R',
+    'kgmmmmk..R.',
+    'kgmmmmk.R.R',
+    'kgggmmk....',
+    'kkkkgmk....',
+    '....kgk....',
+    '.....k.....',
+    '...........']);
 
   // ── 9-slice 프레임 ─────────────────────────────
   // 놋쇠 판(두꺼운 테두리 6px). 모서리 금속 리벳은 직접 찍음.
@@ -244,7 +487,10 @@
   S.btn = bevelFrame(2, 12, [12, 3, 2], [12, 18, 11], 2, null);
   S.btnHover = bevelFrame(2, 12, [12, 4, 3], [12, 11, 2], 3, null);
   S.btnDown = bevelFrame(2, 12, [12, 11, 11], [12, 2, 11], 11, null);
-  S.btnOff = bevelFrame(2, 12, [12, 14, 13], [12, 21, 21], 13, null);
+  S.btnOff = bevelFrame(2, 12, [12, 21, 23], [12, 13, 23], 23, null);
+  S.tile = bevelFrame(1, 18, [18, 21], [18, 13], 21, null);
+  S.tileHot = bevelFrame(1, 3, [3, 21], [3, 13], 21, null);
+  S.tileOwn = bevelFrame(1, 11, [11, 2], [11, 18], 13, null);
   S.btnCore = bevelFrame(2, 12, [12, 8, 7], [12, 10, 5], 7, null);
   S.btnCoreHover = bevelFrame(2, 12, [12, 4, 8], [12, 5, 8], 8, null);
   S.btnTeal = bevelFrame(2, 12, [12, 19, 16], [12, 6, 16], 16, null);
@@ -258,10 +504,6 @@
       for (var i = 0; i < w; i++) {
         var sx = i < c ? i : (i >= w - c ? n - (w - i) : c + ((i - c) % mid));
         var v = s.d[sy * n + sx];
-        if (v === 13 && s === S.panel && i >= c && j >= c && i < w - c && j < h - c) {
-          var hsh = G.planets.hash(i >> 1, j, 3);
-          if (((j + (i >> 3)) % 3 === 0) && hsh > 0.82) v = 21;
-        }
         if (v !== 255) gx.pset(x + i, y + j, v);
       }
     }

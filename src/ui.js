@@ -34,7 +34,9 @@
   function over(x, y, w, h) { return inp.x >= x && inp.y >= y && inp.x < x + w && inp.y < y + h; }
 
   // 반환: 'click' | null. 상태: normal/hover/down/off
+  var blocked = false;
   function hitArea(id, x, y, w, h, enabled) {
+    if (blocked) return { clicked: false, state: enabled === false ? 'off' : 'normal', over: false };
     var o = over(x, y, w, h);
     if (o) hoverId = id;
     if (o && inp.pressed && enabled !== false) activeId = id;
@@ -115,5 +117,5 @@
   function grooveV(x, y, h) { G.gfx.vline(x, y, h, 12); G.gfx.vline(x + 1, y, h, 11); }
 
   G.ui = { inp: inp, bind: bind, endFrame: endFrame, over: over, hitArea: hitArea, button: button, tabs: tabs, tip: tip, drawTooltip: drawTooltip, groove: groove, grooveV: grooveV,
-    resetHover: function () { hoverId = null; }, hover: function () { return hoverId; } };
+    resetHover: function () { hoverId = null; }, hover: function () { return hoverId; }, block: function (b) { blocked = !!b; } };
 })();

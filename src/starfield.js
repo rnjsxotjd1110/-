@@ -5,11 +5,11 @@
   var far = [], mid = [], near = [], galaxies = [];
   var STAGES = [
     // 진행 단계별 성운 색 (어두움 -> 밝음)
-    { bands: [21, 18], th: [0.58, 0.7], density: 1 },
-    { bands: [21, 18, 10], th: [0.55, 0.66, 0.78], density: 1.2 },
-    { bands: [23, 22, 20], th: [0.54, 0.65, 0.78], density: 1.4 },
-    { bands: [6, 16, 21], th: [0.55, 0.67, 0.6], density: 1.6, mix: true },
-    { bands: [0, 6, 16, 19], th: [0.52, 0.63, 0.74, 0.84], density: 1.9 }
+    { base: 0, bands: [6, 16], th: [0.57, 0.8], density: 1 },
+    { base: 0, bands: [6, 21, 18], th: [0.56, 0.68, 0.8], density: 1.2 },
+    { base: 0, bands: [23, 22, 20], th: [0.54, 0.65, 0.77], density: 1.4 },
+    { base: 12, bands: [6, 16, 19], th: [0.55, 0.67, 0.8], density: 1.6 },
+    { base: 0, bands: [6, 16, 19, 4], th: [0.52, 0.63, 0.74, 0.86], density: 1.9 }
   ];
   function rnd(seed) { var s = seed >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 
@@ -22,19 +22,18 @@
       // 대각선 띠 모양으로 성운을 모음
       var bandShape = Math.exp(-Math.pow((y - BH * 0.35 - (x - BW / 2) * 0.35) / 160, 2));
       v = v * (0.55 + 0.55 * bandShape);
-      var c = 12;
+      var c = st.base;
       for (var i = 0; i < st.bands.length; i++) {
         var t = st.th[i];
         if (v > t + 0.02) c = st.bands[i];
         else if (v > t - 0.02) { if ((v - t + 0.02) / 0.04 > bay(x, y)) c = st.bands[i]; }
       }
-      if (st.mix && v > 0.6 && v < 0.66 && ((x + y) % 7 === 0)) c = 21;
       neb[y * BW + x] = c;
     }
     var R = rnd(1234 + stage);
     far = []; mid = []; near = []; galaxies = [];
     var nf = Math.round(380 * st.density), nm = Math.round(110 * st.density);
-    for (var a = 0; a < nf; a++) far.push({ x: R() * BW, y: R() * BH, c: [14, 13, 15, 9][(R() * 4) | 0] });
+    for (var a = 0; a < nf; a++) far.push({ x: R() * BW, y: R() * BH, c: [14, 16, 15, 9][(R() * 4) | 0] });
     for (var b = 0; b < nm; b++) mid.push({ x: R() * BW, y: R() * BH, c: [15, 8, 9, 3][(R() * 4) | 0], p: R() * 6.28 });
     for (var c2 = 0; c2 < 14 + stage * 3; c2++) near.push({ x: R() * BW, y: R() * BH, p: R() * 6.28, sp: 0.6 + R() * 1.2 });
     if (stage >= 2) for (var g = 0; g < stage - 1; g++) galaxies.push({ x: 60 + R() * (BW - 120), y: 40 + R() * (BH - 80), f: R() < 0.5 });

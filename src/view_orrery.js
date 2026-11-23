@@ -1,7 +1,7 @@
 // 성계(오러리) 화면: 중심별, 궤도, 천체, 눈금자, 적중 연출
 (function () {
-  var V = { x: 0, y: 20, w: 416, h: 268 };
-  var CX = 206, CY = 152;
+  var V = { x: 0, y: 20, w: 416, h: 246 };
+  var CX = 206, CY = 134;
   var flashes = {}; // 궤도별 깜빡임 남은 시간
   var beams = [];   // 쟁반 -> 천체 빛줄기
   var parts = [];   // 픽셀 파티클
@@ -16,11 +16,12 @@
     orbits.forEach(function (s, i) { m[s] = { rx: Math.round(r0 + i * sp), ry: Math.round((r0 + i * sp) * 0.4) }; });
     return { map: m, sp: sp };
   }
-  function bodyPos(L, s, b, t) {
+  function bodyPos(L, s, b, t, ak) {
     var o = L.map[s];
     if (!o) return null;
     var w = 9 / Math.pow(o.rx, 1.5) * 4;
     var a = b.a0 + t * w;
+    if (ak) { a = ((a % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI; a = a * (1 - ak); }
     return { x: Math.round(CX + Math.cos(a) * o.rx), y: Math.round(CY + Math.sin(a) * o.ry), back: Math.sin(a) < 0, a: a };
   }
 
@@ -42,59 +43,32 @@
     opts = opts || {};
     var gx = G.gfx;
     G.starfield.draw(st.stage || 0, t, opts.camX || 0, opts.camY || 0, V.x, V.y, V.w, V.h);
-    gx.setClip(V.x, V.y, V.w, V.h);
+    gx.setClip(V.x, V.y, V.w, opts.noRuler ? 340 : V.h - 22);
     var L = layout(st.orbits);
     st._layout = L;
     // 궤도선
     st.orbits.forEach(function (s, i) {
       var o = L.map[s];
       var f = flashes[s] || 0;
-      var col = f > 0.5 ? 3 : (f > 0.2 ? 2 : (st.bodies[s] ? 11 : 18));
+      var col = f > 0.5 ? 3 : (f > 0.2 ? 2 : (st.bodies[s] ? 18 : 13));
       if (st.hoverOrbit === s) col = 8;
       drawOrbitLine(o, col, 0, !st.bodies[s] && f <= 0.2 && st.hoverOrbit !== s);
     });
-    // 눈금자: 중심에서 오른쪽으로
-    var rulerY = CY;
-    var first = st.orbits[0], lastS = st.orbits[st.orbits.length - 1];
-    if (first !== undefined) {
-      var xa = CX + L.map[first].rx, xb = CX + L.map[lastS].rx;
-      gx.hline(xa, rulerY, xb - xa + 1, 18);
-      st.orbits.forEach(function (s, i) {
-        var o = L.map[s];
-        var x = CX + o.rx;
-        var f = flashes[s] || 0;
-        var hot = f > 0.2 || st.hoverOrbit === s;
-        gx.vline(x, rulerY - 1, 3, hot ? 3 : 11);
-        var label = String(s);
-        var lw = G.font.measure(label, 'g7');
-        var above = (i % 2) === 0;
-        if (L.sp >= 9 || true) {
-          G.font.draw(label, x - (lw >> 1), above ? rulerY - 10 : rulerY + 3, hot ? 4 : (st.bodies[s] ? 15 : 14), 'g7', 12);
-        }
-      });
-    }
     // 천체 위치 계산
     var list = [];
     Object.keys(st.bodies).forEach(function (k) {
       var s = +k, b = st.bodies[s];
-      var p = bodyPos(L, s, b, t);
+      var p = bodyPos(L, s, b, t, st.alignK || 0);
       if (!p) return;
       list.push({ s: s, b: b, p: p });
     });
     list.sort(function (a, b) { return a.p.y - b.p.y; });
     var frame = Math.floor(t * 4) % 32;
     function drawBody(it) {
-      var spr = G.planets.bodySprite(it.b.tier, it.b.seed, (frame + it.b.seed) % 32);
+      var spr = G.planets.bodySprite((it.b.t || it.b.tier), it.b.seed, (frame + it.b.seed) % 32);
       gx.blit(spr, it.p.x - (spr.w >> 1), it.p.y - (spr.h >> 1));
       it.b._x = it.p.x; it.b._y = it.p.y;
     }
-    function arm(it) {
-      // 오러리 팔: 중심 기둥에서 천체까지 놋쇠 막대
-      var ex = it.p.x, ey = it.p.y;
-      G.gfx.line(CX, CY + 1, ex, ey + 1, 18);
-      G.gfx.line(CX, CY, ex, ey, it.b.tier >= 6 ? 11 : 18);
-    }
-    list.forEach(function (it) { arm(it); });
     list.forEach(function (it) { if (it.p.back) drawBody(it); });
     var sun = G.planets.sunSprite(st.sunForm || 0, Math.floor(t * 6) % 48);
     if (G.planets.SUNS[Math.min(st.sunForm || 0, 5)].twin) {
@@ -133,6 +107,35 @@
     // 파티클
     parts.forEach(function (p) { gx.pset(Math.round(p.x), Math.round(p.y), p.c); });
     gx.resetClip();
+    if (!opts.noRuler) {
+    // 눈금자: 성계 아래 띠. 눈금은 각 궤도의 오른쪽 끝과 같은 x
+    var RY = V.y + V.h - 20;
+    gx.rect(V.x, RY - 2, V.w, 20, 23);
+    gx.hline(V.x, RY - 3, V.w, 18);
+    var first = st.orbits[0], lastS = st.orbits[st.orbits.length - 1];
+    if (first !== undefined) {
+      var xa = CX + L.map[first].rx, xb = CX + L.map[lastS].rx;
+      gx.hline(xa, RY + 3, xb - xa + 1, 11);
+      G.font.draw(G.T('h_orbit_rule'), V.x + 6, RY + 2, 14, 'g9');
+      st.orbits.forEach(function (s, i) {
+        var o = L.map[s];
+        var x = CX + o.rx;
+        var f = flashes[s] || 0;
+        var hot = f > 0.2 || st.hoverOrbit === s;
+        gx.vline(x, RY, 4, hot ? 3 : 11);
+        // 궤도 오른쪽 끝에서 눈금까지 희미한 점선
+        if (hot) for (var yy = CY + 2; yy < RY - 3; yy += 3) gx.pset(x, yy, f > 0.2 ? 2 : 18);
+        var label = String(s);
+        var lw = G.font.measure(label, 'g7');
+        var kk = Math.max(1, Math.ceil(8 / L.sp));
+        if (s % kk !== 0) return;
+        var row = (L.sp * kk < 10 && (Math.floor(s / kk) % 2)) ? 1 : 0;
+        G.font.draw(label, x - (lw >> 1), RY + 5 + row * 7, hot ? 4 : (st.bodies[s] ? 8 : 14), 'g7');
+      });
+    }
+    }
+  }
+  function drawPops() {
     // 숫자
     pops.forEach(function (p) {
       var y = Math.round(p.y - (1 - p.life) * 14);
@@ -189,7 +192,7 @@
   }
 
   G.orrery = {
-    V: V, CX: CX, CY: CY, draw: draw, update: update, burst: burst, bodyXY: bodyXY, orbitAt: orbitAt,
+    V: V, CX: CX, CY: CY, draw: draw, drawPops: drawPops, update: update, burst: burst, bodyXY: bodyXY, orbitAt: orbitAt,
     flash: function (s, v) { flashes[s] = Math.max(flashes[s] || 0, v || 1); },
     flashAll: function (v) { return v; },
     beam: function (x, y, s, onHit) { beams.push({ x: x, y: y, s: s, t: 0, onHit: onHit }); },

@@ -33,7 +33,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       last: [], // 최근 합
       shapes: { d6: true },
       ended: false, endSeen: false,
-      settings: { sfx: 0, bgm: 0, muted: true, notation: 'ko', reduce: false, lang: 'ko', autoNova: false, autoCollapse: false }
+      settings: { sfx: 0.7, bgm: 0.5, muted: true, notation: 'ko', reduce: false, lang: 'ko', autoNova: false, autoCollapse: false }
     };
     return s;
   }

@@ -163,7 +163,7 @@
               var dx = fu - pts[m][0] * sp, dy = fv - pts[m][1] * sp;
               if (dx * dx + dy * dy < pr * pr) { mark = true; break; }
             }
-          } else if (!sh.pips) {
+          } else if (!sh.pips && -dot(n, VD) > 0.5) {
             // 숫자: 면 중심 기준 3x5 격자
             var s = String(val);
             var cw = 0.2, ch = 0.2;
