@@ -39,7 +39,8 @@
       if (j < KO_U.length) {
         var v = n / Math.pow(10000, j);
         if (v >= 9999.5) { v /= 10000; j++; }
-        out = (v >= 1000 ? comma(v) : sig(v)) + KO_U[j];
+        var sv = sig(v);
+        out = (+sv >= 1000 ? comma(Math.round(v)) : sv) + KO_U[j];
       } else out = sci(n);
     }
     return (neg ? '-' : '') + out;
@@ -48,6 +49,7 @@
     sec = Math.max(0, Math.floor(+sec || 0));
     var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
     var ko = G.getLang && G.getLang() !== 'en';
+    if (h >= 48) { var dd = Math.floor(h / 24); return ko ? dd + '일 ' + (h % 24) + '시간' : dd + 'd ' + (h % 24) + 'h'; }
     if (h > 0) return ko ? h + '시간 ' + m + '분' : h + 'h ' + m + 'm';
     if (m > 0) return ko ? m + '분 ' + s + '초' : m + 'm ' + s + 's';
     return ko ? s + '초' : s + 's';

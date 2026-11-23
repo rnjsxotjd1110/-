@@ -354,7 +354,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var freq = resV(s, 'eventFreq') * (has(s, 'net') ? 0.7 : 1);
     s.ev.next = (D.eventGap[0] + rng() * (D.eventGap[1] - D.eventGap[0])) * freq;
     var types = G.EVENTS.slice();
-    if (s.dice.length >= (sres(s, 'q6') ? 6 : 5)) types = types.filter(function (t) { return t !== 'rogue'; });
+    if (s.dice.length >= (sres(s, 'q6') ? 6 : 5) || chalRule(s, 'twoDice')) types = types.filter(function (t) { return t !== 'rogue'; });
     var type = types[Math.floor(rng() * types.length)];
     if (!s.ev.seenFirst) { type = 'comet'; s.ev.seenFirst = true; }
     s.ev.cur = { type: type, life: D.eventLife, y: 0.2 + rng() * 0.6, dir: rng() < 0.5 ? 1 : -1 };
@@ -393,6 +393,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function costDie(s) {
     var n = s.dice.length + 1;
     if (n > maxDice(s)) return Infinity;
+    if (trayUsed(s.dice) + 6 > D.trayCapacity) return Infinity;
     return (D.diceCost[n] || Infinity) * chalReward(s, 'diceCost');
   }
   function costForge(s) { return D.forge.cost0 * Math.pow(D.forge.costK, s.forges) * chalReward(s, 'forgeCost'); }
@@ -565,11 +566,11 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var capped = secs > cap;
     secs = Math.max(0, Math.min(+secs || 0, cap));
     if (secs < 30) return null;
-    var d0 = s.dustAll, r0 = s.stats.rolls, tu0 = s.stats.tierUps, ev0 = s.stats.events;
+    var d0 = s.dustAll, r0 = s.stats.rolls, tu0 = s.stats.tierUps, ev0 = s.stats.events, n0 = s.novas, c0 = s.collapses;
     var steps = Math.min(600, Math.max(20, Math.floor(secs / 30)));
     var dt = secs / steps;
     for (var i = 0; i < steps; i++) tick(s, dt, { offline: true });
-    return { secs: secs, dust: s.dustAll - d0, rolls: s.stats.rolls - r0, tierUps: s.stats.tierUps - tu0, events: s.stats.events - ev0, eff: offlineEff(s), capped: capped, capH: capH };
+    return { secs: secs, dust: s.dustAll - d0, rolls: s.stats.rolls - r0, tierUps: s.stats.tierUps - tu0, events: s.stats.events - ev0, eff: offlineEff(s), capped: capped, capH: capH, novas: s.novas - n0, cols: s.collapses - c0 };
   }
 
   // ── 업적 ────────────────────────────────────────
@@ -620,7 +621,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function checkAch(s) {
     for (var i = 0; i < G.ACH.length; i++) {
       var a = G.ACH[i];
-      if (!s.ach[a[0]] && a[1](s)) { s.ach[a[0]] = Math.floor(s.t); achQueue.push(a[0]); }
+      if (s.ach[a[0]] === undefined && a[1](s)) { s.ach[a[0]] = Math.floor(s.t); achQueue.push(a[0]); }
     }
   }
 

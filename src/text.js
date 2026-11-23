@@ -33,7 +33,7 @@
     set_save: '저장', b_save: '저장하기', b_export: '내보내기', b_import: '가져오기', b_close: '닫기', b_credits: '크레딧 보기', b_reset: '처음부터 하기', b_title: '타이틀로 가기',
     saved: '저장했어요', exported: '저장 코드를 복사했어요', import_ok: '불러왔어요', import_bad: '저장 코드가 올바르지 않아요', import_prompt: '저장 코드를 붙여 넣어 주세요',
     // 복귀
-    away_title: '자리를 비운 사이', away_time: '{0} 동안', away_dust: '별가루 +{0}', away_rolls: '굴림 {0}번', away_tiers: '천체 성장 {0}번', away_eff: '자리 비움 효율 {0}%', b_ok: '받기',
+    away_title: '자리를 비운 사이', away_time: '{0} 동안', away_dust: '별가루 +{0}', away_rolls: '굴림 {0}번', away_tiers: '천체 성장 {0}번', away_novas: '초신성 {0}번 · 붕괴 {1}번', away_eff: '자리 비움 효율 {0}%', b_ok: '받기',
     // 이벤트
     ev_comet: '혜성', ev_shower: '유성우', ev_flare: '태양 플레어', ev_rogue: '떠돌이 주사위', ev_align: '행성 정렬', ev_pulsar: '펄서 신호', ev_meteor: '성간 운석', ev_moons: '쌍둥이 달',
     evr_comet: '별가루 +{0}', evr_shower: '다음 20번 굴림 질량 ×3', evr_flare: '20초 동안 생산 ×4', evr_rogue: '30초 동안 주사위 +1', evr_align: '다음 3번은 정렬', evr_pulsar: '20초 동안 태엽 ×3', evr_meteor: '궤도 {0} 질량 +{1}', evr_moons: '다음 10번 굴림은 양옆 궤도도 키워요',
@@ -49,9 +49,9 @@
     end1: '모든 궤도가 한 줄로 섰어요.', end2: '주사위가 잠시 멈췄어요.', end3: '천구가 완성됐어요.', end_thanks: '플레이해 주셔서 고마워요.', b_continue: '계속하기',
     // 크레딧
     credits: '크레딧', cr_game: '주사위 성계', cr_made: '기획·그림·소리·코드', cr_made2: '1인 개발 (Claude와 함께)', cr_font: '글꼴', cr_font2: '갈무리 (Galmuri) · 이민서 · SIL OFL 1.1', cr_pal: '팔레트', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: '소리', cr_sound2: '코드로 합성', cr_tool: '도구', cr_tool2: 'HTML5 Canvas · Web Audio',
-    save_locked: '다른 창에서 실행 중이에요', save_locked2: '이 창은 저장하지 않아요', save_fail: '저장하지 못했어요', export_title: '저장 코드', col_confirm_keep: '특이점 {0}개를 얻어요. 별핵은 처음으로 돌아가고 연구는 남아요.', col_warn_keep: '별핵이 사라지고 우주가 {0}배 무거워져요', pick_die: '바꿀 주사위의 면을 고르세요',
+    save_locked: '다른 창에서 실행 중이에요', save_locked2: '이 창은 저장하지 않아요', save_fail: '저장하지 못했어요', export_title: '저장 코드', col_confirm_keep: '특이점 {0}개를 얻어요. 별핵·별핵 정제는 처음으로 돌아가고 연구는 남아요.', col_warn_keep: '별핵이 사라지고 우주가 {0}배 무거워져요', pick_die: '바꿀 주사위의 면을 고르세요',
     refine: '별핵 정제', compress: '특이점 압축', b_refine: '정제하기', b_compress: '압축하기',
-    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요. 별핵·연구·업적은 남아요.', col_confirm: '특이점 {0}개를 얻어요. 별핵과 연구도 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '천체가 많고 단계가 높을수록 모든 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
+    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요. 별핵·연구·업적은 남아요.', col_confirm: '특이점 {0}개를 얻어요. 별핵·연구·별핵 정제가 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '천체가 많고 단계가 높을수록 모든 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
     h_orbit_rule: '합 = 궤도'
   };
   var EN = {
@@ -81,7 +81,7 @@
     not_ko: 'Korean', not_en: 'K·M·B', not_sci: '1.2e9', not_eng: '12e9',
     set_save: 'Save', b_save: 'Save', b_export: 'Export', b_import: 'Import', b_close: 'Close', b_credits: 'Credits', b_reset: 'Start over', b_title: 'Title',
     saved: 'Saved', exported: 'Save code copied', import_ok: 'Loaded', import_bad: 'That save code is not valid', import_prompt: 'Paste your save code',
-    away_title: 'While you were away', away_time: 'For {0}', away_dust: 'Stardust +{0}', away_rolls: '{0} rolls', away_tiers: '{0} bodies grew', away_eff: 'Away rate {0}%', b_ok: 'Collect',
+    away_title: 'While you were away', away_time: 'For {0}', away_dust: 'Stardust +{0}', away_rolls: '{0} rolls', away_tiers: '{0} bodies grew', away_novas: '{0} novas · {1} collapses', away_eff: 'Away rate {0}%', b_ok: 'Collect',
     ev_comet: 'Comet', ev_shower: 'Meteor shower', ev_flare: 'Solar flare', ev_rogue: 'Rogue die', ev_align: 'Planet parade', ev_pulsar: 'Pulsar signal', ev_meteor: 'Interstellar rock', ev_moons: 'Twin moons',
     evr_comet: 'Stardust +{0}', evr_shower: 'Next 20 rolls mass ×3', evr_flare: 'Output ×4 for 20s', evr_rogue: '+1 die for 30s', evr_align: 'Next 3 rolls align', evr_pulsar: 'Roller ×3 for 20s', evr_meteor: 'Orbit {0} mass +{1}', evr_moons: 'Next 10 rolls also hit neighbors',
     orb: 'Orbit {0}', orb_empty: 'Still empty', mass: 'Mass', prod: 'Output', chance: 'Odds', next_tier: 'Next stage',
@@ -92,9 +92,9 @@
     chal_clear: 'Trial complete', ach_get: 'Feat',
     end1: 'Every orbit stands in one line.', end2: 'The dice rest for a while.', end3: 'The orrery is complete.', end_thanks: 'Thank you for playing.', b_continue: 'Keep playing',
     credits: 'Credits', cr_game: 'Dice Orrery', cr_made: 'Design · Art · Sound · Code', cr_made2: 'Solo developer (with Claude)', cr_font: 'Font', cr_font2: 'Galmuri · Lee Minseo · SIL OFL 1.1', cr_pal: 'Palette', cr_pal2: 'Fantasy 24 (Lospec)', cr_sound: 'Sound', cr_sound2: 'Synthesized in code', cr_tool: 'Tools', cr_tool2: 'HTML5 Canvas · Web Audio',
-    save_locked: 'Running in another window', save_locked2: 'This window will not save', save_fail: 'Could not save', export_title: 'Save code', col_confirm_keep: 'Gain {0} singularities. Cores reset, research stays.', col_warn_keep: 'Cores are lost. The universe gets {0}× heavier', pick_die: 'Pick a face of the die to swap',
+    save_locked: 'Running in another window', save_locked2: 'This window will not save', save_fail: 'Could not save', export_title: 'Save code', col_confirm_keep: 'Gain {0} singularities. Cores and refining reset, research stays.', col_warn_keep: 'Cores are lost. The universe gets {0}× heavier', pick_die: 'Pick a face of the die to swap',
     refine: 'Core refining', compress: 'Compression', b_refine: 'Refine', b_compress: 'Compress',
-    sound_on: 'Sound on', sound_off: 'Sound off', upg_next: 'Next part at {0} stardust this run', nova_confirm: 'Gain {0} cores and restart this run. Cores, research and feats stay.', col_confirm: 'Gain {0} singularities. Cores and research reset too.', tip_align: 'All dice show the same face: an alignment. That roll gains much more mass.', tip_rarity: 'Rarer sums add more mass per hit.', tip_harmony: 'Output grows with the total stage of all bodies.', tip_dust: 'Stardust', ev_appear: '{0} passing by', n_rolls2: '{0} rolls', save_broken: 'Could not load the save', save_broken2: 'The original was kept aside', away_cap: 'Stores up to {0}h', fullscreen: 'Fullscreen', chal_confirm_start: 'Starting a trial restarts this run.', chal_confirm_quit: 'Giving up restarts this run.', b_start_chal: 'Start', b_quit_chal: 'Give up', roller_s: 'Roll gap',
+    sound_on: 'Sound on', sound_off: 'Sound off', upg_next: 'Next part at {0} stardust this run', nova_confirm: 'Gain {0} cores and restart this run. Cores, research and feats stay.', col_confirm: 'Gain {0} singularities. Cores, research and refining reset.', tip_align: 'All dice show the same face: an alignment. That roll gains much more mass.', tip_rarity: 'Rarer sums add more mass per hit.', tip_harmony: 'Output grows with the total stage of all bodies.', tip_dust: 'Stardust', ev_appear: '{0} passing by', n_rolls2: '{0} rolls', save_broken: 'Could not load the save', save_broken2: 'The original was kept aside', away_cap: 'Stores up to {0}h', fullscreen: 'Fullscreen', chal_confirm_start: 'Starting a trial restarts this run.', chal_confirm_quit: 'Giving up restarts this run.', b_start_chal: 'Start', b_quit_chal: 'Give up', roller_s: 'Roll gap',
     h_orbit_rule: 'Sum = orbit'
   };
   // 이름표: [ko, en, 효과 ko, 효과 en]

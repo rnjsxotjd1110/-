@@ -116,7 +116,7 @@
       F.drawOutlined(G.T('end_thanks'), lx, 248, 8, 'g11', 12);
     }
     if (t > 14.5) {
-      if (U.button('endc', lx, 274, 110, 20, G.T('b_continue'), { font: 'g11b' })) { v.alignK = 0; A.scene = 'play'; G.save.save(s); }
+      if (U.button('endc', lx, 274, 110, 20, G.T('b_continue'), { font: 'g11b' })) { v.alignK = 0; s.endSeen = true; A.scene = 'play'; G.save.save(s); }
     } else if (t > 4 && t < 13 && U.inp.released) A.endT = 13;
   }
 
@@ -131,7 +131,7 @@
       var yy = y + 52 + i * 28;
       if (i > 0) U.groove(x + 10, yy - 5, w - 20);
       F.draw(G.T(r[0]), x + 14, yy, 15, 'g9');
-      F.draw(G.T(r[1]), x + 14, yy + 10, 4, 'g11');
+      F.draw(G.T(r[1]), x + 14, yy + 11, 4, 'g11');
     });
     if (U.button('crc', x + w - 92, y + h - 28, 80, 19, G.T('b_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) A.overlay = A.scene === 'title' ? null : 'settings';
   }

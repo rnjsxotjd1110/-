@@ -2,7 +2,7 @@
 (function () {
   var KEY = 'diceOrrery.save.v1';
   var disabled = false;
-  var TAB = Math.random().toString(36).slice(2), OWN = KEY + '.owner';
+  var myRev = 0;
   function merge(def, got) {
     if (got === null || got === undefined) return def;
     if (typeof def !== 'object' || def === null || Array.isArray(def)) return typeof got === typeof def || def === null ? got : def;
@@ -14,13 +14,13 @@
   }
   function num(v, lo, hi, def) { v = +v; if (!isFinite(v)) return v === Infinity ? hi : def; return Math.max(lo, Math.min(hi, v)); }
   function int(v, lo, hi, def) { return Math.floor(num(v, lo, hi, def)); }
-  function valid(s) { if (!s || typeof s !== 'object' || Array.isArray(s) || typeof s.v !== 'number' || typeof s.dust !== 'number') return false; if (!Array.isArray(s.dice)) s.dice = []; return true; }
+  function valid(s) { if (!s || typeof s !== 'object' || Array.isArray(s) || typeof s.v !== 'number' || !isFinite(+s.dust)) return false; if (!Array.isArray(s.dice)) s.dice = []; return true; }
   function idSet(list) { var o = {}; list.forEach(function (x) { o[x.id || x[0]] = 1; }); return o; }
   function sanitize(s) {
     var CAP = 1e300;
     ['dust', 'dustRun', 'dustAll', 'cores', 'coresLayer', 'coresAll', 'sing', 'singAll', 't'].forEach(function (k) { s[k] = num(s[k], 0, CAP, 0); });
     ['novas', 'collapses', 'forges'].forEach(function (k) { s[k] = int(s[k], 0, 1e9, 0); });
-    s.lv = { power: int(s.lv && s.lv.power, 0, 5000, 0), wind: int(s.lv && s.lv.wind, 0, 5000, 0), refine: int(s.lv && s.lv.refine, 0, 500, 0), compress: int(s.lv && s.lv.compress, 0, 500, 0) };
+    s.lv = { power: int(s.lv && s.lv.power, 0, 600, 0), wind: int(s.lv && s.lv.wind, 0, 400, 0), refine: int(s.lv && s.lv.refine, 0, 500, 0), compress: int(s.lv && s.lv.compress, 0, 500, 0) };
     s.lastSave = num(s.lastSave, 0, 1e15, Date.now());
     s.autoT = num(s.autoT, 0, 100, 0); s.manualCd = 0;
     // 주사위
@@ -40,7 +40,7 @@
     // 천체
     var nb = {};
     Object.keys(s.bodies || {}).forEach(function (k) {
-      var b = s.bodies[k], key = int(k, 1, 80, -1);
+      var b = s.bodies[k], key = /^\d{1,2}$/.test(k) ? int(k, 1, 80, -1) : -1;
       if (key < 1 || !b || typeof b !== 'object') return;
       var m = num(b.m, 0, CAP, 0); if (m <= 0) return;
       nb[key] = { m: m, t: int(b.t, 1, 10, 1), seed: int(b.seed, 0, 1e6, key), a0: num(b.a0, -1e6, 1e6, 0) };
@@ -72,9 +72,9 @@
   function save(s) {
     if (disabled) return false;
     try {
-      var o = JSON.parse(localStorage.getItem(OWN) || 'null');
-      if (o && o.id !== TAB && Date.now() - o.t < 40000) return 'locked';
-      localStorage.setItem(OWN, JSON.stringify({ id: TAB, t: Date.now() }));
+      var cur = 0; try { var raw = localStorage.getItem(KEY); if (raw) cur = (JSON.parse(raw).rev) || 0; } catch (e2) { }
+      if (cur > myRev) return 'locked'; // 다른 창이 더 새로 저장함
+      myRev = cur + 1; s.rev = myRev;
       localStorage.setItem(KEY, serialize(s)); return true;
     } catch (e) { return false; }
   }
@@ -91,6 +91,7 @@
     if (!raw) return null;
     var s = parse(raw);
     if (!s) { try { localStorage.setItem(KEY + '.broken', raw); } catch (e) { } return 'broken'; }
+    myRev = s.rev || 0;
     return s;
   }
   function has() { try { return !!localStorage.getItem(KEY); } catch (e) { return false; } }
@@ -103,5 +104,5 @@
       return parse(decodeURIComponent(escape(atob(code.slice(4)))));
     } catch (e) { return null; }
   }
-  G.save = { save: save, load: load, has: has, wipe: wipe, toCode: toCode, fromCode: fromCode, KEY: KEY, disable: function () { disabled = true; }, release: function () { try { var o = JSON.parse(localStorage.getItem(OWN) || 'null'); if (o && o.id === TAB) localStorage.removeItem(OWN); } catch (e) { } } };
+  G.save = { save: save, load: load, has: has, wipe: wipe, toCode: toCode, fromCode: fromCode, KEY: KEY, disable: function () { disabled = true; }, release: function () { }, adopt: function (s) { var cur = 0; try { var raw = localStorage.getItem(KEY); if (raw) cur = (JSON.parse(raw).rev) || 0; } catch (e) { } myRev = cur; s.rev = cur; } };
 })();

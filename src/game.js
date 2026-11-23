@@ -21,7 +21,7 @@
     C.invalidate(); G.orrery.clearFx(); A.cut = null; A.pendingRoll = null;
     A.seenTabs = { machine: 1, rec: 1 }; A.tab = 'machine';
     G.tray.place(C.derive(A.s).dice.map(spec), [2, 2]);
-    applySettings(); G.save.save(A.s);
+    applySettings(); G.save.adopt(A.s); G.save.save(A.s);
   }
   function loadGame() {
     var s = G.save.load(); if (!s) return false;
@@ -168,7 +168,7 @@
     var raw = (now - last) / 1000 || 0;
     var dt = Math.min(0.1, raw); last = now;
     if (raw > 2 && A.s && (A.scene === 'play' || A.scene === 'ending') && !window.__timeScale) {
-      if (raw < 30) { for (var ct = 0; ct < raw; ct += 0.5) C.tick(A.s, Math.min(0.5, raw - ct), {}); }
+      if (raw < 60) { for (var ct = 0; ct < raw; ct += 0.5) C.tick(A.s, Math.min(0.5, raw - ct), {}); }
       else { var rep = C.offline(A.s, raw); if (rep && raw >= 60 && A.scene === 'play') { A.away = rep; A.overlay = 'away'; } }
     }
     if (window.__freeze) return;
@@ -194,7 +194,7 @@
         if (A.pendingRoll && !G.tray.rolling()) { showRoll(A.pendingRoll); A.pendingRoll = null; }
         while (C.chalQueue.length) { var cid = C.chalQueue.shift(); A.notify([G.T('chal_clear'), G.nm('chal', cid)], 'ach'); if (G.audio) G.audio.play('chal'); }
         while (C.achQueue.length) { var id = C.achQueue.shift(); A.notify([G.T('ach_get'), G.nm('ach', id)], 'ach'); }
-        if (A.s.ended && !A.s.endSeen) { A.s.endSeen = true; A.scene = 'ending'; A.endT = 0; if (G.audio) G.audio.play('ending'); }
+        if (A.s.ended && !A.s.endSeen && A.scene !== 'ending') { A.scene = 'ending'; A.endT = 0; if (G.audio) G.audio.play('ending'); }
         checkUnlocks();
         // 이벤트 등장 소리
         if (A.s.ev.cur && !A.s.ev.cur._snd) { A.s.ev.cur._snd = 1; if (G.audio) G.audio.play('evspawn'); if (!C.res(A.s, 's2')) A.notify([G.T('ev_appear', G.T('ev_' + A.s.ev.cur.type)), G.T('ev_hint')], 'ev'); }
@@ -229,7 +229,7 @@
     window.addEventListener('blur', function () { G.ui.inp.keys = {}; G.ui.inp.down = false; });
     var q = location.search;
     // 개발·검수용 진입점
-    if (q.indexOf('demo=') >= 0) { G.save.disable(); G.devDemo(q); } else { var sp = /speed=(\d+)/.exec(q); if (sp) window.__timeScale = +sp[1]; }
+    if (q.indexOf('demo=') >= 0) { G.save.disable(); G.devDemo(q); }
     requestAnimationFrame(function (t) { last = t; frame(t); });
     setTimeout(function () { window.__ready = true; }, 80);
   }

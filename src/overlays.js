@@ -13,7 +13,7 @@
     var h = U.hitArea(id, x - 2, y - 2, w + 4, 17);
     gx.blit(G.spr.knob, kx - 2, y - 1);
     if (U.isActive(id) && U.inp.down) { v = Math.max(0, Math.min(1, (U.inp.x - x - 2) / (w - 4))); }
-    return Math.round(v * 20) / 20;
+    return Math.round(v * 10) / 10;
   }
   function choice(id, x, y, items, cur) {
     var px = x, out = cur;
@@ -80,7 +80,7 @@
       if (U.button('fs', lx + (bw + 6) * 2, yy, bw, 19, G.T('fullscreen'), { font: 'g11b' })) toggleFs();
       yy += 25;
     }
-    if (U.button('cl', lx + (bw + 6) * 2, yy, bw, 19, G.T('b_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) { A.overlay = null; if (A.s && !fromTitle) G.save.save(A.s); if (fromTitle && G.save.has()) { try { var raw = JSON.parse(localStorage.getItem(G.save.KEY)); raw.settings = s.settings; localStorage.setItem(G.save.KEY, JSON.stringify(raw)); } catch (e) { } } A.titleInfo = null; }
+    if (U.button('cl', lx + (bw + 6) * 2, yy, bw, 19, G.T('b_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) { A.overlay = null; if (A.s && !fromTitle) G.save.save(A.s); if (fromTitle && G.save.has() && !A.demo) { try { var raw = JSON.parse(localStorage.getItem(G.save.KEY)); raw.settings = s.settings; localStorage.setItem(G.save.KEY, JSON.stringify(raw)); } catch (e) { } } A.titleInfo = null; }
   }
   function toggleFs() {
     try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) { }
@@ -99,7 +99,7 @@
     if (!code) return;
     var s = G.save.fromCode(code);
     if (!s) { A.notify([G.T('import_bad')], 'info'); G.audio.play('deny'); return; }
-    A.s = s; G.core.invalidate(); G.save.save(s); A.applySettings(); A.cut = null;
+    A.s = s; G.core.invalidate(); G.save.adopt(s); G.save.save(s); A.applySettings(); A.cut = null;
     A.seenTabs = s.seenTabs || { machine: 1, rec: 1, n_upg: 1, n_dice: 1, n_nova: 1, n_col: 1, n_chal: 1 };
     if (!s.settings.muted) G.audio.startBgm(s.collapses > 0 ? 1 : 0);
     var d = G.core.derive(s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; }));
@@ -117,6 +117,7 @@
     gx.blit(G.spr.icDust, x + 14, y + 37);
     F.draw(G.T('away_dust', G.fmt(r.dust)), x + 27, y + 35, 3, 'g11b', 12);
     F.draw(G.T('away_rolls', G.fmt(r.rolls)) + ' · ' + G.T('away_tiers', G.fmt(r.tierUps)), x + 14, y + 54, 8, 'g11');
+    if (r.novas || r.cols) F.draw(G.T('away_novas', r.novas || 0, r.cols || 0), x + 14, y + 86, 8, 'g9');
     F.draw(G.T('away_eff', Math.round(r.eff * 100)) + (r.capped ? ' · ' + G.T('away_cap', r.capH) : ''), x + 14, y + 72, 15, 'g9');
     if (U.button('awayok', x + w - 92, y + h - 30, 80, 20, G.T('b_ok'), { font: 'g11b', sfx: 'buy' }) || U.inp.keysPressed.Enter) { A.overlay = null; A.away = null; }
   }

@@ -46,8 +46,10 @@
     var B = s.ev.buffs, bx = Math.max(x, 300), d = C.derive(s);
     var hm = C.harmony(s, d);
     if (hm > 1.005) { var hw = F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 8, 'g9', 12); var hh = U.hitArea('harm', bx, 2, hw, 16); if (hh.over) U.tip([{ t: G.T('harmony', hm.toFixed(2)), f: 'g11b', c: 12 }, { t: G.T('tip_harmony'), c: 13 }, { t: G.effText('harmony', C.derive(s).harmonyPer), c: 13 }], bx, 10); bx += hw + 10; }
-    [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12) + 8; });
-    [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12) + 8; });
+    var hidden = 0;
+    [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0 && bx >= 470) hidden++; if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12) + 8; });
+    [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0 && bx >= 470) hidden++; if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12) + 8; });
+    if (hidden) F.draw('+' + hidden, bx, 4, 7, 'g9', 12);
     if (s.chal) F.drawRight(G.nm('chal', s.chal), 592, 4, 17, 'g9', 12);
     // 소리, 설정
     var sm = U.hitArea('snd', 598, 2, 16, 16);

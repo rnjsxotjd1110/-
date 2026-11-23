@@ -35,7 +35,7 @@
     var dk = Object.keys(d.dist).map(Number).filter(function (k) { return d.dist[k] > 0; });
     var orb = [Math.min.apply(null, dk), Math.max.apply(null, dk)];
     plate(2, G.spr.icDie, G.T('dice'), G.T('n_dice', s.dice.length), full ? G.T('dice_max') : G.T('dice_eff', orb[0], orb[orb.length - 1]),
-      full ? null : cd, s.dust >= cd, G.T('b_dice'), !full && s.dust >= cd, function () { C.buyDie(s); G.audio.play('unlock'); });
+      full ? null : cd, s.dust >= cd, G.T('b_dice'), !full && s.dust >= cd, function () { if (C.buyDie(s)) G.audio.play('unlock'); });
     var fu = C.forgeUnlocked(s);
     plate(3, G.spr.icChisel, G.T('forge'), G.T('n_forge', s.forges), fu ? G.T('forge_eff') : G.T('forge_lock'), fu ? C.costForge(s) : null, s.dust >= C.costForge(s), G.T('b_forge'), fu, function () { A.tab = 'dice'; A.seenTabs.dice = 1; });
     histogram(s, d, X0, Y0 + 186, W0, 46, false);
@@ -109,7 +109,7 @@
       for (var tp = 0; tp <= ti; tp++) gx.rect(x + 19 - tp * 3, y + 19, 2, 2, fc[0]);
       if (ok && Math.floor(A.t * 2) % 2 === 0) { gx.rect(x + 19, y + 2, 2, 2, 3); }
       if (sel && sel.id === u.id) { gx.hline(x - 1, y - 2, 26, 4); gx.hline(x - 1, y + 25, 26, 4); gx.vline(x - 2, y - 1, 26, 4); gx.vline(x + 25, y - 1, 26, 4); }
-      if (h.over && !A.selUpgLock) A.selUpg = u.id;
+      if (h.over) U.tip([{ t: G.nm('up', u.id), f: 'g11b', c: 12 }, { t: G.effText(u.eff, u.v), c: 13 }, { t: own ? G.T('bought') : G.fmt(u.cost), c: own ? 11 : (ok ? 5 : 14) }], x, y);
       if (h.clicked) { A.selUpgLock = u.id; A.selUpg = u.id; G.audio.play('tab'); }
     });
     if (hidden > 0) {
@@ -123,7 +123,7 @@
       var own2 = !!s.up[sel.id];
       gx.blit(G.spr.cat[sel.cat], X0 + 2, dy + 9);
       F.draw(G.nm('up', sel.id), X0 + 22, dy + 9, 4, 'g11b', 12);
-      F.draw(G.effText(sel.eff, sel.v), X0 + 22, dy + 25, 8, 'g11');
+      F.wrap(G.effText(sel.eff, sel.v), W0 - 24, 'g9').slice(0, 2).forEach(function (l, k) { F.draw(l, X0 + 22, dy + 24 + k * 10, 8, 'g9'); });
       if (own2) F.draw(G.T('bought'), X0 + 22, dy + 44, 2, 'g11b');
       else {
         costLine(X0 + 22, dy + 44, sel.cost, s.dust >= sel.cost);
@@ -250,8 +250,9 @@
     }
     if (C.res(s, 's6')) {
       var lab = G.T('auto_nova') + ' ' + (s.settings.autoNova ? G.T('on') : G.T('off'));
-      var h = U.hitArea('autonova', X0 + W0 - F.measure(lab, 'g9') - 4, y + 27, F.measure(lab, 'g9') + 4, 11);
-      F.drawRight(lab, X0 + W0 - 2, y + 28, s.settings.autoNova ? 3 : 15, 'g9');
+      var ay = C.canNova(s) ? y + 28 : y + 41;
+      var h = U.hitArea('autonova', X0 + W0 - F.measure(lab, 'g9') - 4, ay - 1, F.measure(lab, 'g9') + 4, 11);
+      F.drawRight(lab, X0 + W0 - 2, ay, s.settings.autoNova ? 3 : 15, 'g9');
       if (h.clicked) { s.settings.autoNova = !s.settings.autoNova; G.audio.play('tab'); }
     }
   }
@@ -300,12 +301,12 @@
     F.draw(G.T('chal_goal'), X0 + 2, y, 8, 'g9');
     y += 11;
     G.CHALLENGES.forEach(function (c, i) {
-      var yy = y + 1 + i * 35;
+      var yy = y + 1 + i * 34;
       if (i > 0) U.groove(X0, yy - 3, W0);
       var done = !!s.chalDone[c.id], act = s.chal === c.id, unl = C.chalUnlocked(s, c);
       F.draw(G.nm('chal', c.id), X0 + 2, yy + 1, done ? 2 : 4, 'g11b', 12);
-      F.draw(G.nm('chal', c.id, 1), X0 + 2, yy + 13, 8, 'g9');
-      F.draw(G.T('chal_reward', G.effText(c.reward, c.v)), X0 + 2, yy + 22, done ? 2 : 15, 'g9');
+      F.draw(G.nm('chal', c.id, 1), X0 + 2, yy + 14, 8, 'g9');
+      F.draw(G.T('chal_reward', G.effText(c.reward, c.v)), X0 + 2, yy + 23, done ? 2 : 15, 'g9');
       var bx = X0 + W0 - 62;
       if (done) F.drawRight(G.T('chal_done'), X0 + W0 - 4, yy + 2, 2, 'g11b');
       else if (act) { if (U.button('cq' + c.id, bx, yy + 1, 60, 18, G.T('chal_quit'), { font: 'g11b' })) { A.confirmText = G.T('chal_confirm_quit'); A.confirmYes = G.T('b_quit_chal'); A.confirmFn = function () { C.quitChallenge(s); refreshTray(); }; A.overlay = 'confirm'; } }

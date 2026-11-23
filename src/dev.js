@@ -27,7 +27,7 @@
     var m = /demo=(\w+)/.exec(q); var name = m ? m[1] : '';
     var sp = /speed=(\d+)/.exec(q); if (sp) window.__timeScale = +sp[1];
     var s = C.newState(); s.settings.muted = true;
-    var A = G.app; A.s = s;
+    var A = G.app; A.s = s; A.demo = true;
     if (name === 'fresh') { }
     if (name === 'early') bot(s, 150);
     if (name === 'mid') bot(s, 1500);
