@@ -5,7 +5,7 @@
 
   function costLine(x, y, cost, ok, icon) {
     gx.blit(icon || G.spr.icDust, x, y + 2);
-    F.draw(isFinite(cost) ? G.fmt(cost) : '-', x + 12, y, ok ? 3 : 17, 'g11b', 12);
+    F.draw(isFinite(cost) ? G.fmt(cost) : '-', x + 12, y, ok ? 3 : 15, 'g11b', 12);
   }
   function btn(id, x, y, w, h, label, en, style) { return U.button(id, x, y, w, h, label, { enabled: en, font: 'g11b', style: style, sfx: 'buy' }); }
 
@@ -87,16 +87,21 @@
     var hidden = G.UPGRADES.length - vis.length;
     var sel = A.selUpg && G.UPGRADES.filter(function (u) { return u.id === A.selUpg; })[0];
     if (!sel || !C.upgradeVisible(s, sel)) { sel = vis.filter(function (u) { return !s.up[u.id]; })[0] || vis[0]; A.selUpg = sel && sel.id; }
+    var TIER_F = [[11, 18], [15, 14], [3, 2], [7, 5], [19, 16], [4, 8]];
     vis.forEach(function (u, i) {
       var x = X0 + (i % 8) * 26, y = Y0 + 2 + Math.floor(i / 8) * 26;
       var own = !!s.up[u.id], ok = !own && s.dust >= u.cost;
       var h = U.hitArea('ug' + u.id, x, y, 24, 24);
-      G.nine(own ? G.spr.tileOwn : (ok ? G.spr.tileHot : G.spr.tile), x, y, 24, 24);
-      var ic = G.spr.cat[u.cat] || G.spr.cat.lens;
-      gx.blit(ic, x + 5, y + 5, false, own ? null : (ok ? null : DIM));
-      if (sel && sel.id === u.id) { gx.hline(x, y - 1, 24, 4); gx.hline(x, y + 24, 24, 4); gx.vline(x - 1, y, 24, 4); gx.vline(x + 24, y, 24, 4); }
       var rn = (G.nm('up', u.id).match(/ (I{1,3}|IV|V|VI)$/) || [])[1];
-      if (rn) F.draw(rn, x + 22 - F.measure(rn, 'g7'), y + 15, own ? 4 : 15, 'g7', 12);
+      var ti = rn ? ['I', 'II', 'III', 'IV', 'V', 'VI'].indexOf(rn) : 0;
+      var fc = TIER_F[Math.max(0, ti)];
+      gx.rect(x + 1, y + 1, 22, 22, own ? 13 : 21);
+      gx.hline(x + 1, y, 22, fc[0]); gx.vline(x, y + 1, 22, fc[0]); gx.hline(x + 1, y + 23, 22, fc[1]); gx.vline(x + 23, y + 1, 22, fc[1]);
+      if (own) { gx.hline(x + 1, y + 1, 22, 12); }
+      var ic = G.spr.cat[u.cat] || G.spr.cat.lens;
+      gx.blit(ic, x + 5, y + 5, false, own || ok ? null : SIL);
+      if (ok && Math.floor(A.t * 2) % 2 === 0) { gx.rect(x + 19, y + 2, 2, 2, 3); }
+      if (sel && sel.id === u.id) { gx.hline(x - 1, y - 2, 26, 4); gx.hline(x - 1, y + 25, 26, 4); gx.vline(x - 2, y - 1, 26, 4); gx.vline(x + 25, y - 1, 26, 4); }
       if (h.over) A.selUpg = u.id;
       if (h.clicked) { A.selUpg = u.id; if (!own && s.dust >= u.cost) { C.buyUpgrade(s, u.id); G.audio.play('buy'); G.orrery.burst(x + 12, y + 12, 10, [4, 3], 30); } else G.audio.play('tab'); }
     });
@@ -134,6 +139,7 @@
     var owned = G.UPGRADES.filter(function (u) { return s.up[u.id]; }).length;
     F.draw(owned + '/' + G.UPGRADES.length, X0 + W0 - F.measure(owned + '/' + G.UPGRADES.length, 'g9') - 2, dy + 70, 15, 'g9');
   }
+  var SIL = []; for (var si2 = 0; si2 < 24; si2++) SIL[si2] = si2 === 12 ? 12 : 13;
   var DIM = []; for (var di = 0; di < 24; di++) DIM[di] = di; [4, 8, 3, 7, 19, 2].forEach(function (c) { DIM[c] = 15; }); [9, 5, 16, 11, 1, 10].forEach(function (c) { DIM[c] = 14; }); [17, 20].forEach(function (c) { DIM[c] = 14; });
 
   // ── 주사위 ─────────────────────────────────────
@@ -297,7 +303,7 @@
     }
     var heavy = G.DATA.collapseHeavy;
     var warn = F.wrap(G.T('col_warn', s.collapses >= 8 ? G.DATA.collapseHeavyLate : heavy), W0 - 4, 'g9');
-    warn.forEach(function (l, i) { F.draw(l, X0 + 2, y + 42 + i * 10, 14, 'g9'); });
+    warn.forEach(function (l, i) { F.draw(l, X0 + 2, y + 42 + i * 10, 8, 'g9'); });
     if (C.sres(s, 'q11')) {
       var lab = G.T('auto_col') + ' ' + (s.settings.autoCollapse ? G.T('on') : G.T('off'));
       var h = U.hitArea('autocol', X0, y + 64, F.measure(lab, 'g9') + 4, 11);
@@ -305,28 +311,34 @@
       if (h.clicked) { s.settings.autoCollapse = !s.settings.autoCollapse; G.audio.play('tab'); }
     }
     // 특이점 연구: 블랙홀 둘레의 고리
-    var cx = X0 + W0 / 2, cy = Y0 + 206, R = 74;
+    var cx = X0 + W0 / 2, cy = Y0 + 210, R = 82;
     U.groove(X0, Y0 + 80, W0);
     F.draw(G.T('sres'), X0 + 2, Y0 + 86, 4, 'g11');
     // 블랙홀
-    for (var yy = -12; yy <= 12; yy++) for (var xx = -26; xx <= 26; xx++) {
-      var e = (xx * xx) / (26 * 26) + (yy * yy) / (7 * 7);
+    for (var yy = -20; yy <= 20; yy++) for (var xx = -44; xx <= 44; xx++) {
+      var e = (xx * xx) / (44 * 44) + (yy * yy) / (12 * 12);
       var r2 = xx * xx + yy * yy;
-      if (r2 <= 64) gx.pset(cx + xx, cy + yy, 0);
-      else if (r2 <= 90) gx.pset(cx + xx, cy + yy, ((xx + yy + Math.floor(A.t * 6)) & 3) ? 6 : 16);
-      else if (e <= 1 && e > 0.45 && Math.abs(yy) <= 6) gx.pset(cx + xx, cy + yy, e > 0.8 ? 6 : (((xx + Math.floor(A.t * 10)) & 7) < 2 ? 19 : 16));
+      var ang = Math.atan2(yy, xx);
+      if (r2 <= 150) gx.pset(cx + xx, cy + yy, 0);
+      else if (r2 <= 196) gx.pset(cx + xx, cy + yy, ((Math.floor(ang * 6 + A.t * 3)) & 1) ? 16 : 19);
+      else if (e <= 1 && e > 0.38 && (yy > 0 || r2 > 260)) {
+        var band = Math.floor((e - 0.38) / 0.62 * 4);
+        var swirl = (Math.floor(ang * 8 - A.t * 2 + e * 6) & 3) === 0;
+        gx.pset(cx + xx, cy + yy, swirl ? 4 : [19, 16, 6, 0][band]);
+      }
     }
-    for (var ai = 0; ai < 120; ai++) { if (ai % 3) continue; var aa = ai / 120 * Math.PI * 2; gx.pset(Math.round(cx + Math.cos(aa) * R), Math.round(cy + Math.sin(aa) * R * 0.78), 6); }
+    for (var ai = 0; ai < 180; ai++) { if (ai % 2) continue; var aa = ai / 180 * Math.PI * 2; gx.pset(Math.round(cx + Math.cos(aa) * R), Math.round(cy + Math.sin(aa) * R * 0.66), 16); }
     G.SRESEARCH.forEach(function (r, i) {
       var a = -Math.PI / 2 + i / G.SRESEARCH.length * Math.PI * 2;
-      var nx = Math.round(cx + Math.cos(a) * R), ny = Math.round(cy + Math.sin(a) * R * 0.78);
+      var nx = Math.round(cx + Math.cos(a) * R), ny = Math.round(cy + Math.sin(a) * R * 0.66);
       var own = !!s.sres[r.id], av = C.sresAvail(s, r);
       var endBlock = r.eff === 'ending' && Object.keys(s.chalDone).length < G.CHALLENGES.length;
       var ok = av && s.sing >= r.cost && !endBlock;
+      G.nine(own ? G.spr.tileOwn : (ok ? G.spr.tileHot : G.spr.tile), nx - 7, ny - 7, 14, 14);
       var spr = own ? G.spr.sresOn : (av ? G.spr.sresAvail : G.spr.starOff);
       gx.blit(spr, nx - 3, ny - 3);
       if (ok && Math.floor(A.t * 2) % 2) { gx.pset(nx - 6, ny, 19); gx.pset(nx + 6, ny, 19); }
-      if (!own) F.drawCenter(G.fmt(r.cost), nx, ny + 5, ok ? 19 : 14, 'g9');
+      if (!own) F.drawCenter(G.fmt(r.cost), nx, ny + 8, ok ? 19 : 15, 'g9', 12);
       var h = U.hitArea('sr' + r.id, nx - 10, ny - 8, 20, 20);
       if (h.over) U.tip([{ t: G.nm('sres', r.id), f: 'g11b', c: 12 }, { t: G.effText(r.eff, r.v), c: 13 }, { t: own ? G.T('bought') : (endBlock ? G.T('ending_need') : G.T('col_gain', '').replace('+', '') + G.fmt(r.cost)), c: own ? 11 : (ok ? 16 : 14) }], nx, ny);
       if (h.clicked) { if (ok) { C.buySres(s, r.id); G.audio.play('unlock'); G.orrery.burst(nx, ny, 14, [4, 19, 16], 30); } else G.audio.play('deny'); }
@@ -380,7 +392,7 @@
     var items = keys.map(function (k) { return { key: k, label: G.T('tab_' + k), hidden: !A.tabOpen(k), dot: dotFor(s, k) && A.tab !== k }; });
     if (!A.tabOpen(A.tab)) A.tab = 'machine';
     var tw = 0, nv = 0; items.forEach(function (it) { if (!it.hidden) { tw += F.measure(it.label, 'g11'); nv++; } });
-    var gap = Math.max(3, Math.min(10, Math.floor((PW - 22 - tw) / Math.max(1, nv - 1))));
+    var gap = Math.max(5, Math.min(10, Math.floor((PW - 20 - tw) / Math.max(1, nv - 1))));
     var nt = U.tabs('tab', PX + 10, PY + 9, items, A.tab, { gap: gap });
     if (nt !== A.tab) { A.tab = nt; A.seenTabs[nt] = 1; }
     U.groove(PX + 8, PY + 26, PW - 16);

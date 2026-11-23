@@ -42,7 +42,7 @@
   function draw(st, t, opts) {
     opts = opts || {};
     var gx = G.gfx;
-    G.starfield.draw(st.stage || 0, t, opts.camX || 0, opts.camY || 0, V.x, V.y, V.w, opts.noRuler ? 340 : V.h, opts.seedOff || 0);
+    G.starfield.draw(st.stage || 0, t, opts.camX || 0, opts.camY || 0, V.x, V.y, V.w, opts.noRuler ? 340 : V.h, opts.seedOff || 0, [CX, CY, 150, 64, G.starfield.STAGES[Math.min(4, st.stage || 0)].base]);
     gx.setClip(V.x, V.y, V.w, opts.noRuler ? 340 : V.h - 22);
     var L = layout(st.orbits);
     st._layout = L;
@@ -200,7 +200,7 @@
     flash: function (s, v) { flashes[s] = Math.max(flashes[s] || 0, v || 1); },
     flashAll: function (v) { return v; },
     beam: function (x, y, s, onHit) { beams.push({ x: x, y: y, s: s, t: 0, onHit: onHit }); },
-    pop: function (x, y, text, c, font, big, ramp, tag) { if (tag) for (var i = pops.length - 1; i >= 0; i--) if (pops[i].tag === tag) pops.splice(i, 1); pops.push({ tag: tag, x: x, y: y, text: text, c: c, font: font, life: 1, big: big, ramp: ramp }); if (pops.length > 24) pops.shift(); },
+    pop: function (x, y, text, c, font, big, ramp, tag) { if (tag) for (var i = pops.length - 1; i >= 0; i--) if (pops[i].tag === tag || (!big && !pops[i].big && Math.abs(pops[i].x - x) < 26 && Math.abs(pops[i].y - y) < 10)) pops.splice(i, 1); pops.push({ tag: tag, x: x, y: y, text: text, c: c, font: font, life: 1, big: big, ramp: ramp }); if (pops.length > 24) pops.shift(); },
     ring: function (s) { rings.push({ s: s, life: 1 }); },
     clearFx: function () { beams.length = 0; parts.length = 0; pops.length = 0; rings.length = 0; flashes = {}; },
     partsCount: function () { return parts.length; }

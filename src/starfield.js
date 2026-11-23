@@ -5,11 +5,11 @@
   var far = [], mid = [], near = [], galaxies = [];
   var STAGES = [
     // 진행 단계별 성운 색 (어두움 -> 밝음)
-    { base: 0, bands: [6, 16], th: [0.58, 0.86], density: 1 },
-    { base: 0, bands: [6, 21, 18], th: [0.56, 0.68, 0.8], density: 1.2 },
-    { base: 0, bands: [23, 22, 20], th: [0.54, 0.65, 0.77], density: 1.4 },
-    { base: 12, bands: [6, 16, 19], th: [0.55, 0.67, 0.8], density: 1.6 },
-    { base: 0, bands: [6, 16, 19, 4], th: [0.52, 0.63, 0.74, 0.86], density: 1.9 }
+    { base: 0, bands: [6, 16, 19], th: [0.52, 0.66, 0.8], density: 1 },
+    { base: 0, bands: [21, 18, 10, 5], th: [0.5, 0.62, 0.74, 0.85], density: 1.2 },
+    { base: 0, bands: [23, 22, 20, 17], th: [0.5, 0.62, 0.74, 0.86], density: 1.4 },
+    { base: 12, bands: [6, 16, 19, 4], th: [0.5, 0.63, 0.76, 0.88], density: 1.6 },
+    { base: 0, bands: [6, 16, 19, 4], th: [0.48, 0.6, 0.72, 0.84], density: 1.9 }
   ];
   function rnd(seed) { var s = seed >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 
@@ -17,18 +17,22 @@
     var st = STAGES[Math.min(stage, STAGES.length - 1)];
     neb = new Uint8Array(BW * BH);
     var fbm = G.planets.fbm, bay = G.gfx.bayer;
+    var band = new Int8Array(BW * BH);
     for (var y = 0; y < BH; y++) for (var x = 0; x < BW; x++) {
-      var v = fbm(x / 120 + stage * 3.1 + nebSeed * 5.7, y / 90 + nebSeed * 2.3, 0.5 + stage, 4);
-      // 대각선 띠 모양으로 성운을 모음
+      var wx = fbm(x / 90 + 7.3, y / 70 + stage, 1.7 + nebSeed, 3), wy = fbm(x / 90 + 2.1, y / 70 + 4.4 + stage, 3.3 + nebSeed, 3);
+      var v = fbm(x / 140 + wx * 1.6 + stage * 3.1 + nebSeed * 5.7, y / 100 + wy * 1.6 + nebSeed * 2.3, 0.5 + stage, 4);
       var bandShape = Math.exp(-Math.pow((y - BH * 0.35 - (x - BW / 2) * 0.35) / 160, 2));
       v = v * (0.55 + 0.55 * bandShape);
-      var c = st.base;
-      for (var i = 0; i < st.bands.length; i++) {
-        var t = st.th[i];
-        if (v > t + 0.008) c = st.bands[i];
-        else if (v > t - 0.008) { if ((v - t + 0.008) / 0.016 > bay(x, y)) c = st.bands[i]; }
-      }
-      neb[y * BW + x] = c;
+      var bi = -1;
+      for (var i = 0; i < st.bands.length; i++) if (v > st.th[i]) bi = i;
+      band[y * BW + x] = bi;
+    }
+    // 평평한 단계 + 경계에만 1px 엇갈림 (넓은 바둑판 무늬 없음)
+    for (var y2 = 0; y2 < BH; y2++) for (var x2 = 0; x2 < BW; x2++) {
+      var k = y2 * BW + x2, b0 = band[k];
+      var edge = (x2 + 1 < BW && band[k + 1] > b0) || (y2 + 1 < BH && band[k + BW] > b0);
+      if (edge && ((x2 + y2) & 1)) b0 = b0 + 1;
+      neb[k] = b0 < 0 ? st.base : st.bands[Math.min(st.bands.length - 1, b0)];
     }
     var R = rnd(1234 + stage);
     far = []; mid = []; near = []; galaxies = [];
@@ -62,13 +66,20 @@
     var buf = G.gfx.buf, W = G.gfx.W;
     var drift = t * 2.0;
     var ox = Math.floor(30 + camX * 0.15 + drift * 0.15) % BW, oy = Math.floor(30 + camY * 0.15) % BH;
+    var hole = arguments[9];
+    var DARK = [0, 0, 11, 2, 8, 10, 0, 5, 9, 10, 21, 18, 12, 12, 13, 14, 6, 20, 21, 16, 22, 23, 23, 23];
     for (var y = y0; y < y0 + h; y++) {
       var sy = ((y + oy) % BH + BH) % BH;
       var row = sy * BW;
       var o = y * W;
       for (var x = x0; x < x0 + w; x++) {
         var sx = ((x + ox) % BW + BW) % BW;
-        buf[o + x] = neb[row + sx];
+        var c = neb[row + sx];
+        if (hole) {
+          var ex = (x - hole[0]) / hole[2], ey = (y - hole[1]) / hole[3], e = ex * ex + ey * ey;
+          if (e < 1 && !(e > 0.9 && ((x + y) & 1))) { c = DARK[c]; if (e < 0.45 && !(e > 0.4 && ((x + y) & 1))) c = DARK[c]; }
+        }
+        buf[o + x] = c;
       }
     }
     G.gfx.setClip(x0, y0, w, h);

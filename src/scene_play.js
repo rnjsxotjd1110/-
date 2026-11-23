@@ -42,7 +42,7 @@
     // 버프
     var B = s.ev.buffs, bx = Math.max(x, 300), d = C.derive(s);
     var hm = C.harmony(s, d);
-    if (hm > 1.005) { gx.blit(G.spr.icHarm, bx, 5); bx += F.draw('×' + hm.toFixed(2), bx + 11, 3, 8, 'g11b', 12) + 20; }
+    if (hm > 1.005) { var hw = F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 8, 'g9', 12); var hh = U.hitArea('harm', bx, 2, hw, 16); if (hh.over) U.tip([{ t: G.T('harmony', hm.toFixed(2)), f: 'g11b', c: 12 }, { t: G.effText('harmony', C.derive(s).harmonyPer), c: 13 }], bx, 10); bx += hw + 10; }
     [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12) + 8; });
     [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12) + 8; });
     if (s.chal) F.draw(G.nm('chal', s.chal), 520 - F.measure(G.nm('chal', s.chal), 'g9'), 4, 17, 'g9', 12);

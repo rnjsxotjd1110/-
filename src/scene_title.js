@@ -43,7 +43,9 @@
     G.embossText(G.getLang() === 'en' ? 'Dice' : '주사위', lx, 46, 3, [4, 3, 11], 'g11b', 12);
     G.embossText(G.getLang() === 'en' ? 'Orrery' : '성계', lx + 34, 86, 3, [8, 7, 10], 'g11b', 12);
     var sub = G.getLang() === 'en' ? '주사위 성계' : 'D I C E   O R R E R Y';
-    F.draw(sub, lx + 2, 130, 8, 'g11b', 12);
+    F.drawOutlined(sub, lx + 2, 130, 3, 'g11b', 12);
+    gx.setClip(0, 0, 640, 135); F.draw(sub, lx + 2, 130, 4, 'g11b'); gx.resetClip();
+    gx.hline(lx + 2, 146, F.measure(sub, 'g11b'), 11); gx.hline(lx + 2, 147, F.measure(sub, 'g11b'), 18);
     var it = items();
     if (sel >= it.length) sel = 0;
     var anyHit = false;
@@ -54,7 +56,7 @@
       if (h.over) { sel = i; anyHit = true; }
       var on = sel === i;
       if (on) gx.blit(G.spr.menuDie, lx, y + 2);
-      F.draw(m[1], lx + 14 + (on ? 2 : 0), y, on ? 4 : 15, 'g11b', 12);
+      F.drawOutlined(m[1], lx + 14 + (on ? 2 : 0), y, on ? 4 : 8, 'g11b', 12);
       if (h.clicked) act(m[0]);
     });
     if (!A.overlay) {
