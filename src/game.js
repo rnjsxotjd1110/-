@@ -120,7 +120,7 @@
     if (key === 'upg') return s.dustRun >= 25 || Object.keys(s.up).length > 0 || s.novas > 0;
     if (key === 'dice') return C.forgeUnlocked(s) || s.novas > 0 || s.collapses > 0;
     if (key === 'nova') return C.maxTier(s) >= 7 || s.novas > 0 || s.collapses > 0;
-    if (key === 'col') return C.maxTier(s) >= 9 || s.collapses > 0;
+    if (key === 'col') return C.maxTier(s) >= 9 || s.collapses > 0 || !!A.seenTabs.n_col;
     return false;
   }
   A.tabOpen = tabOpen;

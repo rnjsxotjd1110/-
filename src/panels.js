@@ -19,6 +19,7 @@
     F.draw(lv, px + 6, py + 22, 15, 'g9');
     F.wrap(eff, pw - 10, 'g9').slice(0, 2).forEach(function (l, k) { F.draw(l, px + 6, py + 32 + k * 9, 8, 'g9'); });
     if (cost !== null) costLine(px + 6, py + 51, cost, ok, icon2);
+    if (cost === null && !en && i < 3) return;
     if (btn('pl' + i, px + 5, py + 65, pw - 10, 18, label, en)) onClick();
     else if (U.inp.released && U.over(px + 5, py + 65, pw - 10, 18) && !en && cost !== null) G.audio.play('deny');
   }

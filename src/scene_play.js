@@ -143,7 +143,7 @@
       lines.push({ t: G.T('mass') + ' ' + G.fmt(b.m) + (b.t < 10 ? ' / ' + G.fmt(d.th[b.t - 1]) : ''), c: 13 });
       lines.push({ t: G.T('prod') + ' ' + G.fmt(C.bodyRate(s, d, o, b) * C.harmony(s, d) * d.globalMult, true) + G.T('per_sec'), c: 13 });
     } else lines.push({ t: G.T('orb_empty'), c: 14 });
-    lines.push({ t: G.T('tip_rarity'), c: 11 });
+    if (!(d.dist[o] > 0)) lines.push({ t: G.T('orb_dead'), c: 17 }); else lines.push({ t: G.T('tip_rarity'), c: 11 });
     U.tip(lines, mx, my);
   }
 
@@ -164,6 +164,7 @@
     G.tray.draw({ leverHot: lh.over || (s.stats.rolls === 0 && Math.floor(A.t * 2.5) % 2 === 0), leverHeld: lh.state === 'down', reduce: s.settings.reduce });
     G.orrery.drawPops();
     G.tray.drawBadge(A.shownSum, A.rollBadge && A.rollBadge.n > 1 ? A.rollBadge.n : 0);
+    if (s.ev.cur && !cut && !A.overlay && U.inp.released && U.inp.x >= 0 && U.inp.x < 416 && U.inp.y >= 20 && U.inp.y < 244 && !U.hover()) catchEv(s, eventPos(s.ev.cur));
     var feltHit = U.hitArea('felt', G.tray.IN.x, G.tray.IN.y, G.tray.IN.w, G.tray.IN.h, !cut);
     if ((lh.clicked || feltHit.clicked) && !A.overlay) A.doManualRoll();
     if (U.inp.keysPressed.Space && !A.overlay && !cut) A.doManualRoll();
