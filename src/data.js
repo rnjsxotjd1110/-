@@ -40,10 +40,11 @@ G.DATA = {
   collapseTier: 10,
   collapseHeavy: 2.6, collapseHeavyLate: 1.25, collapseHeavyN: 6, // 붕괴마다 문턱 ×2.6, N번 뒤로는 ×1.25
   singMassExp: 0.7,             // 특이점 누적에 따른 질량 배율 (1+특이점)^exp             // 붕괴할 때마다 단계 문턱 배율
-  singGain: { k: 1, div: 20, exp: 0.45 },
+  singGain: { k: 1, div: 40, exp: 0.45 },
   trayCapacity: 36,
   perDieMass: 1.15,              // 주사위 하나당 질량 배율
-  shapeBonus: { d4: 0.35, d8: 0.12, d12: 1.5 }, // d4 정렬 질량 +35%/개, d8 희소도 지수 +0.12/개(2개까지), d12 굴림 질량 ×1.5/개
+  // 면 수가 많을수록 무조건 유리: 주사위 하나당 굴림 질량 배율, 정렬 배율은 (면 수/6)^alignExp
+  shapeMass: { d6: 1, d8: 1.05, d12: 1.1 }, shapeAlignExp: 1.2, // 면 수 업그레이드: 주형 연구를 사면 모든 주사위가 바뀜
   endChalStage: 3,              // 엔딩에 필요한 관측 과제 단계
   refine: { cost0: 60, costK: 3, v: 1.5 },     // 별핵 정제: 질량 ×1.5 반복
   compress: { cost0: 10, costK: 2, v: 2 }     // 특이점 압축: 질량 ×2 반복
@@ -120,16 +121,16 @@ G.CHALLENGES = [
 G.SRESEARCH = [
   { id: 'q1', cost: 1, eff: 'coreX', v: 3 },
   { id: 'q2', cost: 1, eff: 'mass', v: 10 },
-  { id: 'q3', cost: 2, eff: 'shape', v: 'd4' },
+  { id: 'q3', cost: 2, eff: 'shape', v: 'd8' },
   { id: 'q4', cost: 3, eff: 'keepResearch', v: 1 },
-  { id: 'q5', cost: 5, eff: 'shape', v: 'd8', outer: 8 },
+  { id: 'q5', cost: 5, eff: 'shape', v: 'd12', outer: 8 },
   { id: 'q6', cost: 8, eff: 'slot6', v: 1 },
   { id: 'q7', cost: 13, eff: 'offlineCap', v: 72 },
-  { id: 'q8', cost: 21, eff: 'shape', v: 'd12' },
+  { id: 'q8', cost: 21, eff: 'mass', v: 4 },
   { id: 'q9', cost: 34, eff: 'coreX', v: 5 },
   { id: 'q10', cost: 55, eff: 'tierMult', v: 0.25, outer: 16 },
   { id: 'q11', cost: 89, eff: 'autoCollapse', v: 1 },
-  { id: 'q12', cost: 1500, eff: 'ending', v: 1 }
+  { id: 'q12', cost: 4000, eff: 'ending', v: 1 }
 ];
 
 // 특수 주사위 16종. rar: 0 보통, 1 드묾, 2 귀함, 3 전설. v: 1성 효과

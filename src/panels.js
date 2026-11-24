@@ -221,7 +221,7 @@
     var hideBox = A.overlay === 'box' && A.boxPrev && !A.boxRevealed;
     var coll = hideBox ? A.boxPrev.coll : s.coll;
     if (A.selSlot === undefined || A.selSlot >= s.dice.length) A.selSlot = 0;
-    F.draw(G.T('tray_slots'), X0 + 2, y + 2, 15, 'g9');
+    F.draw(G.T('tray_slots') + ' · ' + (s.dice[0] ? s.dice[0].shape : 'd6'), X0 + 2, y + 2, 15, 'g9');
     var owned = G.SPDICE.filter(function (x) { return coll[x.id]; }).length;
     if (U.button('autoeq', X0 + W0 - 96, y - 1, 94, 15, G.T('b_auto'), { enabled: owned > 0, font: 'g9' })) { C.autoEquip(s); refreshTray2(); G.audio.play('forge'); }
     // 쟁반 칸
@@ -288,50 +288,12 @@
     F.draw(s.box > 0 || (s.stats.boxes || 0) ? G.T('box_odds') : G.T('box_none'), X0 + 34, by + 20, 15, 'g7');
     if (U.button('obox', X0 + W0 - 132, by + 1, 62, 17, G.T('b_open1'), { enabled: s.box > 0, font: 'g9', sfx: 'tap' })) G.openBoxesUi(s, 1);
     if (U.button('oboxall', X0 + W0 - 66, by + 1, 64, 17, G.T('b_open_all'), { enabled: s.box > 1, font: 'g9', sfx: 'tap' })) G.openBoxesUi(s, s.box);
-    // 모양 바꾸기 (특이점 연구 후): 버튼에 마우스를 올리면 지금 → 바꾸면 비교
-    var shapes = Object.keys(s.shapes).filter(function (k) { return s.shapes[k]; });
-    if (shapes.length > 1) {
-      var shy = by + 34, di2 = A.selSlot, curShape = s.dice[di2] ? s.dice[di2].shape : 'd6';
-      U.groove(X0, shy - 3, W0);
-      F.draw(G.T('shape_pick', di2 + 1), X0 + 2, shy + 1, 15, 'g9');
-      F.drawRight(G.T('tray_cap', C.trayUsed(s.dice), G.DATA.trayCapacity), X0 + W0 - 2, shy + 1, 15, 'g9');
-      var hov = null;
-      ['d4', 'd6', 'd8', 'd12'].forEach(function (sh, k) {
-        if (!s.shapes[sh]) return;
-        var curS = curShape === sh;
-        var nd = s.dice.slice(); nd[di2] = { faces: new Array(C.SHAPE_FACES[sh]) };
-        var fits = C.trayUsed(nd) <= G.DATA.trayCapacity;
-        var bx2 = X0 + 2 + k * 52;
-        if (U.over(bx2, shy + 13, 48, 17)) hov = { sh: sh, fits: fits, cur: curS, used: C.trayUsed(nd) };
-        if (curS) { G.nine(G.spr.tileOwn, bx2, shy + 13, 48, 17); F.drawCenter(sh, bx2 + 24, shy + 16, 4, 'g11b'); return; }
-        if (U.button('sh' + sh, bx2, shy + 13, 48, 17, sh, { enabled: fits, font: 'g11b' })) { C.setShape(s, di2, sh); G.audio.play('forge'); refreshTray(); }
-      });
-      var info = hov || { sh: curShape, cur: true };
-      F.draw(G.T('shape_' + info.sh), X0 + 2, shy + 34, info.cur ? 15 : 4, 'g9');
-      if (hov && !hov.cur) {
-        if (!hov.fits) F.draw(G.T('shape_full', hov.used, G.DATA.trayCapacity), X0 + 2, shy + 46, 17, 'g9');
-        else {
-          var a0 = shapeStats(s), old = s.dice[di2];
-          s.dice[di2] = C.newDie(hov.sh); s.dice[di2].sp = old.sp; C.invalidate();
-          var a1 = shapeStats(s); s.dice[di2] = old; C.invalidate();
-          var rows = [[G.T('shape_mass'), '×' + G.fmt(a0.mass, true), '×' + G.fmt(a1.mass, true), a1.mass / a0.mass],
-            [G.T('shape_orb'), a0.orb, a1.orb, 1], [G.T('shape_al'), G.pct(a0.al), G.pct(a1.al), a1.al / Math.max(1e-12, a0.al)]];
-          rows.forEach(function (r, i) {
-            var ry = shy + 46 + i * 10;
-            F.draw(r[0], X0 + 2, ry, 15, 'g9');
-            F.drawRight(r[1], X0 + 130, ry, 8, 'g9');
-            F.draw('→', X0 + 134, ry, 15, 'g9');
-            F.drawRight(r[2], X0 + W0 - 2, ry, r[3] > 1.001 ? 16 : (r[3] < 0.999 ? 17 : 4), 'g9');
-          });
-        }
-      }
-    }
   }
   // 모양 비교용: 한 번 굴림의 기대 질량, 궤도 범위, 정렬 확률
   function shapeStats(s) {
     var d = C.derive(s), pa = 0; Object.keys(d.al).forEach(function (k) { pa += d.al[k]; });
     var ks = Object.keys(d.dist).map(Number).filter(function (k) { return d.dist[k] > 0; });
-    return { mass: C.rollValue(s) * d.power * d.batchDieMult, orb: Math.min.apply(null, ks) + '~' + Math.max.apply(null, ks), al: pa };
+    return { mass: C.rollValue(s) * d.power * d.batchDieMult, orb: Math.min.apply(null, ks) + '~' + Math.max.apply(null, ks), al: pa, alm: d.alignMult };
   }
 
   // ── 초신성 ─────────────────────────────────────

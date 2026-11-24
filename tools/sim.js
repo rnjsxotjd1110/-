@@ -99,21 +99,6 @@ function run(kind, seed) {
       g = 0; const nextS = G.SRESEARCH.find(r => !s.sres[r.id]);
       while (g++ < 20 && s.sing >= C.costCompress(s) && (!nextS || C.costCompress(s) < s.sing * 0.3)) C.buyCompress(s);
     }
-    // 주사위 모양 고르기 (해금된 모양으로 기대 질량 최대)
-    if (Object.keys(s.shapes).length > 1 && s.t - (s._shapeT || 0) > 600 && kind !== 'random') {
-      s._shapeT = s.t;
-      for (let di = 0; di < s.dice.length; di++) {
-        let best = s.dice[di].shape, be = expMass(s);
-        for (const sh of Object.keys(s.shapes)) {
-          const old = s.dice[di];
-          if (!C.setShape(s, di, sh)) continue;
-          const e = expMass(s); s.dice[di] = old; C.invalidate();
-          if (e > be * 1.05) { be = e; best = sh; }
-        }
-        if (best !== s.dice[di].shape) C.setShape(s, di, best);
-      }
-      if (s.dice.length < C.maxDice(s) && C.trayUsed(s.dice) + 4 <= 36 && s.shapes.d4 && s.dust >= C.costDie(s)) { C.buyDie(s); }
-    }
     if (s.ended) { mark('ending'); break; }
     // 마일스톤
     if (s.stats.rolls > 0 && Object.keys(s.up).length + s.lv.power + s.lv.wind > 0) mark('firstBuy');

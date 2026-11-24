@@ -1,35 +1,3 @@
-== opt (4 seeds)
-firstBuy   min   0.1m med   0.1m max   0.1m 
-wind       min   0.1m med   0.1m max   0.1m 
-lens1      min   0.2m med   0.2m max   0.2m 
-dice3      min   1.9m med   2.2m max   2.2m 
-box1       min   0.7m med   0.8m max   0.8m 
-con5       min  11.5m med  13.1m max  15.3m 
-tier4      min   0.7m med   0.9m max   1.0m 
-tier6      min   9.1m med  10.6m max  11.1m 
-dice4      min   4.2m med   4.3m max   4.9m 
-nova1      min  16.6m med  23.1m max  29.5m 
-nova2      min  24.4m med  35.0m max  36.5m 
-nova5      min  42.2m med  51.6m max  55.2m 
-chal1      min  42.2m med  51.6m max  55.2m 
-dice5      min  13.2m med  13.9m max  16.0m 
-tier9      min  49.9m med  55.2m max  59.4m 
-chalAll    min  2.08h med  2.13h max  2.15h (3/4)
-collapse1  min  1.09h med  1.21h max  1.27h 
-collapse3  min  1.49h med  1.65h max  1.71h 
-ending     min  5.42h med  7.47h max 10.33h 
-maxGap(6h내 구매 간격 최대) 1458s@4.84h 1951s@2.83h 2699s@3.69h 1848s@3.32h
-runs 23m+8,8m+10,6m+11,10m+18,4m+33,5m+48,4m+85,5m+129,5m+215,3m+109,1m+74,0m+115,2m+291,0m+359,0m+581,0m+934,2m+38,0m+46,0m+62,0m+103,1m+257,0m+312,2m+2129,1m+1802,0m+48,0m+35,0m+176,0m+257,0m+707,0m+780 | 30m+11,7m+12,5m+16,5m+24,5m+38,3m+75,2m+106,3m+170,3m+26,1m+49,1m+63,0m+94,2m+299,0m+333,0m+542,0m+845,1m+23,1m+51,0m+50,0m+79,0m+134,0m+205,0m+330,0m+532,10m+3315,0m+44,0m+104,0m+124,0m+912,0m+724 | 17m+7,8m+12,7m+12,5m+19,6m+39,5m+54,3m+105,5m+166,8m+253,3m+33,1m+77,0m+66,3m+34,1m+47,1m+126,1m+125,1m+42,0m+51,0m+155,0m+151,1m+256,0m+394,1m+642,1m+1115,1m+56,0m+35,1m+352,0m+266,1m+928,1m+988 | 21m+9,14m+17,10m+16,4m+26,6m+49,3m+77,4m+117,8m+210,3m+43,1m+45,1m+70,0m+99,3m+74,0m+50,1m+110,0m+143,2m+1598,1m+1397,0m+187,0m+116,1m+1552,1m+2851,1m+4951,1m+6170,1m+54,0m+57,0m+112,0m+139,1m+804,1m+710
-cols 1.2h+5,1.3h+5,1.7h+21,2.0h+41,2.8h+55,3.4h+224,4.2h+338,5.5h+795,6.6h+1154 | 1.1h+5,1.2h+8,1.5h+9,1.6h+14,2.1h+22,3.9h+34,4.1h+56,4.4h+123,4.9h+386,6.9h+48,7.0h+487,7.2h+716,7.5h+1145 | 1.1h+5,1.3h+3,1.5h+6,1.7h+9,1.8h+14,2.1h+23,3.7h+36,4.6h+65,4.9h+97,7.0h+36,7.3h+191,9.0h+663,10.1h+870,10.3h+1211 | 1.3h+5,1.5h+5,1.6h+6,2.1h+30,2.3h+28,3.5h+45,3.6h+77,3.8h+118,4.0h+189,4.3h+302,4.5h+535,4.8h+805,5.0h+1288
-final {"t":23769.5,"cons":131,"boxes":193,"dex":27,"coll":"{\"pearl\":5,\"lapis\":5,\"coral\":5,\"meteor\":5,\"ivory\":5,\"glass\":5,\"copper\":5,\"comet\":5,\"gold\":5,\"silver\":5,\"amber\":5,\"hour\":5,\"obsid\":5,\"hole\":1,\"starglass\":1,\"nebula\":2}","novas":74,"col":9,"chal":6,"tier":7,"dust":256780013532.4428}
-      {"t":26876,"cons":149,"boxes":225,"dex":28,"coll":"{\"coral\":5,\"pearl\":5,\"hour\":5,\"obsid\":5,\"meteor\":5,\"copper\":5,\"amber\":5,\"lapis\":5,\"comet\":5,\"nebula\":3,\"glass\":5,\"ivory\":5,\"silver\":5,\"hole\":4,\"gold\":5,\"starglass\":3}","novas":107,"col":13,"chal":6,"tier":9,"dust":164267825405445.75}
-      {"t":37187.5,"cons":201,"boxes":284,"dex":28,"coll":"{\"pearl\":5,\"hour\":5,\"copper\":5,\"comet\":5,\"coral\":5,\"lapis\":5,\"meteor\":5,\"obsid\":5,\"gold\":5,\"amber\":5,\"ivory\":5,\"glass\":5,\"silver\":5,\"starglass\":5,\"nebula\":3,\"hole\":2}","novas":96,"col":14,"chal":6,"tier":8,"dust":684602198570599.5}
-      {"t":19518,"cons":87,"boxes":160,"dex":28,"coll":"{\"copper\":5,\"coral\":5,\"ivory\":5,\"meteor\":5,\"hour\":5,\"comet\":5,\"amber\":5,\"pearl\":5,\"lapis\":5,\"glass\":5,\"gold\":4,\"silver\":5,\"obsid\":5,\"starglass\":4,\"nebula\":2}","novas":174,"col":13,"chal":6,"tier":10,"dust":3.262543710743301e+21}
-chal start 30 quit c24,c54 | 6.5h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 30 quit c23,c54,c23 | 6.9h:c1=5,c2=3,c3=5,c4=5,c5=4,c6=5
-      start 33 quit c23,c14,c24,c54,c24 | 10.0h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 19 quit c52 | 3.3h:c1=3,c2=3,c3=3,c4=3,c5=2,c6=3
-pairs {"reson":58,"scope":77,"debris":82,"inner":89,"heavy2":95,"reson2":43,"outer":6}
 == normal (4 seeds)
 firstBuy   min   0.1m med   0.2m max   0.2m 
 wind       min   0.3m med   0.4m max   0.5m 
@@ -46,22 +14,22 @@ nova5      min  51.7m med  1.16h max  1.31h
 chal1      min  1.09h med  1.31h max  1.54h 
 dice5      min  19.1m med  24.3m max  28.2m 
 tier9      min  1.18h med  1.36h max  1.68h 
-chalAll    min  2.44h med  2.62h max  2.86h 
+chalAll    min  4.22h med  4.22h max  4.22h (1/4)
 collapse1  min  1.49h med  1.73h max  1.94h 
-collapse3  min  1.82h med  2.22h max  2.41h 
-ending     min  6.58h med 12.77h max 13.02h 
-maxGap(6h내 구매 간격 최대) 2373s@4.68h 3546s@5.51h 2251s@4.56h 2083s@5.02h
-runs 25m+7,12m+9,8m+7,16m+14,7m+14,6m+18,5m+45,3m+97,4m+122,4m+28,3m+40,1m+54,1m+66,1m+101,0m+139,0m+232,1m+312,0m+438,2m+79,0m+37,1m+405,0m+276,1m+881,0m+747,0m+880,1m+41,15m+319,0m+173,0m+560,0m+413 | 27m+11,7m+9,8m+9,5m+11,5m+14,6m+19,8m+34,5m+107,5m+120,4m+138,4m+177,3m+293,5m+333,4m+461,2m+29,2m+42,1m+180,1m+227,1m+30,1m+43,0m+38,0m+101,1m+267,0m+209,1m+835,1m+843,0m+33,0m+147,1m+255,0m+229 | 36m+13,19m+15,11m+11,7m+16,6m+20,8m+27,6m+36,6m+49,2m+68,3m+134,6m+140,3m+187,3m+47,1m+34,1m+62,0m+72,1m+176,0m+163,1m+30,1m+20,1m+46,1m+129,1m+410,1m+252,1m+518,0m+596,1m+45,1m+85,0m+186,0m+305 | 39m+13,8m+5,14m+13,4m+11,4m+15,5m+39,3m+59,2m+105,2m+91,3m+124,2m+20,2m+39,1m+70,1m+119,4m+90,1m+41,2m+116,1m+126,1m+998,1m+728,1m+37,1m+45,1m+64,0m+71,1m+148,0m+159,1m+61,0m+73,0m+159,0m+212
-cols 1.5h+4,1.7h+9,1.8h+6,2.1h+9,2.5h+13,2.9h+21,3.1h+25,3.6h+37,5.8h+93,7.8h+79,9.3h+64,9.5h+145,9.6h+202,9.7h+286,11.3h+692,12.8h+180,13.0h+755 | 1.7h+8,1.9h+5,2.2h+15,2.4h+12,2.8h+33,3.0h+34,3.3h+43,4.0h+60,5.7h+103,7.5h+112,9.0h+85,9.2h+205,9.3h+286,9.4h+447,11.0h+507,12.6h+124,12.8h+905 | 1.9h+5,2.2h+8,2.4h+44,2.6h+37,2.8h+153,3.0h+151,3.2h+218,4.8h+251,6.4h+202,6.5h+840,6.6h+968 | 1.5h+5,1.7h+4,1.9h+7,2.0h+7,2.2h+12,2.8h+18,3.0h+22,3.4h+32,5.0h+73,5.2h+77,6.8h+144,6.9h+161,7.0h+243,8.5h+72,8.7h+591,10.3h+97,10.4h+1102
-final {"t":46885,"cons":285,"boxes":399,"dex":28,"coll":"{\"ivory\":5,\"coral\":5,\"pearl\":5,\"amber\":5,\"copper\":5,\"meteor\":5,\"starglass\":5,\"silver\":5,\"comet\":5,\"obsid\":5,\"hour\":5,\"glass\":5,\"lapis\":5,\"gold\":5,\"nebula\":1,\"hole\":1}","novas":157,"col":17,"chal":6,"tier":9,"dust":1556858614505585700}
-      {"t":45954.5,"cons":253,"boxes":371,"dex":29,"coll":"{\"silver\":5,\"pearl\":5,\"copper\":5,\"meteor\":5,\"coral\":5,\"hour\":5,\"gold\":5,\"starglass\":5,\"comet\":5,\"obsid\":5,\"amber\":5,\"ivory\":5,\"lapis\":5,\"glass\":5,\"hole\":3,\"nebula\":4}","novas":157,"col":17,"chal":6,"tier":9,"dust":124811224910239300}
-      {"t":23677,"cons":126,"boxes":200,"dex":28,"coll":"{\"silver\":5,\"ivory\":5,\"obsid\":5,\"hour\":5,\"amber\":5,\"coral\":5,\"lapis\":5,\"meteor\":5,\"pearl\":5,\"copper\":5,\"glass\":5,\"starglass\":4,\"comet\":5,\"hole\":5,\"nebula\":4,\"gold\":5}","novas":86,"col":11,"chal":6,"tier":9,"dust":470204043142567.5}
-      {"t":37537.5,"cons":203,"boxes":299,"dex":28,"coll":"{\"pearl\":5,\"obsid\":5,\"meteor\":5,\"lapis\":5,\"ivory\":5,\"hour\":5,\"glass\":5,\"coral\":5,\"silver\":5,\"gold\":5,\"copper\":5,\"amber\":5,\"nebula\":3,\"starglass\":5,\"comet\":5,\"hole\":2}","novas":146,"col":17,"chal":6,"tier":8,"dust":5565329287669164}
-chal start 33 quit c24,c54,c24,c54,c24 | 9.3h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 33 quit c24,c54,c24,c54,c24 | 9.0h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 30 quit c24,c54 | 6.4h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 32 quit c24,c54,c24,c54 | 6.8h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-pairs {"net":16,"scope":17,"debris":28,"inner":31,"scope2":29,"reson":22,"twin":21,"heavy2":17,"outer":32,"alres":22,"twin2":23,"reson2":18}
+collapse3  min  2.03h med  2.66h max  2.82h 
+ending     min  4.94h med  8.13h max  8.13h 
+maxGap(6h내 구매 간격 최대) 1930s@3.75h 2046s@2.66h 815s@3.39h 861s@5.66h
+runs 25m+7,12m+9,8m+7,16m+14,7m+14,6m+18,5m+45,3m+97,4m+122,7m+36,2m+78,1m+51,1m+61,1m+116,1m+136,1m+195,1m+254,1m+335,0m+631,1m+686,2m+31,1m+47,1m+133,0m+176,3m+1615,1m+1135,0m+32,0m+105,16m+14177,0m+9375 | 27m+11,7m+9,8m+9,5m+11,5m+14,6m+19,8m+34,5m+107,5m+120,4m+138,4m+177,3m+293,5m+333,4m+461,2m+142,1m+95,1m+113,1m+125,2m+21,2m+60,1m+162,0m+184,1m+1265,0m+593,1m+1033,0m+1474,0m+75,0m+163,0m+753,0m+1779 | 36m+13,19m+15,11m+11,7m+16,6m+20,8m+27,6m+36,6m+49,2m+68,3m+134,6m+140,3m+187,2m+30,2m+66,1m+56,1m+25,0m+88,0m+603,11m+38981,0m+17390,0m+51881,0m+43908,0m+17661,0m+64525,0m+5118,0m+157570,0m+23936,0m+170852,0m+14377,0m+352607 | 39m+13,8m+5,14m+13,4m+11,4m+15,5m+39,3m+59,2m+105,2m+91,3m+124,3m+24,3m+34,1m+34,1m+56,4m+39,1m+49,1m+1802,1m+704,1m+52,1m+76,0m+132,0m+121,0m+111,0m+64,1m+335,0m+469,0m+779,0m+470,7m+9474259,0m+1056
+cols 1.5h+3,1.8h+8,2.2h+22,2.5h+15,2.8h+99,3.7h+334,4.2h+331,4.8h+416,6.8h+690,8.1h+12688 | 1.7h+5,1.9h+6,2.7h+23,3.3h+61,3.4h+119,3.5h+244,5.1h+137,5.5h+520,5.6h+447,5.6h+634,5.8h+897,5.9h+2231,6.2h+4484,6.5h+3945,6.8h+5513,7.0h+7716 | 1.9h+4,2.6h+21,2.8h+47,3.4h+606,3.5h+1009,4.1h+3544,4.2h+2236,4.8h+60393 | 1.5h+3,1.9h+9,2.0h+6,2.3h+12,2.5h+28,3.3h+33,4.2h+284,4.3h+150,4.6h+888,5.2h+761,5.9h+2902
+final {"t":29264,"cons":159,"boxes":226,"dex":27,"coll":"{\"ivory\":5,\"coral\":5,\"pearl\":5,\"amber\":5,\"copper\":5,\"meteor\":5,\"starglass\":4,\"silver\":5,\"comet\":5,\"obsid\":5,\"hour\":5,\"glass\":5,\"lapis\":5,\"hole\":3,\"nebula\":2,\"gold\":5}","novas":50,"col":10,"chal":6,"tier":10,"dust":10630092518712058000}
+      {"t":29274,"cons":145,"boxes":230,"dex":29,"coll":"{\"silver\":5,\"pearl\":5,\"copper\":5,\"meteor\":5,\"coral\":5,\"hour\":5,\"gold\":5,\"starglass\":5,\"comet\":5,\"obsid\":5,\"amber\":5,\"ivory\":5,\"lapis\":5,\"glass\":5,\"nebula\":4,\"hole\":1}","novas":198,"col":16,"chal":6,"tier":10,"dust":1.190959335447587e+27}
+      {"t":17767,"cons":100,"boxes":151,"dex":28,"coll":"{\"silver\":5,\"ivory\":5,\"obsid\":5,\"hour\":5,\"amber\":5,\"coral\":5,\"lapis\":5,\"meteor\":5,\"pearl\":4,\"copper\":5,\"glass\":5,\"starglass\":5,\"comet\":5,\"hole\":1,\"nebula\":3,\"gold\":4}","novas":40,"col":8,"chal":6,"tier":10,"dust":5.224405992459272e+25}
+      {"t":21072,"cons":96,"boxes":157,"dex":27,"coll":"{\"pearl\":5,\"obsid\":5,\"meteor\":5,\"lapis\":5,\"ivory\":5,\"hour\":5,\"glass\":5,\"coral\":5,\"silver\":5,\"gold\":5,\"copper\":5,\"amber\":5,\"nebula\":2,\"comet\":2,\"starglass\":4,\"hole\":2}","novas":40,"col":11,"chal":6,"tier":9,"dust":19927999817184016}
+chal start 23 quit c23 | 8.1h:c1=4,c2=3,c3=4,c4=4,c5=4,c6=3
+      start 19 quit c52 | 5.5h:c1=3,c2=3,c3=3,c4=3,c5=2,c6=3
+      start 18 quit  | 4.8h:c1=3,c2=3,c3=3,c4=3,c5=3,c6=2
+      start 18 quit  | 5.9h:c1=3,c2=3,c3=3,c4=3,c5=3,c6=3
+pairs {"net":20,"scope":21,"debris":21,"inner":27,"scope2":24,"reson":19,"twin":15,"heavy2":19,"outer":23,"alres":17,"twin2":5,"reson2":6}
 == idle (4 seeds)
 firstBuy   min   0.3m med   0.5m max   0.7m 
 wind       min   0.3m med   0.5m max   0.7m 
@@ -78,51 +46,51 @@ nova5      min  1.57h med  1.76h max  2.12h
 chal1      min  1.83h med  2.04h max  2.35h 
 dice5      min  34.1m med  44.9m max  49.7m 
 tier9      min  1.54h med  2.17h max  2.35h 
-chalAll    min  3.56h med  4.37h max  4.41h 
+chalAll    min  5.55h med  5.55h max  5.55h (1/4)
 collapse1  min  2.03h med  3.05h max  3.06h 
-collapse3  min  2.66h med  3.30h max  3.83h 
-ending     min  9.78h med 12.62h max 13.83h 
-maxGap(6h내 구매 간격 최대) 1827s@5.04h 1475s@4.04h 1807s@4.56h 1261s@5.57h
-runs 56m+12,11m+10,18m+14,7m+39,5m+59,7m+47,5m+89,5m+101,3m+178,1m+226,5m+39,3m+61,2m+76,1m+64,4m+76,1m+62,1m+219,1m+215,1m+209,1m+105,1m+401,1m+611,1m+11125,2m+5107,1m+50,1m+457,1m+49,1m+168,1m+429,1m+237 | 69m+14,10m+8,11m+13,7m+14,9m+22,10m+25,6m+65,5m+61,5m+134,4m+126,8m+206,5m+418,4m+24,2m+30,2m+84,1m+177,1m+309,1m+395,1m+59,0m+67,1m+201,1m+305,1m+548,0m+457,1m+789,1m+883,1m+101,1m+148,0m+181,1m+353 | 92m+18,11m+9,9m+17,8m+21,6m+31,9m+35,5m+88,8m+78,4m+114,9m+176,8m+226,5m+298,4m+40,2m+25,2m+92,1m+314,1m+113,0m+490,1m+1224,1m+1316,1m+1523,1m+1905,1m+91,1m+465,1m+1235,1m+3932,1m+78,1m+111,1m+270,0m+252 | 38m+7,17m+9,17m+13,13m+13,9m+17,11m+21,12m+29,9m+40,5m+54,7m+98,7m+121,8m+224,7m+242,9m+361,4m+26,4m+68,2m+185,2m+358,1m+397,1m+45,1m+120,1m+185,1m+501,1m+449,1m+833,1m+848,1m+85,1m+113,1m+247,0m+327
-cols 2.0h+6,2.5h+13,2.7h+12,2.8h+20,3.1h+29,3.4h+35,3.6h+46,3.8h+65,4.2h+122,4.5h+369,6.1h+179,6.5h+422,9.6h+266,9.8h+895 | 2.6h+7,2.9h+4,3.0h+5,3.5h+14,3.6h+12,4.4h+17,5.3h+48,5.9h+107,6.3h+203,7.9h+185,8.2h+378,9.8h+355,11.4h+441,11.6h+774 | 3.1h+7,3.2h+4,3.3h+8,3.4h+8,3.5h+11,3.7h+18,4.8h+46,5.0h+60,5.2h+82,7.1h+192,8.7h+139,10.2h+300,10.5h+352,12.2h+594,13.8h+865 | 3.0h+7,3.3h+5,3.8h+17,4.0h+12,4.3h+23,4.6h+42,4.9h+66,5.2h+108,6.8h+83,9.1h+156,10.7h+182,10.8h+281,11.0h+397,12.6h+968
-final {"t":35198,"cons":200,"boxes":275,"dex":28,"coll":"{\"amber\":5,\"meteor\":5,\"hour\":5,\"silver\":5,\"coral\":5,\"copper\":5,\"obsid\":5,\"starglass\":5,\"glass\":5,\"lapis\":5,\"ivory\":5,\"comet\":5,\"pearl\":5,\"hole\":2,\"gold\":5,\"nebula\":2}","novas":81,"col":14,"chal":6,"tier":9,"dust":1014499266843321.9}
-      {"t":41600.5,"cons":222,"boxes":302,"dex":28,"coll":"{\"copper\":5,\"obsid\":5,\"lapis\":5,\"silver\":5,\"pearl\":5,\"amber\":5,\"comet\":5,\"ivory\":5,\"coral\":5,\"glass\":5,\"meteor\":5,\"starglass\":4,\"gold\":5,\"hour\":5,\"nebula\":5,\"hole\":4}","novas":85,"col":14,"chal":6,"tier":9,"dust":1632560948884970200}
-      {"t":49773.5,"cons":268,"boxes":391,"dex":28,"coll":"{\"ivory\":5,\"hour\":5,\"copper\":5,\"amber\":5,\"lapis\":5,\"pearl\":5,\"glass\":5,\"silver\":5,\"coral\":5,\"comet\":5,\"obsid\":5,\"starglass\":5,\"hole\":2,\"gold\":5,\"meteor\":5,\"nebula\":1}","novas":110,"col":15,"chal":6,"tier":10,"dust":1053512798362655500}
-      {"t":45426.5,"cons":229,"boxes":313,"dex":28,"coll":"{\"ivory\":5,\"copper\":5,\"comet\":5,\"hour\":5,\"pearl\":5,\"starglass\":5,\"lapis\":5,\"obsid\":5,\"coral\":5,\"glass\":5,\"meteor\":5,\"silver\":5,\"amber\":5,\"gold\":5,\"nebula\":5,\"hole\":1}","novas":98,"col":14,"chal":6,"tier":9,"dust":435028179631677}
-chal start 31 quit c24,c54,c24 | 9.6h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 31 quit c24,c54,c24 | 9.8h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 33 quit c24,c54,c24,c54,c24 | 8.6h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 32 quit c24,c54,c24,c54 | 10.7h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-pairs {"net":22,"scope":19,"alres":12,"outer":9,"heavy2":11,"debris":15,"inner":18,"scope2":15,"twin":9,"reson":11,"reson2":1,"twin2":1}
-== nodice (4 seeds)
-firstBuy   min   0.1m med   0.2m max   0.2m 
-wind       min   0.3m med   0.4m max   0.5m 
-lens1      min   0.2m med   0.3m max   0.4m 
-dice3      min   3.6m med   3.9m max   3.9m 
-box1           도달 못함
-con5       min   8.4m med  11.5m max  12.7m 
-tier4      min   1.3m med   1.6m max   2.0m 
-tier6      min  15.5m med  16.9m max  18.4m 
-dice4      min   7.5m med  10.3m max  10.8m 
-nova1      min  36.7m med  47.8m max  53.7m 
-nova2      min  53.1m med  1.22h max  1.24h 
-nova5      min  1.43h med  1.53h max  1.84h 
-chal1      min  1.71h med  1.74h max  2.01h 
-dice5      min  21.7m med  30.8m max  33.7m 
-tier9      min  1.84h med  1.99h max  2.01h 
-chalAll    min  3.80h med  4.34h max  4.83h 
-collapse1  min  2.98h med  3.05h max  3.13h 
-collapse3  min  3.45h med  3.53h max  3.60h 
-ending     min 14.55h med 15.28h max 17.97h (3/4)
-maxGap(6h내 구매 간격 최대) 1378s@4.63h 1986s@5.72h 4137s@5.55h 1973s@4.20h
-runs 48m+13,25m+14,10m+10,4m+16,5m+20,7m+26,6m+36,7m+49,6m+66,5m+94,8m+121,11m+165,7m+228,7m+303,7m+34,1m+87,1m+175,0m+115,3m+24,3m+34,1m+58,1m+73,1m+80,1m+117,1m+162,1m+727,2m+45,1m+37,1m+116,0m+72 | 54m+13,21m+14,24m+15,6m+15,5m+20,6m+28,5m+65,7m+62,8m+83,7m+112,8m+150,8m+213,9m+279,11m+375,6m+37,1m+48,1m+146,1m+240,1m+51,1m+52,0m+122,0m+103,2m+1374,0m+815,1m+911,1m+49,21m+1407,1m+874,1m+40,0m+58 | 45m+12,13m+9,11m+8,12m+11,6m+14,7m+19,9m+26,6m+38,3m+48,9m+65,7m+90,7m+121,8m+164,8m+221,21m+302,8m+36,3m+121,1m+120,6m+1444,1m+803,1m+897,1m+1378,5m+25,2m+58,2m+79,1m+122,2m+228,1m+190,1m+335,1m+372 | 37m+11,16m+11,16m+13,9m+13,8m+18,9m+26,9m+33,9m+57,7m+80,10m+103,9m+128,10m+178,12m+279,10m+346,3m+39,1m+25,3m+124,1m+96,1m+186,0m+176,0m+310,1m+346,1m+498,1m+30,2m+56,1m+65,7m+1071,1m+448,1m+872,1m+51
-cols 3.0h+6,3.2h+5,3.5h+7,3.7h+8,4.0h+16,4.6h+35,5.0h+31,5.3h+44,7.6h+71,9.2h+38,10.8h+60,11.0h+134,11.2h+193,14.2h+39,14.4h+292,14.5h+394,16.2h+481,17.7h+68,18.0h+770 | 3.1h+7,3.4h+7,3.5h+6,3.9h+8,4.1h+13,4.6h+20,5.2h+28,5.7h+45,6.0h+54,7.9h+86,8.5h+235,11.5h+56,11.7h+226,11.9h+319,13.5h+305,15.0h+117,15.3h+614 | 3.0h+6,3.3h+10,3.6h+8,3.8h+13,4.0h+21,4.4h+25,7.1h+32,8.0h+59,9.6h+28,11.3h+61,11.6h+117,14.6h+23,14.8h+162,15.0h+228,16.6h+224,18.1h+25,18.4h+419 | 3.0h+7,3.2h+5,3.4h+6,3.6h+8,4.2h+29,4.8h+45,5.0h+40,5.1h+56,6.7h+29,7.6h+127,10.7h+37,10.9h+202,11.0h+247,12.6h+307,14.2h+36,14.3h+484,14.5h+766
-final {"t":64709.5,"cons":345,"boxes":0,"dex":28,"coll":"{}","novas":195,"col":19,"chal":6,"tier":8,"dust":910707112603.4929}
-      {"t":55005,"cons":346,"boxes":0,"dex":28,"coll":"{}","novas":134,"col":17,"chal":6,"tier":8,"dust":6251788103372488}
-      {"t":72000,"cons":375,"boxes":0,"dex":28,"coll":"{}","novas":192,"col":17,"chal":6,"tier":10,"dust":1.7557020037274647e+23}
-      {"t":52369.5,"cons":281,"boxes":0,"dex":28,"coll":"{}","novas":155,"col":17,"chal":6,"tier":6,"dust":278851916.20519686}
-chal start 35 quit c24,c54,c24,c54,c24,c54,c24 | 10.8h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 33 quit c24,c54,c24,c54,c24 | 11.5h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 36 quit c24,c54,c24,c54,c24,c54,c24 | 11.3h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-      start 33 quit c24,c54,c24,c54,c24 | 10.7h:c1=5,c2=4,c3=5,c4=5,c5=4,c6=5
-pairs {"net":21,"twin":19,"alres":16,"inner":15,"heavy2":17,"reson":11,"outer":16,"scope2":9,"scope":11,"debris":14,"twin2":1,"reson2":1}
+collapse3  min  3.20h med  3.71h max  4.05h 
+ending     min  4.40h med  6.86h max  6.91h 
+maxGap(6h내 구매 간격 최대) 1838s@4.55h 1134s@3.54h 1805s@5.57h 1572s@5.48h
+runs 56m+12,11m+10,18m+14,7m+39,5m+59,7m+47,5m+89,5m+101,3m+178,1m+226,7m+61,2m+63,2m+194,1m+127,3m+48,2m+53,1m+148,1m+21235,0m+33984,0m+44798,1m+298519,0m+302396,1m+8373,0m+515627,15m+188490135,0m+45635,0m+55419,1m+1100375,10m+442369782,1m+253005471 | 69m+14,10m+8,11m+13,7m+14,9m+22,10m+25,6m+65,5m+61,5m+134,4m+126,8m+206,5m+418,9m+56,2m+62,2m+256,1m+582,1m+551,1m+671,7m+73,2m+47,2m+934,2m+988,1m+169,1m+523,0m+283,0m+986622,1m+2327,1m+105648,0m+1236989,1m+1089726 | 92m+18,11m+9,9m+17,8m+21,6m+31,9m+35,5m+88,8m+78,4m+114,9m+176,8m+226,5m+298,8m+50,2m+65,4m+75,2m+105,3m+4941,1m+8249,0m+340,1m+8823,1m+70656,1m+129883,0m+2477,0m+98498,1m+16182,1m+265895,1m+34927,1m+609394,6m+30575923,0m+11694583 | 38m+7,17m+9,17m+13,13m+13,9m+17,11m+21,12m+29,9m+40,5m+54,7m+98,7m+121,8m+224,7m+242,9m+361,9m+54,2m+163,2m+167,1m+221,6m+84,2m+33,1m+367,1m+311,0m+184,0m+98,1m+57,1m+65,1m+149,0m+214,1m+746,1m+2028
+cols 2.0h+4,2.7h+49,3.3h+92,4.6h+1980,4.9h+899,5.7h+4664,6.0h+18812,6.5h+51252 | 2.6h+5,2.9h+15,3.2h+66,3.7h+254,3.9h+862,4.2h+2712,4.3h+3751 | 3.1h+5,3.7h+16,4.1h+76,4.8h+541,4.9h+479,6.1h+2922,6.3h+3129,6.9h+21240 | 3.0h+5,3.5h+8,3.7h+11,3.8h+17,4.4h+38,4.7h+63,4.7h+125,4.9h+109,5.5h+192,5.8h+492,6.1h+1780,6.4h+1274,6.8h+4778
+final {"t":23842,"cons":128,"boxes":184,"dex":28,"coll":"{\"amber\":5,\"meteor\":5,\"hour\":5,\"silver\":5,\"coral\":5,\"copper\":5,\"obsid\":5,\"starglass\":5,\"glass\":5,\"lapis\":5,\"ivory\":5,\"comet\":5,\"pearl\":5,\"hole\":3,\"gold\":2,\"nebula\":1}","novas":40,"col":8,"chal":6,"tier":10,"dust":3.1608343720729393e+25}
+      {"t":15825.5,"cons":68,"boxes":107,"dex":28,"coll":"{\"copper\":5,\"obsid\":5,\"lapis\":5,\"silver\":5,\"pearl\":5,\"amber\":5,\"comet\":5,\"ivory\":5,\"coral\":5,\"glass\":5,\"meteor\":5,\"starglass\":4,\"gold\":5,\"hour\":3,\"hole\":1,\"nebula\":1}","novas":40,"col":7,"chal":6,"tier":10,"dust":9.48172688553489e+24}
+      {"t":24863,"cons":110,"boxes":159,"dex":28,"coll":"{\"ivory\":5,\"hour\":5,\"copper\":5,\"amber\":5,\"lapis\":5,\"pearl\":5,\"glass\":5,\"silver\":5,\"coral\":5,\"comet\":5,\"obsid\":5,\"starglass\":5,\"hole\":2,\"gold\":2,\"nebula\":1,\"meteor\":5}","novas":40,"col":8,"chal":6,"tier":10,"dust":381370229935193900000}
+      {"t":24678.5,"cons":99,"boxes":171,"dex":28,"coll":"{\"ivory\":5,\"copper\":5,\"comet\":5,\"hour\":5,\"pearl\":5,\"starglass\":4,\"lapis\":5,\"obsid\":5,\"coral\":5,\"glass\":5,\"meteor\":5,\"silver\":5,\"amber\":5,\"gold\":5,\"nebula\":1,\"hole\":3}","novas":50,"col":13,"chal":6,"tier":10,"dust":101975075627688960}
+chal start 18 quit  | 6.5h:c1=3,c2=3,c3=3,c4=3,c5=3,c6=2
+      start 18 quit  | 4.3h:c1=3,c2=3,c3=3,c4=3,c5=3,c6=2
+      start 18 quit  | 6.9h:c1=3,c2=3,c3=3,c4=3,c5=3,c6=2
+      start 23 quit  | 6.8h:c1=4,c2=4,c3=4,c4=4,c5=4,c6=3
+pairs {"net":26,"scope":21,"alres":15,"outer":12,"heavy2":14,"debris":13,"inner":16,"scope2":13,"reson":11,"twin":11,"reson2":1,"twin2":1}
+== opt (4 seeds)
+firstBuy   min   0.1m med   0.1m max   0.1m 
+wind       min   0.1m med   0.1m max   0.1m 
+lens1      min   0.2m med   0.2m max   0.2m 
+dice3      min   1.9m med   2.2m max   2.2m 
+box1       min   0.7m med   0.8m max   0.8m 
+con5       min  11.5m med  13.1m max  15.3m 
+tier4      min   0.7m med   0.9m max   1.0m 
+tier6      min   9.1m med  10.6m max  11.1m 
+dice4      min   4.2m med   4.3m max   4.9m 
+nova1      min  16.6m med  23.1m max  29.5m 
+nova2      min  24.4m med  35.0m max  36.5m 
+nova5      min  42.2m med  51.6m max  55.2m 
+chal1      min  42.2m med  51.6m max  55.2m 
+dice5      min  13.2m med  13.9m max  16.0m 
+tier9      min  49.9m med  55.2m max  59.4m 
+chalAll        도달 못함
+collapse1  min  1.09h med  1.21h max  1.27h 
+collapse3  min  1.68h med  1.82h max  2.33h 
+ending     min  4.85h med  8.90h max 10.91h 
+maxGap(6h내 구매 간격 최대) 1767s@3.81h 2375s@2.70h 1828s@3.06h 1603s@2.77h
+runs 23m+8,8m+10,6m+11,10m+18,4m+33,5m+48,4m+85,5m+129,5m+215,3m+44,1m+48,0m+75,5m+191,0m+218,0m+351,0m+577,1m+62,0m+65,0m+973,0m+667,0m+42,0m+71,0m+602,0m+930,0m+1015,0m+6815,0m+2578,0m+17828,1m+1983383,0m+1476443 | 30m+11,7m+12,5m+16,5m+24,5m+38,3m+75,2m+106,3m+170,4m+36,1m+43,1m+51,0m+86,3m+51,1m+53,1m+354,0m+4458,0m+857,0m+558,0m+2942,0m+2624,0m+4246,1m+6804,0m+39,0m+53,0m+161,0m+239,9m+25363,0m+15775,3m+73732,0m+80 | 17m+7,8m+12,7m+12,5m+19,6m+39,5m+54,3m+105,5m+166,8m+253,3m+51,1m+45,0m+58,2m+68,0m+52,4m+1019,0m+696,0m+94,0m+101,0m+3413,0m+2169,0m+619,0m+3983,0m+686,0m+17271,0m+790,0m+15918,9m+159417886,0m+6679,0m+73062,0m+118475 | 21m+9,14m+17,10m+16,4m+26,6m+49,3m+77,4m+117,8m+210,3m+96,1m+61,1m+166,0m+198,11m+340,1m+521,1m+840,3m+53,7m+856,0m+555,0m+885,1m+1416,0m+67,0m+48,10m+5473,1m+3390,0m+50,0m+819,0m+708,0m+1094,0m+2827,1m+3387
+cols 1.2h+3,1.6h+15,1.8h+32,2.2h+76,3.2h+624,3.8h+1237,4.8h+12399 | 1.1h+3,1.5h+6,1.7h+18,2.9h+45,4.1h+44,4.3h+70,4.4h+112,4.5h+577,4.7h+525,5.1h+1890,5.3h+1980,5.4h+10075,5.6h+24430,5.9h+23883,6.8h+50803 | 1.1h+4,1.6h+9,2.3h+64,3.1h+266,3.2h+287,4.2h+501,4.4h+679,5.9h+13939,6.1h+42497,6.2h+46774,6.5h+63058,6.8h+216267,7.8h+248264,9.0h+836579,9.4h+1879672,10.0h+3034243,10.5h+3860037 | 1.3h+3,1.6h+5,1.8h+6,3.0h+21,4.2h+30,4.4h+47,4.4h+198,4.6h+186,4.8h+298,4.9h+2243,6.4h+2939,6.7h+4154,6.9h+6081,7.3h+12201,7.6h+50168,8.9h+166163
+final {"t":17444.5,"cons":79,"boxes":129,"dex":27,"coll":"{\"pearl\":5,\"lapis\":5,\"coral\":5,\"meteor\":5,\"ivory\":5,\"glass\":5,\"copper\":5,\"comet\":2,\"gold\":3,\"silver\":5,\"amber\":5,\"hour\":5,\"obsid\":5,\"hole\":1,\"starglass\":3,\"nebula\":1}","novas":38,"col":7,"chal":6,"tier":10,"dust":4.4712889134902684e+21}
+      {"t":26518.5,"cons":143,"boxes":221,"dex":28,"coll":"{\"coral\":5,\"pearl\":5,\"hour\":5,\"obsid\":5,\"meteor\":5,\"copper\":5,\"amber\":5,\"lapis\":5,\"comet\":5,\"nebula\":1,\"glass\":5,\"ivory\":5,\"silver\":5,\"gold\":5,\"hole\":1,\"starglass\":5}","novas":170,"col":15,"chal":6,"tier":10,"dust":3.837365621288702e+24}
+      {"t":39273,"cons":185,"boxes":288,"dex":28,"coll":"{\"pearl\":5,\"hour\":5,\"copper\":5,\"comet\":5,\"coral\":5,\"lapis\":5,\"meteor\":5,\"obsid\":5,\"gold\":5,\"amber\":5,\"ivory\":5,\"glass\":5,\"silver\":5,\"starglass\":5,\"nebula\":4,\"hole\":2}","novas":236,"col":17,"chal":6,"tier":10,"dust":1.796408748197485e+30}
+      {"t":32056,"cons":167,"boxes":261,"dex":28,"coll":"{\"copper\":5,\"coral\":5,\"ivory\":5,\"meteor\":5,\"hour\":5,\"comet\":5,\"amber\":5,\"pearl\":5,\"lapis\":5,\"glass\":5,\"gold\":5,\"silver\":5,\"obsid\":5,\"starglass\":5,\"hole\":2,\"nebula\":1}","novas":196,"col":16,"chal":6,"tier":10,"dust":3676350699090.931}
+chal start 18 quit  | 4.8h:c1=3,c2=3,c3=3,c4=3,c5=3,c6=2
+      start 20 quit c31,c51 | 6.7h:c1=3,c2=3,c3=3,c4=3,c5=2,c6=3
+      start 20 quit c52,c52 | 5.9h:c1=3,c2=3,c3=3,c4=3,c5=2,c6=3
+      start 21 quit c51,c61,c51 | 8.9h:c1=3,c2=3,c3=3,c4=3,c5=2,c6=3
+pairs {"reson":40,"scope":71,"debris":75,"inner":79,"heavy2":92,"reson2":82,"outer":2}

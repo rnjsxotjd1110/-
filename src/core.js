@@ -62,6 +62,9 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     return v;
   }
 
+  // 면 수가 많을수록 유리: 주사위마다 굴림 질량·정렬 배율
+  function shapeMassK(dice) { var k = 1; dice.forEach(function (x) { k *= D.shapeMass[x.shape] || 1; }); return k; }
+  function shapeAlignK(dice) { var k = 1; dice.forEach(function (x) { k *= Math.pow(SHAPE_FACES[x.shape] / 6, D.shapeAlignExp); }); return k; }
   function activeDice(s) {
     var d = s.dice.slice();
     if (s.ev.buffs.rogue > 0) d.push(newDie('d6'));
@@ -120,7 +123,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.stdMin = Math.min.apply(null, keys); d.stdMax = Math.max.apply(null, keys);
     // 희소도: 지금(깎은) 분포 기준. 표준 범위를 넘는 바깥 궤도는 칸마다 추가 배율.
     var pmax = 0; Object.keys(d.dist).forEach(function (k) { pmax = Math.max(pmax, d.dist[k]); });
-    var rexp = D.rarityExp + upSum(s, 'rarity') + D.shapeBonus.d8 * Math.min(2, dice.filter(function (x) { return x.shape === 'd8'; }).length);
+    var rexp = D.rarityExp + upSum(s, 'rarity');
     d.rarity = function (sum) {
       var p = d.dist[sum] || d.std[sum];
       var r = p ? Math.pow(pmax / p, rexp) : 1;
@@ -143,7 +146,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.massMult = upProd(s, 'mass') * resV(s, 'mass') * sresV(s, 'mass') * (res(s, 'g4') ? Math.pow(1 + s.coresLayer, 0.4) : 1) * Math.pow(1 + s.singAll, D.singMassExp);
     var nd12 = dice.filter(function (x) { return x.shape === 'd12'; }).length;
     d.massMult *= (1 + spSum(s, 'mass')) * (1 + spSum(s, 'massX'));
-    d.massMult *= Math.pow(D.perDieMass + chalRewardSum(s, 'perDie'), dice.length) * Math.pow(D.shapeBonus.d12, nd12) * Math.pow(D.refine.v, s.lv.refine || 0) * Math.pow(D.compress.v, s.lv.compress || 0);
+    d.massMult *= Math.pow(D.perDieMass + chalRewardSum(s, 'perDie'), dice.length) * shapeMassK(dice) * Math.pow(D.refine.v, s.lv.refine || 0) * Math.pow(D.compress.v, s.lv.compress || 0);
     d.power *= d.massMult;
     // 태엽 간격
     var lw = s.lv.wind;
@@ -154,7 +157,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.interval = lw > 0 ? Math.max(D.wind.intMin * (s.ev.buffs.pulsar > 0 ? 0.34 : 1), iv) : 0;
     d.rollsPerSec = d.interval ? 1 / d.interval : 0;
     d.twin = upSum(s, 'twin') + resV(s, 'twin', 'sum') + spSum(s, 'twin');
-    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * (1 + spSum(s, 'align')) * (1 + D.shapeBonus.d4 * dice.filter(function (x) { return x.shape === 'd4'; }).length));
+    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * (1 + spSum(s, 'align')) * shapeAlignK(dice));
     d.manualMult = (d.interval > 0 && d.interval < 0.5) ? 1 : D.manualMult + upSum(s, 'manual');
     // 단계
     var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * Math.max(0.5, 1 - spSum(s, 'threshold')) * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, D.collapseHeavyN)) * Math.pow(D.collapseHeavyLate, Math.max(0, s.collapses - D.collapseHeavyN));
@@ -490,9 +493,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function costDie(s) {
     var n = s.dice.length + 1;
     if (n > maxDice(s)) return Infinity;
-    if (trayUsed(s.dice) + 6 > D.trayCapacity) return Infinity;
     return (D.diceCost[n] || Infinity) * chalReward(s, 'diceCost');
   }
+  // 지금 주사위 면 수: 주형 연구로 d6 → d8 → d12
+  function dieShape(s) { return s.sres.q5 ? 'd12' : (s.sres.q3 ? 'd8' : 'd6'); }
   function trayUsed(dice) { var t = 0; dice.forEach(function (d) { t += d.faces.length; }); return t; }
 
   function spend(s, c) { if (!(s.dust >= c) || !isFinite(c)) return false; s.dust -= c; return true; }
@@ -500,8 +504,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function buyWind(s) { if (!spend(s, costWind(s))) return false; s.lv.wind++; invalidate(); return true; }
   function buyDie(s) {
     var c = costDie(s);
-    var shape = 'd6';
-    if (trayUsed(s.dice) + 6 > D.trayCapacity) return false;
+    var shape = dieShape(s);
     if (!spend(s, c)) return false;
     s.dice.push(newDie(shape)); invalidate(); return true;
   }
@@ -571,17 +574,17 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (!r || !sresAvail(s, r) || s.sing < r.cost) return false;
     if (r.eff === 'ending' && !endingReady(s)) return false;
     s.sing -= r.cost; s.sres[id] = 1; invalidate();
-    if (r.eff === 'shape') s.shapes[r.v] = true;
+    if (r.eff === 'shape') { s.shapes[r.v] = true; upgradeDice(s); }
     if (r.eff === 'ending') { s.ended = true; }
     return true;
   }
-  // 주사위 모양 바꾸기 (특이점 연구 후)
-  function setShape(s, di, shape) {
-    if (!s.shapes[shape] || !s.dice[di]) return false;
-    var nd = s.dice.slice(); nd[di] = newDie(shape);
-    if (trayUsed(nd) > D.trayCapacity) return false;
-    nd[di].sp = s.dice[di].sp; s.dice[di] = nd[di]; invalidate(); return true;
+  // 면 수 업그레이드: 모든 주사위를 지금 면 수로 (끼운 특수 주사위는 그대로)
+  function upgradeDice(s) {
+    var sh = dieShape(s);
+    s.dice.forEach(function (d, i) { if (d.shape !== sh) { var nd = newDie(sh); if (d.sp) nd.sp = d.sp; s.dice[i] = nd; } });
+    invalidate();
   }
+  function setShape() { return false; }
 
   // ── 초신성 ──────────────────────────────────────
   function maxTier(s) { var m = 0; Object.keys(s.bodies).forEach(function (k) { m = Math.max(m, s.bodies[k].t); }); return m; }
@@ -609,7 +612,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     s.dice = [];
     for (var i = 0; i < nd; i++) {
       var od = oldDice[i];
-      var shape = od && s.shapes[od.shape] ? od.shape : 'd6';
+      var shape = dieShape(s);
       var nd2 = newDie(shape); if (od && od.sp) nd2.sp = od.sp;
       s.dice.push(nd2);
     }
@@ -868,7 +871,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     spById: spById, spVal: spVal, openBox: openBox, equip: equip, autoEquip: autoEquip, conUnlocked: conUnlocked, conProgress: conProgress, rerollContract: rerollContract, newContract: newContract, conQueue: conQueue, dexQueue: dexQueue, dexCount: dexCount, dexPer: dexPer, orbitClass: orbitClass,
     buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible, pairOf: pairOf, pairBlocked: pairBlocked,
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
-    canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
+    dieShape: dieShape, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
     chalUnlocked: chalUnlocked, chalGoal: chalGoal, chalStage: chalStage, chalMet: chalMet, endingReady: endingReady, outerCap: outerCap,
     fateUnlocked: fateUnlocked, fateNeed: fateNeed, fateRoll: fateRoll, poisson: poisson, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, layerBonus: layerBonus, collapseGain: collapseGain, collapse: collapse,

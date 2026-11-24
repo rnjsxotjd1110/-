@@ -34,7 +34,6 @@
       return o;
     });
     while (dice.length < 2) dice.push(G.core.newDie('d6'));
-    var used = 0; dice = dice.filter(function (d) { used += d.faces.length; return used <= G.DATA.trayCapacity; });
     var maxD = s.sres && s.sres.q6 ? 6 : 5;
     dice = dice.slice(0, maxD);
     s.dice = dice;
@@ -68,8 +67,9 @@
     // 구매한 개량 중 같은 쌍 둘 다 가진 경우 뒤쪽을 뺀다
     G.UPGRADES.forEach(function (u) { if (u.pair && s.up[u.id]) { var o = G.core.pairOf(u); if (o && s.up[o.id] && G.UPGRADES.indexOf(o) > G.UPGRADES.indexOf(u)) delete s.up[o.id]; } });
     var ach = {}; Object.keys(s.ach || {}).forEach(function (k) { if (idSet(G.ACH)[k]) ach[k] = int(s.ach[k], 0, 1e12, 0); }); s.ach = ach;
-    s.shapes = { d6: true }; ['d4', 'd8', 'd12'].forEach(function (sh) { G.SRESEARCH.forEach(function (r) { if (r.v === sh && s.sres[r.id]) s.shapes[sh] = true; }); });
-    s.dice.forEach(function (d) { if (!s.shapes[d.shape]) { d.shape = 'd6'; d.faces = G.core.newDie('d6').faces; } });
+    s.shapes = { d6: true }; ['d8', 'd12'].forEach(function (sh) { G.SRESEARCH.forEach(function (r) { if (r.v === sh && s.sres[r.id]) s.shapes[sh] = true; }); });
+    var dsh = s.sres.q5 ? 'd12' : (s.sres.q3 ? 'd8' : 'd6');
+    s.dice.forEach(function (d) { if (d.shape !== dsh) { d.shape = dsh; d.faces = G.core.newDie(dsh).faces; } });
     // 이벤트·버프
     var B = (s.ev && s.ev.buffs) || {};
     s.ev = { next: num(s.ev && s.ev.next, 0, 400, 60), cur: null, buffs: { flare: num(B.flare, 0, 60, 0), pulsar: num(B.pulsar, 0, 60, 0), rogue: num(B.rogue, 0, 60, 0), shower: int(B.shower, 0, 200, 0), align: int(B.align, 0, 20, 0), moons: int(B.moons, 0, 100, 0) }, seen: (function () { var o = {}, sv = (s.ev && s.ev.seen) || {}; G.EVENTS.forEach(function (e) { if (sv[e]) o[e] = 1; }); return o; })(), seenFirst: !!(s.ev && s.ev.seenFirst) };

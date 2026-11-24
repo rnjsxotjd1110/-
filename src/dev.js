@@ -42,7 +42,7 @@
       if (C.canCollapse(s)) C.collapse(s);
       s.sing += 200; s.singAll += 200;
       ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'].forEach(function (id) { C.buySres(s, id); });
-      C.setShape(s, 0, 'd8'); C.setShape(s, 1, 'd12');
+      C.upgradeDice(s);
       bot(s, 900);
     }
     if (name === 'end') { G.CHALLENGES.forEach(function (c) { s.chalDone[c.id] = 3; }); s.sing += 999; ['q9', 'q10', 'q11', 'q12'].forEach(function (id) { C.buySres(s, id); }); }

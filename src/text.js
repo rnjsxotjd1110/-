@@ -59,8 +59,8 @@
     h_orbit_rule: '합 = 궤도',
     b_open1: '하나 열기', b_open_all: '모두 열기', box_sum: '상자 {0}개 · 새 주사위 {1}종', box_dust: '별이 가득 찬 주사위 몫 별가루 +{0}', tag_new: '새로', skip_hint: '누르면 바로 보여요',
     layer_pct: '특이점 획득 {0}%', tip_layer: '지난 붕괴 뒤로 오래 키울수록 늘어요. 40%에서 시작해 50분이 지나면 100%예요.',
-    shape_d4: '정렬이 잘 나와요 · 정렬 질량 +35%', shape_d6: '기본 주사위', shape_d8: '바깥 궤도까지 · 드문 궤도 질량 증가', shape_d12: '굴림 질량 ×1.5 · 쟁반 칸을 많이 써요',
-    shape_now: '지금', shape_then: '바꾸면', shape_mass: '굴림 질량', shape_orb: '궤도', shape_al: '정렬 확률', shape_prod: '생산', shape_full: '쟁반 칸이 모자라요 ({0}/{1})', shape_cur: '{0}번 칸 지금 모양', shape_pick: '{0}번 칸 모양 바꾸기',
+    shape_d4: '굴림 질량 ×0.85', shape_d6: '기본 주사위 · 쟁반 6칸', shape_d8: '굴림 질량 ×1.3 · 궤도 넓음 · 쟁반 8칸', shape_d12: '굴림 질량 ×1.75 · 궤도 가장 넓음 · 쟁반 12칸',
+    shape_now: '지금', shape_then: '바꾸면', shape_mass: '굴림 질량', shape_orb: '궤도', shape_al: '정렬 배율', shape_prod: '생산', shape_full: '쟁반 칸이 모자라요 ({0}/{1})', shape_cur: '{0}번 칸 지금 모양', shape_pick: '{0}번 칸 모양 바꾸기',
     cur_core: '별핵', cur_sing: '특이점', cur_box: '상자', tip_core: '초신성을 일으키면 얻어요. 초신성 탭의 연구에 써요.', tip_sing: '중력 붕괴로 얻어요. 붕괴 탭의 특이점 연구에 써요.', tip_box: '눌러서 주사위 탭으로 가요.',
     // 관측 의뢰
     con_wait: '다음 의뢰까지 {0}초', con_lock: '자동 굴림을 사면 열려요', con_orbit: '궤도 {0}에 {1}', con_align: '정렬 {0}번', con_event: '하늘 이벤트 잡기', con_dust: '별가루 {0} 모으기', con_left: '{0}초', con_reward: '보상: 주사위 상자', con_reward2: '보상: 주사위 상자, 운명 굴림', b_reroll: '다른 의뢰 받기', con_ok: '의뢰 성공!', con_fail: '의뢰 시간이 끝났어요', con_new: '새 의뢰', con_none: '지금 맞는 의뢰가 없어요', tip_con: '시간 안에 끝내면 주사위 상자를 받아요.',
@@ -119,8 +119,8 @@
     h_orbit_rule: 'Sum = orbit',
     b_open1: 'Open one', b_open_all: 'Open all', box_sum: '{0} boxes · {1} new dice', box_dust: 'Stardust from full dice +{0}', tag_new: 'New', skip_hint: 'Click to skip',
     layer_pct: 'Singularity gain {0}%', tip_layer: 'Grows the longer you build after the last collapse. Starts at 40%, full at 50 minutes.',
-    shape_d4: 'Aligns often · alignment mass +35%', shape_d6: 'Standard die', shape_d8: 'Reaches farther orbits · rare orbits gain more', shape_d12: 'Roll mass ×1.5 · takes many tray slots',
-    shape_now: 'Now', shape_then: 'After', shape_mass: 'Roll mass', shape_orb: 'Orbits', shape_al: 'Align odds', shape_prod: 'Output', shape_full: 'Not enough tray slots ({0}/{1})', shape_cur: 'Slot {0} shape', shape_pick: 'Change slot {0} shape',
+    shape_d4: 'Roll mass ×0.85', shape_d6: 'Standard die · 6 tray slots', shape_d8: 'Roll mass ×1.3 · wider orbits · 8 slots', shape_d12: 'Roll mass ×1.75 · widest orbits · 12 slots',
+    shape_now: 'Now', shape_then: 'After', shape_mass: 'Roll mass', shape_orb: 'Orbits', shape_al: 'Align bonus', shape_prod: 'Output', shape_full: 'Not enough tray slots ({0}/{1})', shape_cur: 'Slot {0} shape', shape_pick: 'Change slot {0} shape',
     cur_core: 'Cores', cur_sing: 'Singularity', cur_box: 'Boxes', tip_core: 'Earned by supernova. Spend on research in the Nova tab.', tip_sing: 'Earned by collapse. Spend on research in the Void tab.', tip_box: 'Click to open the Dice tab.',
     con_wait: 'Next request in {0}s', con_lock: 'Opens with the auto roller', con_orbit: '{1} on orbit {0}', con_align: '{0} alignments', con_event: 'Catch a sky event', con_dust: 'Gather {0} stardust', con_left: '{0}s', con_reward: 'Reward: dice box', con_reward2: 'Reward: dice box, fate roll', b_reroll: 'Another one', con_ok: 'Request done!', con_fail: 'Request timed out', con_new: 'New request', con_none: 'Nothing fits right now', tip_con: 'Finish in time to get a dice box.',
     box: 'Dice box', box_n: '{0} boxes', b_open: 'Open box', box_none: 'Finish requests to get boxes', box_odds: 'Common 60% · Uncommon 28% · Rare 10% · Legend 2%', rar0: 'Common', rar1: 'Uncommon', rar2: 'Rare', rar3: 'Legend',
@@ -151,8 +151,8 @@
       c4: ['조화 없는 관측', 'No-Harmony Trial', '조화 없음', 'No harmony'], c5: ['느린 굴림 관측', 'Slow Roller Trial', '자동 굴림 간격 3초 고정', 'Roller fixed at 3s'], c6: ['무거운 문턱 관측', 'Heavy Threshold Trial', '단계 문턱 ×10', 'Stage thresholds ×10']
     },
     sres: {
-      q1: ['별핵 획득 증폭 1', 'Core Gain Amp 1'], q2: ['천체 질량 증폭', 'Body Mass Amp'], q3: ['d4 주사위 주형', 'd4 Die Mold'], q4: ['연구 유지 장치', 'Research Keeper'], q5: ['d8 주사위 주형', 'd8 Die Mold'], q6: ['주사위 6번째 칸', 'Sixth Die Slot'],
-      q7: ['자리 비움 72시간', 'Away Cap 72h'], q8: ['d12 주사위 주형', 'd12 Die Mold'], q9: ['별핵 획득 증폭 2', 'Core Gain Amp 2'], q10: ['단계 배율 증폭', 'Stage Bonus Amp'], q11: ['중력 붕괴 자동화', 'Auto Collapse'], q12: ['천구 완성 장치', 'Orrery Completion']
+      q1: ['별핵 획득 증폭 1', 'Core Gain Amp 1'], q2: ['천체 질량 증폭 1', 'Body Mass Amp 1'], q3: ['d8 주사위 주형', 'd8 Die Mold'], q4: ['연구 유지 장치', 'Research Keeper'], q5: ['d12 주사위 주형', 'd12 Die Mold'], q6: ['주사위 6번째 칸', 'Sixth Die Slot'],
+      q7: ['자리 비움 72시간', 'Away Cap 72h'], q8: ['천체 질량 증폭 2', 'Body Mass Amp 2'], q9: ['별핵 획득 증폭 2', 'Core Gain Amp 2'], q10: ['단계 배율 증폭', 'Stage Bonus Amp'], q11: ['중력 붕괴 자동화', 'Auto Collapse'], q12: ['천구 완성 장치', 'Orrery Completion']
     },
     sp: {
       copper: ['구리 주사위', 'Copper die'], ivory: ['상아 태엽 주사위', 'Ivory clockwork die'], obsid: ['흑요석 주사위', 'Obsidian die'], coral: ['산호 주사위', 'Coral die'], lapis: ['청금석 주사위', 'Lapis die'], hour: ['모래시계 주사위', 'Hourglass die'],
@@ -215,7 +215,7 @@
       case 'autoBuy': return ko ? '굴림 질량·자동 굴림·주사위 자동 구매' : 'Auto-buy force, roller, dice';
       case 'autoNova': return ko ? '초신성을 자동으로 일으켜요' : 'Supernova automatically';
       case 'coreX': return (ko ? '별핵 획득 ×' : 'Core gain ×') + v;
-      case 'shape': return (ko ? v + ' 주사위를 쓸 수 있어요' : 'Unlocks ' + v + ' dice');
+      case 'shape': return ko ? '모든 주사위가 ' + v + '로 · 굴림 질량 ×' + (G.DATA.shapeMass[v] || 1) + ' · 궤도 넓어짐' : 'All dice become ' + v + ' · roll mass ×' + (G.DATA.shapeMass[v] || 1) + ' · wider orbits';
       case 'keepResearch': return ko ? '붕괴해도 별핵 연구 유지' : 'Keep research through collapse';
       case 'slot6': return ko ? '주사위 6개까지' : 'Up to 6 dice';
       case 'offlineCap': return ko ? '자리 비움 최대 ' + v + '시간' : 'Away cap ' + v + 'h';
