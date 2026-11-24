@@ -4,6 +4,7 @@
   function dim() { // 뒤 화면을 어둡게: 팔레트 안에서 한 단계씩 어두운 색으로 치환
     var map = [0, 0, 11, 2, 9, 10, 0, 5, 9, 10, 21, 18, 23, 12, 13, 14, 6, 20, 21, 16, 22, 23, 23, 23];
     gx.remapRect(0, 0, 640, 360, map);
+    if (G.textLog) G.textLog.length = 0; // 어둡게 덮인 글자는 점검 대상에서 뺀다
   }
   function slider(id, x, y, w, v) {
     G.nine(G.spr.inset, x, y + 3, w, 7);

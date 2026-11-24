@@ -185,7 +185,7 @@
   }
   // 관측소 사람의 한 줄: 성계 아래쪽 종이 쪽지
   function drawLine(s) {
-    var L = A.line; if (!L || A.cut) return;
+    var L = A.line; if (!L || A.cut || A.overlay) return;
     var t = L.t, k = Math.min(1, t / 0.2, (7 - t) / 0.25); if (k <= 0) return;
     var txt = G.story.text(L.l), who = G.story.who(L.l);
     var lines = F.wrap(txt, 360, 'g11');

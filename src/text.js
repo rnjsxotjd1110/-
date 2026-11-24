@@ -36,11 +36,11 @@
     away_title: '자리를 비운 사이', away_time: '{0} 동안', away_dust: '별가루 +{0}', away_rolls: '굴림 {0}번', away_tiers: '천체 성장 {0}번', away_novas: '초신성 {0}번 · 붕괴 {1}번', away_eff: '자리 비움 효율 {0}%', b_ok: '받기',
     // 이벤트
     ev_comet: '혜성', ev_shower: '유성우', ev_flare: '태양 플레어', ev_rogue: '떠돌이 주사위', ev_align: '행성 정렬', ev_pulsar: '펄서 신호', ev_meteor: '성간 운석', ev_moons: '쌍둥이 달',
-    evr_comet: '별가루 +{0}', evr_shower: '다음 {0}번 굴림 질량 ×3', evr_flare: '{0}초 동안 생산 ×4', evr_rogue: '{0}초 동안 주사위 +1', evr_align: '다음 {0}번은 정렬', evr_pulsar: '{0}초 동안 태엽 ×3', evr_meteor: '궤도 {0} 질량 +{1}', evr_moons: '다음 {0}번 굴림은 양옆 궤도도 키워요',
+    evr_comet: '별가루 +{0}', evr_shower: '다음 {0}번 굴림 질량 ×3', evr_flare: '{0}초 동안 생산 ×4', evr_rogue: '{0}초 동안 주사위 +1', evr_align: '다음 {0}번은 정렬', evr_pulsar: '{0}초 동안 자동 굴림 ×3', evr_meteor: '궤도 {0} 질량 +{1}', evr_moons: '다음 {0}번 굴림은 양옆 궤도도 키워요',
     // 궤도 정보
     orb: '궤도 {0}', orb_empty: '아직 비어 있어요', orb_dead: '지금 주사위로는 나오지 않아요', mass: '질량', prod: '생산', chance: '확률', next_tier: '다음 단계',
     align_pop: '정렬!', tier_up: '{0} 탄생', jack_align: '정렬 ×{0}', jack_rare: '드문 합 ×{0}', move_pop: '옮기기 +{0}',
-    fate: '운명', fate_title: '운명 굴림', tip_fate: '굴려서 나온 합의 궤도에 큰 질량이 붙어요. 드문 합일수록 커요.', tip_fate2: '태엽이 굴릴수록 차올라요 · 최대 {0}번', fate_pop: '운명!',
+    fate: '운명', fate_title: '운명 굴림', tip_fate: '굴려서 나온 합의 궤도에 큰 질량이 붙어요. 드문 합일수록 커요.', tip_fate2: '자동 굴림이 굴릴수록 차올라요 · 최대 {0}번', fate_pop: '운명!',
     pair_or: '또는', pair_taken: '이번 판 선택: {0}', tip_pair: '둘 중 하나만 살 수 있어요. 초신성 뒤 다시 고를 수 있어요.',
     harmony: '조화 ×{0}', buff_flare: '플레어', buff_pulsar: '펄서', buff_rogue: '주사위 +1', buff_shower: '유성우 {0}번', buff_align: '정렬 {0}번', buff_moons: '달 {0}번', n_rolls: '{0}번', sum_lbl: '합',
     // 연출 문구
@@ -55,7 +55,7 @@
     save_locked_q: '다른 창에서 더 최근에 저장했어요. 어느 쪽 진행을 남길까요?', b_take_over: '이 창으로 저장하기', b_reload: '다시 불러오기', import_confirm: '가져오면 지금 진행이 저장 코드의 진행으로 바뀌어요.', chal_goal_t: '목표 {0}',
     layer_bonus: '층 진행 보너스 ×{0} (층 50분에 최대)',
     refine: '별핵 정제', compress: '특이점 압축', b_refine: '정제하기', b_compress: '압축하기',
-    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요. 별핵·연구·업적은 남아요.', col_confirm: '특이점 {0}개를 얻어요. 별핵·연구·별핵 정제가 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '천체가 많고 단계가 높을수록 모든 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '태엽 간격',
+    sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요. 별핵·연구·업적은 남아요.', col_confirm: '특이점 {0}개를 얻어요. 별핵·연구·별핵 정제가 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '천체가 많고 단계가 높을수록 모든 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '자동 굴림 간격',
     h_orbit_rule: '합 = 궤도',
     // 관측 의뢰
     con_wait: '다음 의뢰까지 {0}초', con_lock: '자동 굴림을 사면 열려요', con_orbit: '궤도 {0}에 {1}', con_align: '정렬 {0}번', con_event: '하늘 이벤트 잡기', con_dust: '별가루 {0} 모으기', con_left: '{0}초', con_reward: '보상: 주사위 상자', con_reward2: '보상: 주사위 상자, 운명 굴림', b_reroll: '다른 의뢰 받기', con_ok: '의뢰 성공!', con_fail: '의뢰 시간이 끝났어요', con_new: '새 의뢰', con_none: '지금 맞는 의뢰가 없어요', tip_con: '시간 안에 끝내면 주사위 상자를 받아요.',
@@ -138,7 +138,7 @@
     },
     chal: {
       c1: ['손 굴림 없는 관측', 'No-Hands Trial', '손 굴림·운명 굴림 금지', 'No hand or fate rolls'], c2: ['주사위 2개 관측', 'Two-Dice Trial', '주사위 2개 고정', 'Two dice only'], c3: ['홀수 궤도 관측', 'Odd Orbit Trial', '짝수 궤도는 생산 없음', 'Even orbits produce nothing'],
-      c4: ['조화 없는 관측', 'No-Harmony Trial', '조화 없음', 'No harmony'], c5: ['느린 태엽 관측', 'Slow Roller Trial', '자동 굴림 간격 3초 고정', 'Roller fixed at 3s'], c6: ['무거운 문턱 관측', 'Heavy Threshold Trial', '단계 문턱 ×10', 'Stage thresholds ×10']
+      c4: ['조화 없는 관측', 'No-Harmony Trial', '조화 없음', 'No harmony'], c5: ['느린 굴림 관측', 'Slow Roller Trial', '자동 굴림 간격 3초 고정', 'Roller fixed at 3s'], c6: ['무거운 문턱 관측', 'Heavy Threshold Trial', '단계 문턱 ×10', 'Stage thresholds ×10']
     },
     sres: {
       q1: ['별핵 획득 증폭 1', 'Core Gain Amp 1'], q2: ['천체 질량 증폭', 'Body Mass Amp'], q3: ['d4 주사위 주형', 'd4 Die Mold'], q4: ['연구 유지 장치', 'Research Keeper'], q5: ['d8 주사위 주형', 'd8 Die Mold'], q6: ['주사위 6번째 칸', 'Sixth Die Slot'],
@@ -176,7 +176,7 @@
       case 'prod': return (ko ? '생산 ×' : 'Output ×') + v;
       case 'mass': return (ko ? '질량 ×' : 'Mass ×') + v;
       case 'align': return (ko ? '정렬 배율 ×' : 'Alignment ×') + v;
-      case 'interval': return (ko ? '태엽 간격 ×' : 'Roller interval ×') + v;
+      case 'interval': return (ko ? '자동 굴림 간격 ×' : 'Roller interval ×') + v;
       case 'harmony': return (ko ? '천체 단계 하나마다 조화 +' : 'Harmony per body stage +') + Math.round(v * 1000) / 10 + '%';
       case 'neighbor': return (ko ? '번호가 하나 차이 나는 궤도에 천체가 있으면 생산 +' : 'Output per adjacent-number orbit +') + Math.round(v * 100) + '%';
       case 'event': return ko ? '하늘 이벤트 효과 ×2, 더 자주' : 'Sky events ×2, more often';
@@ -192,7 +192,7 @@
       case 'startTier': return ko ? '시작할 때 모든 궤도에 미행성' : 'Start with planetesimals on every orbit';
       case 'coreMass': return ko ? '모은 별핵이 많을수록 질량이 커져요' : 'More cores gathered, more mass';
       case 'overflow': return ko ? '한 면에 눈을 9개까지 모을 수 있어요' : 'Up to 9 pips on a face';
-      case 'startWind': return ko ? '태엽 Lv ' + v + '로 시작' : 'Start with roller Lv ' + v;
+      case 'startWind': return ko ? '자동 굴림 Lv ' + v + '로 시작' : 'Start with roller Lv ' + v;
       case 'startDice': return ko ? '주사위 ' + v + '개로 시작' : 'Start with ' + v + ' dice';
       case 'moveStart': return ko ? '판 시작 옮기기 횟수 +' + v : '+' + v + ' moves at run start';
       case 'perDie': return ko ? '주사위 하나당 질량 배율 +' + v : 'Per-die mass bonus +' + v;
@@ -202,7 +202,7 @@
       case 'autoCatch': return ko ? '이벤트를 자동으로 잡아요' : 'Catch events automatically';
       case 'offline': return ko ? '자리 비움 효율 100%' : 'Away rate 100%';
       case 'autoUpgrade': return ko ? '개량을 자동으로 사요' : 'Buy parts automatically';
-      case 'autoBuy': return ko ? '굴림 힘·태엽·주사위 자동 구매' : 'Auto-buy force, roller, dice';
+      case 'autoBuy': return ko ? '굴림 질량·자동 굴림·주사위 자동 구매' : 'Auto-buy force, roller, dice';
       case 'autoNova': return ko ? '초신성을 자동으로 일으켜요' : 'Supernova automatically';
       case 'coreX': return (ko ? '별핵 획득 ×' : 'Core gain ×') + v;
       case 'shape': return (ko ? v + ' 주사위를 쓸 수 있어요' : 'Unlocks ' + v + ' dice');

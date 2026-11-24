@@ -60,6 +60,7 @@
     var dy = r.state === 'down' ? 1 : 0;
     G.nine(sp, x, y + dy, w, h - dy);
     var font = opts.font || 'g11';
+    if (G.font.measure(label, font) > w - 6 && font !== 'g9') font = 'g9'; // 버튼보다 긴 글자는 작은 글꼴로
     var col = en ? (r.state === 'down' ? 4 : 12) : 8;
     if (style === 'teal' && en && r.state !== 'hover') col = 4;
     var tw = G.font.measure(label, font);
