@@ -7,6 +7,7 @@
   var shakeT = 0, leverT = 0;
   var rollId = 0;
   var feltSpr = null;
+  var sparks = [];
 
   function ease(t) { return 1 - Math.pow(1 - t, 3); }
 
@@ -48,8 +49,16 @@
     dice.forEach(function (d) {
       if (d.landed) return;
       d.t += dt / d.dur;
-      if (d.t >= 1) { d.t = 1; d.landed = true; shakeT = Math.max(shakeT, 0.08); d.onLand && d.onLand(); }
+      if (d.t >= 1) {
+        d.t = 1; d.landed = true; shakeT = Math.max(shakeT, 0.08); d.onLand && d.onLand();
+        // 착지 불꽃: 주사위 재질에 따라 색
+        var gold = d.spec.mat && d.spec.mat.indexOf('sp_') === 0;
+        var nsp = gold ? 7 : 4;
+        for (var k = 0; k < nsp; k++) { var a = -Math.PI * (0.1 + 0.8 * Math.random()); var v = 25 + Math.random() * 35; sparks.push({ x: d.tx, y: d.ty + 12, vx: Math.cos(a) * v * (k % 2 ? 1 : -1), vy: Math.sin(a) * v, life: 0.35 + Math.random() * 0.25, c: gold ? 3 : 8 }); }
+        if (sparks.length > 80) sparks.splice(0, sparks.length - 80);
+      }
     });
+    for (var i = sparks.length - 1; i >= 0; i--) { var p = sparks[i]; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 140 * dt; p.life -= dt; if (p.life <= 0) sparks.splice(i, 1); }
     shakeT = Math.max(0, shakeT - dt);
     leverT = Math.max(0, leverT - dt * 3);
   }
@@ -100,6 +109,7 @@
       d._sx = p.x; d._sy = p.y - p.hop;
       gx.blit(spr, p.x - spr.R, p.y - spr.R - p.hop + sh);
     });
+    if (!opts.reduce) sparks.forEach(function (p) { gx.pset(Math.round(p.x), Math.round(p.y), p.life > 0.2 ? 4 : p.c); if (p.life > 0.25) gx.pset(Math.round(p.x - p.vx * 0.02), Math.round(p.y - p.vy * 0.02), p.c); });
     gx.resetClip();
     drawLever(opts);
   }

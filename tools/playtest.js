@@ -50,18 +50,32 @@ const path = require('path');
   await page.keyboard.press('Escape'); await page.waitForTimeout(100); s = await st(); ok(s.overlay === null, 'Esc로 설정 닫힘');
   // 자동 진행 10초
   const d0 = (await st()).rolls; await page.waitForTimeout(3500); s = await st(); ok(s.rolls > d0, '태엽 자동 굴림 ' + (s.rolls - d0));
-  // 눈 옮기기: 주사위 탭에서 면 두 번 클릭
-  await page.evaluate(() => { const s = G.app.s; while (s.dice.length < 3) s.dice.push(G.core.newDie('d6')); s.moves = 3; G.core.invalidate(); G.app.tab = 'dice'; G.app.selFace = null; });
-  await page.waitForTimeout(100);
-  const f0 = await page.evaluate(() => G.app.s.dice[0].faces.slice());
-  await click(446 + 2 * 15 + 6, 52 + 6); // 세 번째 칸(눈 3)
-  await click(446 + 3 * 15 + 6, 52 + 6); // 네 번째 칸(눈 4)
-  const mv = await page.evaluate(() => ({ faces: G.app.s.dice[0].faces.slice(), moves: G.app.s.moves }));
-  const tot = (a) => a.reduce((x, y) => x + y, 0);
-  ok(mv.moves === 2 && tot(mv.faces) === tot(f0) && JSON.stringify(mv.faces) !== JSON.stringify(f0), '눈 옮기기 ' + JSON.stringify(f0) + ' → ' + JSON.stringify(mv.faces));
-  // 빈 면 만들기 + 가득 찬 면에는 못 넣음
-  const lim = await page.evaluate(() => { const s = G.app.s, C = G.core; s.dice[0].faces = [1, 6, 2, 6, 3, 3]; s.moves = 5; C.invalidate(); const a = C.movePip(s, 0, 0, 2); const b = C.movePip(s, 0, 2, 1); return a && !b && s.dice[0].faces[0] === 0; });
-  ok(lim, '빈 면 허용, 6을 넘게는 못 넣음');
+  // 주사위 상자: 보관함 탭에서 '상자 열기' 버튼을 눌러 연다
+  await page.evaluate(() => { const s = G.app.s; s.box = 2; G.app.tab = 'dice'; G.app.overlay = null; });
+  await page.waitForTimeout(150);
+  await click(590, 245);
+  await page.waitForTimeout(200);
+  const bx = await page.evaluate(() => ({ ov: G.app.overlay, box: G.app.s.box, n: Object.keys(G.app.s.coll).length, eq: G.app.s.dice.filter(d => d.sp).length }));
+  ok(bx.ov === 'box' && bx.box === 1 && bx.n === 1, '상자 열기 (남은 ' + bx.box + ', 보관함 ' + bx.n + ')');
+  ok(bx.eq === 1, '새 주사위는 빈 칸에 자동으로 끼움');
+  await page.waitForTimeout(1400);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(100);
+  ok(await page.evaluate(() => G.app.overlay === null), '상자 창 닫힘');
+  // 끼우기·빼기: 같은 주사위는 한 칸에만
+  const eqt = await page.evaluate(() => { const s = G.app.s, C = G.core; const id = Object.keys(s.coll)[0]; C.equip(s, 1, id); const one = s.dice.filter(d => d.sp === id).length === 1 && s.dice[1].sp === id; C.equip(s, 1, null); return one && !s.dice[1].sp; });
+  ok(eqt, '끼우기·빼기');
+  // 특수 주사위 효과가 실제로 반영됨 (성운 주사위: 질량 ×1.5)
+  const fx = await page.evaluate(() => { const s = G.app.s, C = G.core; s.dice.forEach(d => delete d.sp); C.invalidate(); const p0 = C.derive(s).power; s.coll.nebula = 1; C.equip(s, 0, 'nebula'); const p1 = C.derive(s).power; return Math.abs(p1 / p0 - 1.5) < 1e-6; });
+  ok(fx, '성운 주사위 질량 ×1.5');
+  // 관측 의뢰: 목표를 채우면 상자 +1
+  const con = await page.evaluate(() => { const s = G.app.s, C = G.core; const b0 = s.box; s.con.cur = { type: 'dust', n: 10, base: s.dustAll, time: 100, left: 100 }; s.dustAll += 20; C.tick(s, 0.1, {}); return s.box === b0 + 1 && !s.con.cur; });
+  ok(con, '의뢰 성공 → 상자 +1');
+  // 천체 도감: 새 단계 천체가 생기면 기록
+  const dex = await page.evaluate(() => { const s = G.app.s, C = G.core; const n0 = C.dexCount(s); s.manualCd = 0; for (let i = 0; i < 50; i++) { s.manualCd = 0; C.manualRoll(s); } return C.dexCount(s) >= Math.max(1, n0); });
+  ok(dex, '천체 도감 기록');
+  // 눈은 언제나 표준값 (옛 저장의 옮긴 눈은 되돌림)
+  const std = await page.evaluate(() => { const raw = JSON.parse(JSON.stringify(G.app.s)); raw.dice[0].faces = [9, 9, 9, 0, 0, 0]; raw.moves = 4; const s2 = G.save.fromCode('DO1:' + btoa(unescape(encodeURIComponent(JSON.stringify(raw))))); return s2 && s2.dice[0].faces.slice().sort().join() === '1,2,3,4,5,6' && s2.moves === undefined; });
+  ok(std, '옛 저장의 옮긴 눈을 표준값으로 되돌림');
   // 운명 굴림: 쟁반 왼쪽 칸 클릭
   await page.evaluate(() => { const s = G.app.s; s.fate.n = 1; G.app.tab = 'machine'; });
   await page.waitForTimeout(1200);
@@ -71,13 +85,12 @@ const path = require('path');
   ok(fr.n === 0 && fr.f === 1, '운명 굴림 (남은 ' + fr.n + ')');
   // 개량 쌍: 하나를 사면 다른 쪽은 못 삼
   const pr = await page.evaluate(() => { const s = G.app.s, C = G.core; s.dustRun = 1e5; s.dust = 1e5; const a = C.buyUpgrade(s, 'reson'); const b = C.buyUpgrade(s, 'net'); return a && !b && C.pairBlocked(s, G.UPGRADES.find(u => u.id === 'net')); });
-  ok(pr, '개량 쌍: 공명 궤도를 사면 혜성 그물은 막힘');
+  ok(pr, '개량 쌍: 이웃 궤도 공명기를 사면 이벤트 보상 그물은 막힘');
   // 관측 과제: 궤도 목표를 채우면 단계가 오름
   const ch = await page.evaluate(() => { const s = G.app.s, C = G.core; s.novas = 3; C.startChallenge(s, 'c1'); const g = C.chalGoal(s, 'c1'); g.forEach(q => { s.bodies[q[0]] = { m: 1e12, t: q[1], seed: 1, a0: 0 }; }); C.tick(s, 0.1, {}); const r = C.chalStage(s, 'c1') === 1 && !s.chal; s.novas = 0; return r; });
   ok(ch, '관측 과제 1단계 완료');
-  // 옛 저장(새긴 눈): 총합을 표준으로 맞춤
-  const mig = await page.evaluate(() => { const raw = JSON.parse(G.save.toCode(G.app.s).slice(4) ? decodeURIComponent(escape(atob(G.save.toCode(G.app.s).slice(4)))) : '{}'); raw.dice[0].faces = [9, 9, 9, 6, 6, 6]; raw.chalDone = { c1: 1 }; const s2 = G.save.fromCode('DO1:' + btoa(unescape(encodeURIComponent(JSON.stringify(raw))))); return s2 && s2.dice[0].faces.reduce((a, b) => a + b, 0) === 21 && s2.chalDone.c1 === 1; });
-  ok(mig, '옛 저장의 새긴 주사위를 총합 21로 고침');
+  // 일지: 첫 굴림 뒤 관장의 첫 줄이 나옴
+  ok(await page.evaluate(() => !!G.app.s.story.hello), '관측소 일지 첫 줄');
   // 저장 후 마지막 저장 시각을 2시간 전으로 바꿔 다시 열기
   await page.evaluate(() => { G.save.save(G.app.s); G.app.scene = 'title'; const raw = JSON.parse(localStorage.getItem(G.save.KEY)); raw.lastSave = Date.now() - 2 * 3600 * 1000; localStorage.setItem(G.save.KEY, JSON.stringify(raw)); });
   const dustBefore = await page.evaluate(() => JSON.parse(localStorage.getItem(G.save.KEY)).dust);

@@ -22,7 +22,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       dust: 0, dustRun: 0, dustAll: 0,
       dice: [newDie(), newDie()],
       bodies: {},
-      lv: { power: 0, wind: 0 }, forges: 0, moves: D.moveStart, runTiers: {}, fate: { c: 0, n: 0 }, pairPref: {},
+      lv: { power: 0, wind: 0 }, fate: { c: 0, n: 0 }, pairPref: {},
+      box: 0, coll: {}, dex: {}, con: { cur: null, wait: D.contract.first, rcd: 0 }, story: {},
       up: {},
       autoT: 0, manualCd: 0,
       cores: 0, coresLayer: 0, coresAll: 0, novas: 0, research: {},
@@ -30,7 +31,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       chal: null, chalDone: {},
       ach: {},
       ev: { next: 30, cur: null, buffs: {}, seen: {} },
-      stats: { rolls: 0, manual: 0, aligns: 0, events: 0, bestTier: 0, bestHit: 0, bestRarity: 1, streak: 0, lastSum: 0, maxDust: 0, tierUps: 0, runStart: 0, fastestNova: 0 },
+      stats: { cons: 0, boxes: 0, rolls: 0, manual: 0, aligns: 0, events: 0, bestTier: 0, bestHit: 0, bestRarity: 1, streak: 0, lastSum: 0, maxDust: 0, tierUps: 0, runStart: 0, fastestNova: 0 },
       last: [], // 최근 합
       shapes: { d6: true },
       ended: false, endSeen: false,
@@ -66,9 +67,14 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (s.ev.buffs.rogue > 0) d.push(newDie('d6'));
     return d;
   }
-  function maxFace(s, die) { var m = res(s, 'g6') ? D.maxFaceOver : D.maxFaceBase; return die ? Math.max(m, SHAPE_FACES[die.shape]) : m; }
-  function stdTotal(shape) { var n = SHAPE_FACES[shape]; return n * (n + 1) / 2; }
   function outerCap(s) { var c = D.outerCap; G.SRESEARCH.forEach(function (r) { if (r.outer && s.sres[r.id]) c = Math.max(c, r.outer); }); return c; }
+
+  // ── 특수 주사위 ─────────────────────────────────
+  function spById(id) { for (var i = 0; i < G.SPDICE.length; i++) if (G.SPDICE[i].id === id) return G.SPDICE[i]; return null; }
+  // 장착한 특수 주사위의 효과 크기 (별 반영)
+  function spVal(s, id) { var sp = spById(id), lv = s.coll[id] || 0; if (!sp || !lv) return 0; return sp.v * (1 + D.starStep * (lv - 1)); }
+  function spEquipped(s) { var o = []; s.dice.forEach(function (d) { if (d.sp && s.coll[d.sp]) o.push(d.sp); }); return o; }
+  function spSum(s, eff) { var v = 0; spEquipped(s).forEach(function (id) { if (spById(id).eff === eff) v += spVal(s, id); }); return v; }
 
   // 분포: 실제 눈으로 합 확률, 정렬 확률
   function convolve(dice, useBase) {
@@ -136,36 +142,43 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     d.power = (1 + lp * 0.5) * Math.pow(D.power.grow, lp);
     d.massMult = upProd(s, 'mass') * resV(s, 'mass') * sresV(s, 'mass') * (res(s, 'g4') ? Math.pow(1 + s.coresLayer, 0.4) : 1) * Math.pow(1 + s.singAll, D.singMassExp);
     var nd12 = dice.filter(function (x) { return x.shape === 'd12'; }).length;
+    d.massMult *= (1 + spSum(s, 'mass')) * (1 + spSum(s, 'massX'));
     d.massMult *= Math.pow(D.perDieMass + chalRewardSum(s, 'perDie'), dice.length) * Math.pow(D.shapeBonus.d12, nd12) * Math.pow(D.refine.v, s.lv.refine || 0) * Math.pow(D.compress.v, s.lv.compress || 0);
     d.power *= d.massMult;
     // 태엽 간격
     var lw = s.lv.wind;
     var iv = lw > 0 ? D.wind.int0 * Math.pow(D.wind.intK, lw - 1) : 0;
-    iv *= upProd(s, 'interval') * resV(s, 'interval') * chalReward(s, 'interval');
+    iv *= upProd(s, 'interval') * resV(s, 'interval') * chalReward(s, 'interval') * Math.max(0.5, 1 - spSum(s, 'interval'));
     if (chalRule(s, 'slowWind') && lw > 0) iv = 3;
     if (s.ev.buffs.pulsar > 0) iv /= 3;
     d.interval = lw > 0 ? Math.max(D.wind.intMin * (s.ev.buffs.pulsar > 0 ? 0.34 : 1), iv) : 0;
     d.rollsPerSec = d.interval ? 1 / d.interval : 0;
-    d.twin = upSum(s, 'twin') + resV(s, 'twin', 'sum');
-    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * d.alignDamp * (1 + D.shapeBonus.d4 * dice.filter(function (x) { return x.shape === 'd4'; }).length));
+    d.twin = upSum(s, 'twin') + resV(s, 'twin', 'sum') + spSum(s, 'twin');
+    d.alignMult = Math.max(1.5, (D.alignBase + dice.length) * upProd(s, 'align') * resV(s, 'align') * (1 + spSum(s, 'align')) * (1 + D.shapeBonus.d4 * dice.filter(function (x) { return x.shape === 'd4'; }).length));
     d.manualMult = (d.interval > 0 && d.interval < 0.5) ? 1 : D.manualMult + upSum(s, 'manual');
     // 단계
-    var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, D.collapseHeavyN)) * Math.pow(D.collapseHeavyLate, Math.max(0, s.collapses - D.collapseHeavyN));
+    var thK = upProd(s, 'threshold') * chalReward(s, 'threshold') * Math.max(0.5, 1 - spSum(s, 'threshold')) * (chalRule(s, 'heavySky') ? 10 : 1) * Math.pow(D.collapseHeavy, Math.min(s.collapses, D.collapseHeavyN)) * Math.pow(D.collapseHeavyLate, Math.max(0, s.collapses - D.collapseHeavyN));
     d.th = [];
     for (var t = 2; t <= 10; t++) d.th.push(D.tierTable[Math.min(t, 8) - 2] * Math.pow(D.tierFactorHigh, Math.max(0, t - 8)) * thK);
     d.tierMult = D.tierMultBase + upSum(s, 'tierMult') + resV(s, 'tierMult', 'sum') + sresV(s, 'tierMult', 'sum');
     // 생산 배율
-    var gm = upProd(s, 'prod') * resV(s, 'prod') * chalReward(s, 'prod') * sresV(s, 'prod');
+    var gm = upProd(s, 'prod') * resV(s, 'prod') * chalReward(s, 'prod') * sresV(s, 'prod') * (1 + spSum(s, 'prod')) * (1 + dexCount(s) * dexPer(s));
     if (s.ev.buffs.flare > 0) gm *= 4;
     d.globalMult = gm;
-    d.harmonyPer = chalRule(s, 'noHarmony') ? 0 : (D.harmonyPerTier + upSum(s, 'harmony') + resV(s, 'harmony', 'sum')) * (1 + chalRewardSum(s, 'harmonyX'));
+    d.harmonyPer = chalRule(s, 'noHarmony') ? 0 : (D.harmonyPerTier + upSum(s, 'harmony') + resV(s, 'harmony', 'sum')) * (1 + chalRewardSum(s, 'harmonyX')) * (1 + spSum(s, 'harmony'));
     d.oddProd = chalReward(s, 'oddProd');
     d.neighbor = upSum(s, 'neighbor');
     d.outerLens = upProd(s, 'outerLens'); d.innerLens = upProd(s, 'innerLens');
-    d.eventMult = upProd(s, 'event');
+    d.eventMult = upProd(s, 'event') * (1 + spSum(s, 'event'));
     d.debris = upSum(s, 'debris');
     d.alignSpread = upSum(s, 'alignSpread');
     d.coreMult = sresV(s, 'coreX');
+    // 합에 따른 질량 배율 (산호·청금석·유리), 주사위 눈에 따른 배율 (은·블랙홀)
+    var odd = spSum(s, 'oddMass'), even = spSum(s, 'evenMass'), rareM = spSum(s, 'rareMass');
+    d.hitMult = function (sum) { var k = sum % 2 ? 1 + odd : 1 + even; if (rareM && d.rarity(sum) >= 4) k *= 1 + rareM; return k; };
+    d.dieFx = dice.map(function (dd) { var sp = dd.sp && s.coll[dd.sp] ? spById(dd.sp) : null; return sp && (sp.eff === 'topFace' || sp.eff === 'oneFace') ? { eff: sp.eff, v: spVal(s, sp.id) } : null; });
+    d.batchDieMult = 1; dice.forEach(function (dd, i) { if (d.dieFx[i]) d.batchDieMult *= 1 + d.dieFx[i].v / dd.faces.length; });
+    d.alignFate = spSum(s, 'alignFate');
     cacheS = s; cacheV = ver; cache = d;
     return d;
   }
@@ -201,6 +214,17 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     return tot * harmony(s, d) * d.globalMult;
   }
 
+  // ── 천체 도감 ───────────────────────────────────
+  function dexCount(s) { return Object.keys(s.dex || {}).length; }
+  function dexPer(s) { return D.dexPer * resV(s, 'dexX'); }
+  // 궤도 갈래: 0 뜨거운(가운데), 1 온화한, 2 차가운(바깥)
+  function orbitClass(d, sum) { var r = d.rarity(sum); return r < 2 ? 0 : (r >= 4 ? 2 : 1); }
+  var dexQueue = [];
+  function dexMark(s, d, sum, t) {
+    var key = t + '_' + orbitClass(d, sum);
+    if (!s.dex[key]) { s.dex[key] = 1; dexQueue.push(key); invalidate(); }
+  }
+
   // ── 질량 붙이기 ─────────────────────────────────
   var listeners = { tierUp: null };
   function addMass(s, d, sum, m, out) {
@@ -220,7 +244,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
         if (out) (out.tierUps = out.tierUps || []).push([sum, nt]);
       }
       if (nt > s.stats.bestTier) s.stats.bestTier = nt;
-      for (var tt = Math.max(2, old + 1); tt <= nt; tt++) if (!s.runTiers[tt]) { s.runTiers[tt] = 1; s.moves += D.moveGain; if (out) out.moves = (out.moves || 0) + D.moveGain; }
+      dexMark(s, d, sum, nt);
     }
     return b;
   }
@@ -249,12 +273,16 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       }
     }
     if (B.align > 0 && (align || noCommon)) B.align--;
-    var m = d.power * d.rarity(sum);
+    var m = d.power * d.rarity(sum) * d.hitMult(sum);
+    var dieK = 1;
+    d.dieFx.forEach(function (fx, i) { if (!fx) return; var v = vals[i]; if (fx.eff === 'oneFace' ? v === 1 : v === Math.max.apply(null, d.dice[i].faces)) dieK *= 1 + fx.v; });
+    m *= dieK;
     if (align) m *= d.alignMult;
+    if (align && d.alignFate && fateUnlocked(s)) { s.fate.c += fateNeed(s) * d.alignFate; fateCharge(s, 0); }
     if (manual) m *= d.manualMult;
     if (mult) m *= mult;
     if (B.shower > 0) { m *= 3; B.shower--; }
-    var out = { idx: idx, vals: vals, sum: sum, align: align, mass: m, manual: !!manual, rarity: d.rarity(sum) };
+    var out = { idx: idx, vals: vals, sum: sum, align: align, mass: m, manual: !!manual, rarity: d.rarity(sum), dieK: dieK };
     addMass(s, d, sum, m, out);
     if (align && d.alignSpread) { addMass(s, d, sum - 1, m * d.alignSpread, out); addMass(s, d, sum + 1, m * d.alignSpread, out); }
     if (B.moons > 0) { addMass(s, d, sum - 1, m * 0.5, out); addMass(s, d, sum + 1, m * 0.5, out); B.moons--; }
@@ -291,7 +319,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       var na = pa > 0 ? poisson(k * pa) : 0;
       aligns += na;
       if (!(hits > 0) && !na) return;
-      var unit = d.power * rar * (1 + (showerK / k) * 2);
+      var unit = d.power * rar * (1 + (showerK / k) * 2) * d.hitMult(sum) * d.batchDieMult;
       var m = unit * (hits + na * d.alignMult);
       addMass(s, d, sum, m, out);
       if (d.alignSpread && na) { addMass(s, d, sum - 1, na * unit * d.alignMult * d.alignSpread, out); addMass(s, d, sum + 1, na * unit * d.alignMult * d.alignSpread, out); }
@@ -302,6 +330,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (B.moons) B.moons = Math.max(0, B.moons - k);
     s.stats.rolls += k;
     s.stats.aligns += aligns;
+    if (aligns && d.alignFate && fateUnlocked(s)) { s.fate.c += fateNeed(s) * d.alignFate * aligns; fateCharge(s, 0); }
     return out;
   }
 
@@ -310,7 +339,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function fateNeed(s) {
     var d = derive(s), raw = Math.max(D.fate.min, (d.rollsPerSec || 0.33) * D.fate.sec);
     var e = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), f = raw / e;
-    return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * e;
+    return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * e / (resV(s, 'fateRate') * (1 + spSum(s, 'fate')));
   }
   function fateCharge(s, n) {
     if (!fateUnlocked(s)) return;
@@ -321,7 +350,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   }
   // 손으로 굴리는 큰 굴림: 나온 합의 궤도에 약 massSec초치 태엽 굴림 질량을 바로 더한다
   function fateRoll(s) {
-    if (!(s.fate.n >= 1)) return null;
+    if (!(s.fate.n >= 1) || chalRule(s, 'noManual')) return null;
     s.fate.n--;
     var d = derive(s);
     var idx = d.dice.map(function (dd) { return Math.floor(rng() * dd.faces.length); });
@@ -330,10 +359,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var er = 0; Object.keys(d.dist).forEach(function (k) { er += d.dist[k] * d.rarity(+k); });
     var sum = 0; vals.forEach(function (v) { sum += v; });
     var rr = d.rarity(sum);
-    var mult = Math.max(1, d.rollsPerSec) * D.fate.massSec * er / rr * Math.sqrt(rr / er);
+    var mult = Math.max(1, d.rollsPerSec) * D.fate.massSec * er / rr * Math.sqrt(rr / er) * (1 + chalRewardSum(s, 'fateMass'));
     // 지금 가장 큰 천체보다 한 단계 위까지만 (운 한 번에 판이 끝나지 않게)
     var mt = maxTier(s), capM = d.th[Math.min(d.th.length - 1, Math.max(0, mt - 1))];
-    var b0 = s.bodies[sum] ? s.bodies[sum].m : 0, unit = d.power * rr;
+    var b0 = s.bodies[sum] ? s.bodies[sum].m : 0, unit = d.power * rr * d.hitMult(sum);
     var allow = Math.max(capM * 1.001 - b0, unit * mult * 0.05);
     if (unit * mult > allow) mult = allow / unit;
     var r = applyRoll(s, d, idx, vals, false, mult);
@@ -388,6 +417,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       s.ev.next -= dt;
       if (s.ev.next <= 0) spawnEvent(s);
     }
+    conTick(s, dt);
     // 자동화
     if (s.chal && chalMet(s)) { s.chalDone[s.chal] = chalStage(s, s.chal) + 1; chalQueue.push(s.chal); s.chal = null; invalidate(); }
     if (res(s, 's5')) autoBuy(s);
@@ -406,7 +436,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function offlineEff(s) { return res(s, 's3') ? 1 : D.offlineEff; }
 
   function manualRoll(s) {
-    if (s.manualCd > 0) return null;
+    if (s.manualCd > 0 || chalRule(s, 'noManual')) return null;
     s.manualCd = D.manualCooldown;
     var r = rollOnce(s, true);
     var d = derive(s);
@@ -447,6 +477,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
       case 'moons': B.moons = (B.moons || 0) + 10 * k; break;
     }
     s.stats.events++;
+    if (rng() < D.box.eventChance) { s.box++; info.box = 1; }
     s.ev.seen[e.type] = 1;
     invalidate();
     return info;
@@ -462,8 +493,6 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (trayUsed(s.dice) + 6 > D.trayCapacity) return Infinity;
     return (D.diceCost[n] || Infinity) * chalReward(s, 'diceCost');
   }
-  function forgeUnlocked(s) { return !chalRule(s, 'noMove') && (s.dice.length >= D.forge.unlock || s.forges > 0 || s.novas > 0 || s.collapses > 0); }
-  function moveStart(s) { return D.moveStart + resV(s, 'moveStart', 'sum') + chalRewardSum(s, 'moveStart'); }
   function trayUsed(dice) { var t = 0; dice.forEach(function (d) { t += d.faces.length; }); return t; }
 
   function spend(s, c) { if (!(s.dust >= c) || !isFinite(c)) return false; s.dust -= c; return true; }
@@ -475,20 +504,6 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (trayUsed(s.dice) + 6 > D.trayCapacity) return false;
     if (!spend(s, c)) return false;
     s.dice.push(newDie(shape)); invalidate(); return true;
-  }
-  // 눈 옮기기: 같은 주사위의 면 from에서 눈 1개를 빼 면 to에 넣는다. 횟수 1회.
-  function canMove(s, di, from, to) {
-    if (!forgeUnlocked(s) || !(s.moves >= 1)) return false;
-    var die = s.dice[di]; if (!die || from === to) return false;
-    var a = die.faces[from], b = die.faces[to];
-    if (a === undefined || b === undefined) return false;
-    return a >= 1 && b < maxFace(s, die);
-  }
-  function movePip(s, di, from, to) {
-    if (!canMove(s, di, from, to)) return false;
-    var die = s.dice[di];
-    die.faces[from]--; die.faces[to]++;
-    s.moves--; s.forges++; invalidate(); checkAch(s); return true;
   }
   // 굴림 1번의 가치 (자동 플레이·시뮬레이터용): 기대 질량 × 궤도 수 가산
   function rollValue(s) {
@@ -502,32 +517,6 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var d = derive(s), v = 0;
     g.forEach(function (q) { var b = s.bodies[q[0]]; if (b && b.t >= q[1]) return; v += Math.log(1e-9 + (d.dist[q[0]] || 0) * d.rarity(q[0])); });
     return v;
-  }
-  // 점수를 가장 많이 올리는 눈 하나 옮기기 (없으면 null)
-  function bestMove(s, score) {
-    score = score || (s.chal ? goalValue : rollValue);
-    var base = score(s), best = null;
-    s.dice.forEach(function (die, di) {
-      var mx = maxFace(s, die);
-      die.faces.forEach(function (a, from) {
-        if (a < 1) return;
-        die.faces.forEach(function (b, to) {
-          if (to === from || b >= mx || b === a - 1) return;
-          die.faces[from]--; die.faces[to]++; invalidate();
-          var v = score(s);
-          die.faces[from]++; die.faces[to]--; invalidate();
-          if (v > base + Math.abs(base) * 0.005 + 1e-9 && (!best || v > best.v)) best = { di: di, from: from, to: to, v: v };
-        });
-      });
-    });
-    return best;
-  }
-  // 눈 총합을 표준값에 맞춘다 (불러온 저장용)
-  function fixTotal(die, mx) {
-    var want = stdTotal(die.shape), f = die.faces, tot = 0, g = 0;
-    f.forEach(function (v) { tot += v; });
-    while (tot > want && g++ < 500) { var i = f.indexOf(Math.max.apply(null, f)); f[i]--; tot--; }
-    while (tot < want && g++ < 1000) { var j = f.indexOf(Math.min.apply(null, f)); if (f[j] >= mx) break; f[j]++; tot++; }
   }
   function costRefine(s) { return D.refine.cost0 * Math.pow(D.refine.costK, s.lv.refine || 0); }
   function costCompress(s) { return D.compress.cost0 * Math.pow(D.compress.costK, s.lv.compress || 0); }
@@ -591,7 +580,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (!s.shapes[shape] || !s.dice[di]) return false;
     var nd = s.dice.slice(); nd[di] = newDie(shape);
     if (trayUsed(nd) > D.trayCapacity) return false;
-    s.dice[di] = nd[di]; invalidate(); return true;
+    nd[di].sp = s.dice[di].sp; s.dice[di] = nd[di]; invalidate(); return true;
   }
 
   // ── 초신성 ──────────────────────────────────────
@@ -621,9 +610,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     for (var i = 0; i < nd; i++) {
       var od = oldDice[i];
       var shape = od && s.shapes[od.shape] ? od.shape : 'd6';
-      s.dice.push(od && od.shape === shape ? { shape: shape, faces: od.faces.slice() } : newDie(shape));
+      var nd2 = newDie(shape); if (od && od.sp) nd2.sp = od.sp;
+      s.dice.push(nd2);
     }
-    s.moves = moveStart(s); s.runTiers = {};
+    s.con.cur = null; s.con.wait = Math.min(s.con.wait || D.contract.gap, D.contract.gap);
     s.ev.buffs = {}; s.ev.cur = null;
     s.last = [];
     s.stats.runStart = s.t;
@@ -639,6 +629,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var g = novaGain(s);
     var info = { gain: g, chalDone: null, time: s.t - s.stats.runStart };
     s.cores += g; s.coresLayer += g; s.coresAll += g; s.novas++; invalidate();
+    if (info.time >= D.box.novaMinRun || s.novas === 1) s.box += D.box.novaBox; // 5분 넘게 키운 판만 상자
+    if (s.novas === 1) s.boxEpic = 1;
     if (!s.stats.fastestNova || info.time < s.stats.fastestNova) s.stats.fastestNova = info.time;
     resetRun(s);
     checkAch(s);
@@ -665,6 +657,119 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   }
   function quitChallenge(s) { if (!s.chal) return false; s.chal = null; resetRun(s); return true; }
 
+  // ── 주사위 상자·보관함 ──────────────────────────
+  function openBox(s) {
+    if (!(s.box >= 1)) return null;
+    s.box--; s.stats.boxes = (s.stats.boxes || 0) + 1;
+    var r = rng(), rar = 0, acc = 0;
+    for (var i = 0; i < D.box.odds.length; i++) { acc += D.box.odds[i]; if (r < acc) { rar = i; break; } rar = i; }
+    if (!s.novas && !s.collapses) rar = Math.min(rar, 1); // 첫 초신성 전에는 보통·드묾만
+    if (s.boxEpic) { rar = Math.max(rar, 2); s.boxEpic = 0; }
+    var pool = G.SPDICE.filter(function (x) { return x.rar === rar; });
+    var sp = pool[Math.floor(rng() * pool.length)];
+    var lv = s.coll[sp.id] || 0, out = { id: sp.id, rar: rar, isNew: !lv };
+    if (lv >= D.starMax) { var g = production(s) * 300 + 100; s.dust += g; s.dustRun += g; s.dustAll += g; out.dust = g; out.lv = lv; }
+    else { s.coll[sp.id] = lv + 1; out.lv = lv + 1; }
+    if (!lv && s.dice.some(function (d) { return !d.sp; })) { var free = s.dice.filter(function (d) { return !d.sp; })[0]; free.sp = sp.id; out.auto = true; }
+    invalidate(); checkAch(s);
+    return out;
+  }
+  function equip(s, slot, id) {
+    var die = s.dice[slot]; if (!die) return false;
+    if (id && !s.coll[id]) return false;
+    if (id) s.dice.forEach(function (d) { if (d.sp === id) delete d.sp; });
+    if (id) die.sp = id; else delete die.sp;
+    invalidate(); return true;
+  }
+  // 굴림 가치·생산을 함께 보는 점수 (좋은 순서로 끼우기)
+  function loadoutScore(s) {
+    var d = derive(s);
+    var bodies = Object.keys(s.bodies).length ? production(s) : 1;
+    return Math.log(Math.max(1e-9, bodies)) + Math.log(Math.max(1e-9, rollValue(s) * d.power * d.batchDieMult * Math.max(0.33, d.rollsPerSec)));
+  }
+  function autoEquip(s) {
+    var owned = Object.keys(s.coll).filter(function (k) { return s.coll[k] > 0; });
+    s.dice.forEach(function (d) { delete d.sp; });
+    invalidate();
+    for (var i = 0; i < s.dice.length; i++) {
+      var best = null, bv = loadoutScore(s);
+      owned.forEach(function (id) {
+        if (s.dice.some(function (d) { return d.sp === id; })) return;
+        s.dice[i].sp = id; invalidate();
+        var v = loadoutScore(s);
+        if (v > bv + 1e-9) { bv = v; best = id; }
+        delete s.dice[i].sp; invalidate();
+      });
+      if (best) s.dice[i].sp = best;
+      invalidate();
+    }
+    return true;
+  }
+
+  // ── 관측 의뢰 ───────────────────────────────────
+  function conUnlocked(s) { return s.lv.wind > 0 || s.novas > 0 || s.collapses > 0; }
+  // 한 궤도가 목표 단계까지 걸리는 예상 시간(초)
+  function orbitEta(s, d, sum, target) {
+    var b = s.bodies[sum], need = d.th[target - 2] - (b ? b.m : 0);
+    if (need <= 0) return 0;
+    var rps = d.rollsPerSec || 1.2;
+    var per = rps * (d.dist[sum] || 0) * d.power * d.rarity(sum) * d.hitMult(sum) * d.batchDieMult;
+    return per > 0 ? need / per : Infinity;
+  }
+  function newContract(s) {
+    var d = derive(s), mt = Math.max(2, maxTier(s));
+    var cands = [];
+    d.orbits.forEach(function (sum) {
+      if (!(d.dist[sum] > 0)) return;
+      var ct = s.bodies[sum] ? s.bodies[sum].t : 0;
+      for (var t = Math.max(2, ct + 1); t <= Math.min(mt, ct + 3, 10); t++) {
+        var eta = orbitEta(s, d, sum, t);
+        if (eta >= D.contract.etaMin && eta <= D.contract.etaMax) cands.push({ type: 'orbit', sum: sum, tier: t, time: D.contract.time });
+      }
+    });
+    var opts = [];
+    if (cands.length) { opts.push(cands[Math.floor(rng() * cands.length)]); opts.push(cands[Math.floor(rng() * cands.length)]); }
+    var pa = 0; Object.keys(d.al).forEach(function (k) { pa += d.al[k]; });
+    var expA = 240 * (d.rollsPerSec || 1) * pa;
+    if (expA >= 2) opts.push({ type: 'align', n: Math.max(1, Math.min(60, Math.round(expA * 0.55))), time: 240 });
+    if (s.dustAll > 200 && !res(s, 's2')) opts.push({ type: 'event', n: 1, time: 300 });
+    var pr = production(s);
+    if (pr > 0) opts.push({ type: 'dust', n: pr * 170, time: 240 });
+    if (!opts.length) return null;
+    var c = opts[Math.floor(rng() * opts.length)];
+    c.left = c.time;
+    c.base = c.type === 'align' ? s.stats.aligns : c.type === 'event' ? s.stats.events : c.type === 'dust' ? s.dustAll : 0;
+    return c;
+  }
+  function conProgress(s, c) {
+    if (!c) return 0;
+    if (c.type === 'orbit') { var b = s.bodies[c.sum]; if (!b) return 0; if (b.t >= c.tier) return 1; var d = derive(s), lo = c.tier > 2 ? d.th[c.tier - 3] : 0; return Math.max(0, Math.min(0.99, Math.log(1 + b.m) / Math.log(1 + d.th[c.tier - 2]))); }
+    var have = c.type === 'align' ? s.stats.aligns : c.type === 'event' ? s.stats.events : s.dustAll;
+    return Math.max(0, Math.min(1, (have - c.base) / c.n));
+  }
+  var conQueue = [];
+  function conTick(s, dt) {
+    if (!conUnlocked(s)) return;
+    var K = s.con;
+    K.rcd = Math.max(0, (K.rcd || 0) - dt);
+    if (!K.cur) { K.wait -= dt; if (K.wait <= 0) { K.cur = newContract(s); K.wait = D.contract.gap; if (K.cur) conQueue.push({ kind: 'new', c: K.cur }); } return; }
+    var c = K.cur;
+    if (conProgress(s, c) >= 1) {
+      s.box++; s.stats.cons = (s.stats.cons || 0) + 1;
+      var fate = c.type === 'align' || c.type === 'event';
+      if (fate && fateUnlocked(s) && s.fate.n < D.fate.max) s.fate.n++;
+      conQueue.push({ kind: 'ok', c: c, fate: fate });
+      K.cur = null; K.wait = D.contract.gap; checkAch(s); return;
+    }
+    c.left -= dt;
+    if (c.left <= 0) { conQueue.push({ kind: 'fail', c: c }); K.cur = null; K.wait = D.contract.gap; }
+  }
+  function rerollContract(s) {
+    if (!conUnlocked(s) || (s.con.rcd || 0) > 0) return false;
+    var c = newContract(s); if (!c) return false;
+    s.con.cur = c; s.con.rcd = D.contract.reroll; return true;
+  }
+
   // ── 중력 붕괴 ───────────────────────────────────
   function canCollapse(s) { return maxTier(s) >= D.collapseTier && !s.chal; }
   function collapseGain(s) {
@@ -676,7 +781,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function collapse(s) {
     if (!canCollapse(s)) return null;
     var g = Math.max(1, collapseGain(s));
-    s.sing += g; s.singAll += g; s.collapses++; s.forges = 0; s.layerStart = s.t;
+    s.sing += g; s.singAll += g; s.collapses++; s.layerStart = s.t; s.box += D.box.colBox;
     var keep = sresV(s, 'keepResearch', 'sum') > 0;
     s.cores = 0; s.coresLayer = 0; s.lv.refine = 0;
     if (!keep) s.research = {};
@@ -720,8 +825,13 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     ['dice3', function (s) { return s.dice.length >= 3; }],
     ['dice5', function (s) { return s.dice.length >= 5; }],
     ['dice6', function (s) { return s.dice.length >= 6; }],
-    ['forge1', function (s) { return s.forges >= 1; }],
-    ['face9', function (s) { return s.dice.some(function (d) { return d.shape === 'd6' && d.faces.indexOf(9) >= 0; }); }],
+    ['box1', function (s) { return (s.stats.boxes || 0) >= 1; }],
+    ['star5', function (s) { return Object.keys(s.coll).some(function (k) { return s.coll[k] >= 5; }); }],
+    ['legend', function (s) { return G.SPDICE.some(function (x) { return x.rar === 3 && s.coll[x.id]; }); }],
+    ['con10', function (s) { return (s.stats.cons || 0) >= 10; }],
+    ['con50', function (s) { return (s.stats.cons || 0) >= 50; }],
+    ['dex15', function (s) { return dexCount(s) >= 15; }],
+    ['dex30', function (s) { return dexCount(s) >= 30; }],
     ['dust6', function (s) { return s.stats.maxDust >= 1e6; }],
     ['dust12', function (s) { return s.stats.maxDust >= 1e12; }],
     ['dust24', function (s) { return s.stats.maxDust >= 1e18; }],
@@ -754,7 +864,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   G.core = {
     newState: newState, derive: derive, invalidate: invalidate, tick: tick, rollOnce: rollOnce, manualRoll: manualRoll, rollBatch: rollBatch,
     production: production, bodyRate: bodyRate, harmony: harmony, tierOf: tierOf,
-    costPower: costPower, costWind: costWind, costDie: costDie, maxDice: maxDice, forgeUnlocked: forgeUnlocked, maxFace: maxFace, stdTotal: stdTotal, fixTotal: fixTotal, canMove: canMove, movePip: movePip, bestMove: bestMove, rollValue: rollValue, goalValue: goalValue, moveStart: moveStart,
+    costPower: costPower, costWind: costWind, costDie: costDie, maxDice: maxDice, rollValue: rollValue, goalValue: goalValue,
+    spById: spById, spVal: spVal, openBox: openBox, equip: equip, autoEquip: autoEquip, conUnlocked: conUnlocked, conProgress: conProgress, rerollContract: rerollContract, newContract: newContract, conQueue: conQueue, dexQueue: dexQueue, dexCount: dexCount, dexPer: dexPer, orbitClass: orbitClass,
     buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible, pairOf: pairOf, pairBlocked: pairBlocked,
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
     canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,

@@ -25,6 +25,7 @@
     var d = C.derive(s);
     var v = A.view || {};
     v.orbits = d.orbits; v.bodies = s.bodies; v.stage = stageOf(s); v.sunForm = sunOf(s);
+    v.clsOf = function (sum) { return C.orbitClass(d, sum); };
     var cg = s.chal ? C.chalGoal(s, s.chal) : null;
     v.goalOrbits = cg ? cg.map(function (q) { return q[0]; }) : null;
     if (cg) {
@@ -33,6 +34,8 @@
       v.goalTip = [G.nm('chal', s.chal), G.nm('chal', s.chal, 1)];
       A.view = v; return v;
     }
+    var cc = s.con && s.con.cur;
+    v.goalOrbits = cc && cc.type === 'orbit' ? [cc.sum] : null;
     var mt = C.maxTier(s), gt = mt < 8 ? 8 : (mt < 10 ? 10 : 0);
     var best = 0; Object.keys(s.bodies).forEach(function (k) { best = Math.max(best, s.bodies[k].m); });
     var nxt = gt ? d.th[gt - 2] : 0;
@@ -135,7 +138,7 @@
     G.audio.play('evcatch');
     G.orrery.burst(p.x, p.y, 18, [4, 3, 8, 7], 40);
     G.orrery.pop(p.x, p.y - 12, G.T('ev_' + info.type), 4, 'g11b');
-    A.notify([G.T('ev_' + info.type), evText(info.type, s, info)], 'ev');
+    A.notify([G.T('ev_' + info.type), evText(info.type, s, info)].concat(info.box ? [G.T('box') + ' +1'] : []), 'ev');
   }
 
   // ── 궤도 툴팁 ───────────────────────────────────
@@ -180,6 +183,22 @@
     if (h.clicked) { if (F2.n >= 1) A.doFateRoll(); else G.audio.play('deny'); }
     return h;
   }
+  // 관측소 사람의 한 줄: 성계 아래쪽 종이 쪽지
+  function drawLine(s) {
+    var L = A.line; if (!L || A.cut) return;
+    var t = L.t, k = Math.min(1, t / 0.2, (7 - t) / 0.25); if (k <= 0) return;
+    var txt = G.story.text(L.l), who = G.story.who(L.l);
+    var lines = F.wrap(txt, 360, 'g11');
+    var w = 0; lines.forEach(function (l) { w = Math.max(w, F.measure(l, 'g11')); }); w = Math.max(w, F.measure(who, 'g9')) + 16;
+    var h = 16 + lines.length * 12, x = 8, y = 242 - h - Math.round((1 - k) * 8);
+    G.nine(G.spr.paper, x, y, w, h);
+    gx.rect(x + 3, y + 4, 2, h - 8, G.story.color(L.l));
+    F.draw(who, x + 9, y + 3, G.story.color(L.l), 'g9');
+    var shown = Math.floor(t * 40);
+    var acc = 0;
+    lines.forEach(function (l, i) { var part = l.slice(0, Math.max(0, shown - acc)); acc += l.length; F.draw(part, x + 9, y + 13 + i * 12, 12, 'g11'); });
+    if (U.over(x, y, w, h) && U.inp.released) A.line = null;
+  }
   function draw(dt) {
     var s = A.s;
     var v = buildView(s);
@@ -209,6 +228,12 @@
     if (!A.overlay && !cut && U.inp.y >= 20 && U.inp.y < 244 && U.inp.x < 416 && !U.hover()) orbitTip(s, v, U.inp.x, U.inp.y);
     else v.hoverOrbit = null;
     if (v.goalTip && U.over(0, 246, 200, 20)) U.tip([{ t: v.goalTip[0], f: 'g11b', c: 12 }, { t: v.goalTip[1], c: 13 }], U.inp.x, U.inp.y - 40);
+    // 큰 순간의 테두리 번쩍임 (정렬·운명·전설)
+    if (A.edge && A.edge.t > 0 && !s.settings.reduce) {
+      A.edge.t -= dt; var ek = A.edge.t / A.edge.d, ec = ek > 0.5 ? A.edge.c[0] : A.edge.c[1], ew = ek > 0.6 ? 3 : (ek > 0.3 ? 2 : 1);
+      gx.rect(0, 20, 416, ew, ec); gx.rect(0, 243 - ew, 416, ew, ec); gx.rect(0, 20, ew, 224, ec); gx.rect(416 - ew, 20, ew, 224, ec);
+    }
+    drawLine(s);
     topbar(s);
     // 오른쪽 판
     G.nine(G.spr.panel, PX, PY, PW, PH);
@@ -219,6 +244,7 @@
     if (A.overlay === 'settings') G.overlays.settings(s);
     else if (A.overlay === 'away') G.overlays.away(s);
     else if (A.overlay === 'confirm') G.overlays.confirm(s);
+    else if (A.overlay === 'box') { G.overlays.boxOpen(s); G.orrery.drawPops(); }
   }
   G.scenePlay = { draw: draw, stageOf: stageOf, buildView: buildView };
 })();

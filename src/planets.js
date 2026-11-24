@@ -26,13 +26,23 @@
 
   var cache = {};
   var cacheN = 0;
-  function bodySprite(tier, seed, frame, lb) {
+  // 도감 갈래 색: 0 뜨거운(붉게), 1 온화한(그대로), 2 차가운(푸르게)
+  var CLS_MAP = (function () {
+    var id = []; for (var i = 0; i < 24; i++) id[i] = i;
+    var hot = id.slice(), cold = id.slice();
+    [[19, 8], [16, 7], [6, 5], [0, 10], [1, 2], [15, 8], [14, 9]].forEach(function (p) { hot[p[0]] = p[1]; });
+    [[8, 19], [7, 16], [5, 6], [10, 0], [9, 14], [2, 15], [17, 16], [20, 6], [3, 4], [11, 13]].forEach(function (p) { cold[p[0]] = p[1]; });
+    return [hot, null, cold];
+  })();
+  function bodySprite(tier, seed, frame, lb, cls) {
     lb = lb === undefined ? -1 : lb;
-    var key = tier + ':' + seed + ':' + frame + ':' + lb;
+    var cm = cls === 0 || cls === 2 ? CLS_MAP[cls] : null;
+    var key = tier + ':' + seed + ':' + frame + ':' + lb + (cm ? ':' + cls : '');
     var c = cache[key];
     if (c) return c;
     if (cacheN > 4000) { cache = {}; cacheN = 0; }
     c = make(tier, seed, frame, lb);
+    if (cm) { var o = { w: c.w, h: c.h, d: new Uint8Array(c.d) }; for (var i = 0; i < o.d.length; i++) if (o.d[i] !== 255) o.d[i] = cm[o.d[i]]; c = o; }
     cache[key] = c; cacheN++;
     return c;
   }

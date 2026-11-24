@@ -12,7 +12,7 @@
         var ups = G.UPGRADES.filter(function (u) { return !s.up[u.id] && !C.pairBlocked(s, u) && C.upgradeVisible(s, u) && s.dust >= u.cost; });
         if (ups.length) { C.buyUpgrade(s, ups[0].id); continue; }
         if (s.dust >= C.costDie(s)) { C.buyDie(s); continue; }
-        if (s.moves >= 1 && C.forgeUnlocked(s) && t % 30 < dt) { var bm = C.bestMove(s); if (bm && C.movePip(s, bm.di, bm.from, bm.to)) continue; }
+        if (s.box > 0) { while (s.box > 0) C.openBox(s); C.autoEquip(s); continue; }
         if (s.dust >= C.costWind(s) && C.costWind(s) <= C.costPower(s) * 1.5 && (C.derive(s).interval === 0 || C.derive(s).interval > 0.06)) { C.buyWind(s); continue; }
         if (s.dust >= C.costPower(s)) { C.buyPower(s); continue; }
         break;

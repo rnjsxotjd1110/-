@@ -27,7 +27,7 @@ const path = require('path');
         const ups = G.UPGRADES.filter(u => !s.up[u.id] && !C.pairBlocked(s, u) && C.upgradeVisible(s, u) && s.dust >= u.cost);
         if (ups.length) { C.buyUpgrade(s, ups[0].id); continue; }
         if (s.dust >= C.costDie(s)) { C.buyDie(s); continue; }
-        if (C.forgeUnlocked(s) && s.moves >= 1) { const b = C.bestMove(s); if (b && C.movePip(s, b.di, b.from, b.to)) continue; }
+        if (s.box > 0) { while (s.box > 0) C.openBox(s); C.autoEquip(s); continue; }
         const cw = C.costWind(s), cp = C.costPower(s);
         if (s.dust >= cw && cw <= cp * 1.5 && (C.derive(s).interval === 0 || C.derive(s).interval > 0.06)) { C.buyWind(s); continue; }
         if (s.dust >= cp) { C.buyPower(s); continue; }

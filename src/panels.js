@@ -25,7 +25,7 @@
   }
   plate.tips = null;
   function machine(s) {
-    plate.tips = [G.T('tip_power'), G.T('tip_wind'), G.T('tip_dice'), G.T('tip_forge2')];
+    plate.tips = [G.T('tip_power'), G.T('tip_wind'), G.T('tip_dice'), G.T('tip_con')];
     var d = C.derive(s);
     var cp = C.costPower(s);
     plate(0, G.spr.icPower, G.T('power'), G.T('lv', s.lv.power), G.T('power_eff', G.fmt(d.power, true)), cp, s.dust >= cp, G.T('b_power'), s.dust >= cp, function () { C.buyPower(s); });
@@ -37,8 +37,7 @@
     var orb = [Math.min.apply(null, dk), Math.max.apply(null, dk)];
     plate(2, G.spr.icDie, G.T('dice'), G.T('n_dice', s.dice.length), full ? G.T('dice_max') : G.T('dice_eff', orb[0], orb[orb.length - 1]),
       full ? null : cd, s.dust >= cd, G.T('b_dice'), !full && s.dust >= cd, function () { if (C.buyDie(s)) G.audio.play('unlock'); });
-    var fu = C.forgeUnlocked(s);
-    plate(3, G.spr.icChisel, G.T('forge'), fu ? G.T('n_forge', s.moves) : '', fu ? G.T('forge_eff') : (C.chalRule(s, 'noMove') ? G.nm('chal', 'c1', 1) : G.T('forge_lock')), null, false, G.T('b_forge'), fu, function () { A.tab = 'dice'; A.seenTabs.dice = 1; });
+    contractCard(s, X0 + 106, Y0 + 92, 102, 86);
     histogram(s, d, X0, Y0 + 186, W0, 46, false);
     // 최근 합
     var ry = Y0 + 262;
@@ -54,6 +53,45 @@
     var alh = U.hitArea('alignline', X0, ry + 22, W0, 12);
     if (alh.over) U.tip([{ t: G.T('tip_align'), c: 12 }], U.inp.x, U.inp.y);
     F.draw(G.T('align_pop').replace('!', '') + ' ' + G.pct(pa) + ' · ×' + G.fmt(d.alignMult, true), X0 + 2, ry + 24, 8, 'g9');
+  }
+
+  // ── 관측 의뢰 칸 ───────────────────────────────
+  var CON_SPK = { orbit: 'seo', align: 'do', event: 'seo', dust: 'kwan' };
+  var SPK_COL = { kwan: 7, do: 19, seo: 3 };
+  function conGoalText(c) {
+    if (c.type === 'orbit') return G.T('con_orbit', c.sum, G.nm('tiers', c.tier));
+    if (c.type === 'align') return G.T('con_align', G.fmt(c.n));
+    if (c.type === 'event') return G.T('con_event');
+    return G.T('con_dust', G.fmt(c.n));
+  }
+  G.conGoalText = conGoalText;
+  function contractCard(s, px, py, pw, ph) {
+    G.nine(G.spr.inset, px, py, pw, ph);
+    var fl = A.conFlash || 0;
+    if (fl > 0 && Math.floor(fl * 10) % 2) { gx.hline(px + 2, py + 1, pw - 4, 4); gx.hline(px + 2, py + ph - 2, pw - 4, 4); }
+    gx.blit(G.spr.icScroll, px + 5, py + 5);
+    F.draw(G.T('forge'), px + 23, py + 5, 4, 'g11b', 12);
+    if (U.over(px, py, pw, 30)) U.tip([{ t: G.T('tip_con'), c: 12 }], U.inp.x, U.inp.y);
+    if (!C.conUnlocked(s)) { F.wrap(G.T('con_lock'), pw - 10, 'g9').slice(0, 2).forEach(function (l, k) { F.draw(l, px + 6, py + 26 + k * 9, 15, 'g9'); }); return; }
+    var c = s.con.cur;
+    if (!c) {
+      F.draw(G.T('con_wait', Math.ceil(s.con.wait)), px + 6, py + 26, 15, 'g9');
+      return;
+    }
+    var spk = CON_SPK[c.type];
+    F.draw(G.T('spk_' + spk), px + 6, py + 22, SPK_COL[spk], 'g9');
+    F.wrap(conGoalText(c), pw - 10, 'g9').slice(0, 2).forEach(function (l, k) { F.draw(l, px + 6, py + 31 + k * 9, 4, 'g9'); });
+    // 진행 막대 + 남은 시간
+    var pr = C.conProgress(s, c), bw = pw - 38;
+    G.nine(G.spr.insetDark, px + 6, py + 53, bw, 7);
+    var fw = Math.round((bw - 4) * pr); if (fw > 0) { gx.rect(px + 8, py + 55, fw, 3, 3); gx.hline(px + 8, py + 55, fw, 4); }
+    var urgent = c.left < 30;
+    F.drawRight(G.T('con_left', Math.ceil(c.left)), px + pw - 5, py + 52, urgent && Math.floor(A.t * 3) % 2 ? 17 : 15, 'g9');
+    gx.blit(G.spr.box, px + pw - 17 - (c.type === 'align' || c.type === 'event' ? 12 : 0), py + 21);
+    if (c.type === 'align' || c.type === 'event') gx.blit(G.spr.fateGem, px + pw - 15, py + 20);
+    var rcd = s.con.rcd || 0;
+    var lab = rcd > 0 ? G.T('b_reroll') + ' ' + Math.ceil(rcd) : G.T('b_reroll');
+    if (U.button('conrr', px + 5, py + 65, pw - 10, 18, lab, { enabled: rcd <= 0, font: 'g9' })) { if (C.rerollContract(s)) G.audio.play('tab'); }
   }
 
   // 분포 그래프. carved=true면 깎지 않은 분포 눈금도 표시
@@ -100,8 +138,8 @@
       var blk = C.pairBlocked(s, u);
       var own = !!s.up[u.id], ok = !own && !blk && s.dust >= u.cost;
       var h = U.hitArea('ug' + u.id, x, y, 24, 24);
-      var rn = (G.nm('up', u.id).match(/ (I{1,3}|IV|V|VI)$/) || [])[1];
-      var ti = rn ? ['I', 'II', 'III', 'IV', 'V', 'VI'].indexOf(rn) : 0;
+      var rn = (G.nm('up', u.id).match(/ (\d)$/) || [])[1];
+      var ti = rn ? +rn - 1 : 0;
       var fc = TIER_F[Math.max(0, ti)];
       gx.rect(x + 1, y + 1, 22, 22, own ? 13 : 21);
       gx.hline(x + 1, y, 22, fc[0]); gx.vline(x, y + 1, 22, fc[0]); gx.hline(x + 1, y + 23, 22, fc[1]); gx.vline(x + 23, y + 1, 22, fc[1]);
@@ -162,95 +200,102 @@
   var SIL = []; for (var si2 = 0; si2 < 24; si2++) SIL[si2] = si2 === 12 ? 12 : 13;
   var DIM = []; for (var di = 0; di < 24; di++) DIM[di] = di; [4, 8, 3, 7, 19, 2].forEach(function (c) { DIM[c] = 15; }); [9, 5, 16, 11, 1, 10].forEach(function (c) { DIM[c] = 14; }); [17, 20].forEach(function (c) { DIM[c] = 14; });
 
-  // ── 주사위 ─────────────────────────────────────
-  var PIPP = { 1: [[1, 1]], 2: [[0, 0], [2, 2]], 3: [[0, 0], [1, 1], [2, 2]], 4: [[0, 0], [2, 0], [0, 2], [2, 2]], 5: [[0, 0], [2, 0], [1, 1], [0, 2], [2, 2]], 6: [[0, 0], [2, 0], [0, 1], [2, 1], [0, 2], [2, 2]], 7: [[0, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [2, 2]], 8: [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [0, 2], [1, 2], [2, 2]], 9: [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [1, 2], [2, 2]] };
-  var FACE_RAMP = { d6: [4, 8, 20], d4: [8, 7, 12], d8: [3, 2, 12], d12: [19, 16, 12] };
-  function faceTile(x, y, shape, v, sel, hot, dim) {
-    var r = FACE_RAMP[shape] || FACE_RAMP.d6;
-    gx.rect(x + 1, y + 1, 12, 12, dim ? 13 : r[0]);
-    gx.hline(x + 1, y + 12, 12, dim ? 21 : r[1]); gx.vline(x + 12, y + 1, 12, dim ? 21 : r[1]);
-    var oc = sel ? 3 : (hot ? 8 : 12);
-    gx.hline(x + 1, y, 12, oc); gx.hline(x + 1, y + 13, 12, oc); gx.vline(x, y + 1, 12, oc); gx.vline(x + 13, y + 1, 12, oc);
-    if (sel) { gx.hline(x + 1, y - 1, 12, 4); gx.hline(x + 1, y + 14, 12, 4); }
-    if (v === 0) return;
-    if (shape === 'd6' && PIPP[v]) PIPP[v].forEach(function (p) { gx.rect(x + 2 + p[0] * 4, y + 2 + p[1] * 4, 2, 2, dim ? 14 : r[2]); });
-    else F.drawCenter(String(v), x + 7, y + 2, dim ? 14 : r[2], 'g9');
+  // ── 주사위 보관함 ──────────────────────────────
+  var RAR_COL = [15, 19, 7, 3];
+  var iconCache = {};
+  function dieIcon(shape, mat, size) {
+    var key = shape + mat + size;
+    if (iconCache[key]) return iconCache[key];
+    var D3 = G.dice3d;
+    var q = D3.qmul(D3.qaxis([1, 0, 0], 0.22), D3.restQuat(shape, 0, 0.38));
+    var die = { shape: shape, faces: C.newDie(shape).faces, mat: mat };
+    return (iconCache[key] = D3.render(die, q, size, -1, false));
   }
-  // 눈을 하나 옮겼을 때의 분포 (미리보기)
-  function previewDerive(s, di, from, to) {
-    var die = s.dice[di];
-    die.faces[from]--; die.faces[to]++; C.invalidate();
-    var d = C.derive(s), keep = { dist: d.dist, std: d.std, orbits: d.orbits, rarity: d.rarity };
-    die.faces[from]++; die.faces[to]--; C.invalidate();
-    return keep;
-  }
+  G.dieIcon = dieIcon;
+  function stars(x, y, n, max) { for (var i = 0; i < max; i++) gx.blit(i < n ? G.spr.star : G.spr.starOff, x + i * 6, y); }
+  G.drawStars = stars;
+  function refreshTray2() { var d = C.derive(A.s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; })); }
   function dicePanel(s) {
-    var d = C.derive(s);
-    var fu = C.forgeUnlocked(s);
     var y = Y0 + 2;
-    var sel = A.selFace && s.dice[A.selFace[0]] ? A.selFace : null;
-    if (sel && s.dice[sel[0]].faces[sel[1]] < 1) sel = A.selFace = null;
-    var preview = null;
+    if (A.selSlot === undefined || A.selSlot >= s.dice.length) A.selSlot = 0;
+    F.draw(G.T('tray_slots'), X0 + 2, y + 2, 15, 'g9');
+    var owned = G.SPDICE.filter(function (x) { return s.coll[x.id]; }).length;
+    if (U.button('autoeq', X0 + W0 - 96, y - 1, 94, 15, G.T('b_auto'), { enabled: owned > 0, font: 'g9' })) { C.autoEquip(s); refreshTray2(); G.audio.play('forge'); }
+    // 쟁반 칸
+    var sw = Math.min(34, Math.floor((W0 + 2) / Math.max(1, s.dice.length)) - 2), sy = y + 16;
     s.dice.forEach(function (die, i) {
-      var yy = y + i * 18;
-      F.draw(die.shape, X0 + 1, yy + 2, 15, 'g9');
-      var order = die.faces.map(function (v, f) { return f; });
-      var base = C.newDie(die.shape).faces;
-      order.sort(function (a, b) { return base[a] - base[b]; });
-      order.forEach(function (f, pos) {
-        var v = die.faces[f];
-        var x = X0 + 22 + pos * 15;
-        var isSel = !!sel && sel[0] === i && sel[1] === f;
-        var target = !!sel && sel[0] === i && !isSel;
-        var okT = target && C.canMove(s, i, sel[1], f);
-        var h = U.hitArea('fc' + i + '_' + f, x, yy, 14, 14, fu);
-        faceTile(x, yy, die.shape, v, isSel, h.over && (!sel || okT || !target), target && !okT);
-        if (h.over && okT) preview = [i, sel[1], f];
-        if (h.clicked) {
-          if (isSel) { A.selFace = null; G.audio.play('tab'); }
-          else if (okT) { if (C.movePip(s, i, sel[1], f)) { G.audio.play('forge'); refreshTray(); if (s.dice[i].faces[sel[1]] < 1) A.selFace = null; } }
-          else if (target) G.audio.play('deny');
-          else if (v >= 1) { A.selFace = [i, f]; G.audio.play('tab'); }
-          else G.audio.play('deny');
-        }
-      });
+      var x = X0 + i * (sw + 2), sel = A.selSlot === i;
+      var h = U.hitArea('slot' + i, x, sy, sw, 36);
+      G.nine(die.sp ? G.spr.tileOwn : G.spr.tile, x, sy, sw, 36);
+      var sp = die.sp && s.coll[die.sp] ? C.spById(die.sp) : null;
+      var ic = dieIcon(die.shape, sp ? 'sp_' + sp.id : A.spec(die, 0).mat, 1.0);
+      gx.blit(ic, x + (sw >> 1) - (ic.w >> 1), sy + 17 - (ic.h >> 1));
+      if (sp) gx.rect(x + 2, sy + 2, sw - 4, 2, RAR_COL[sp.rar]);
+      F.drawCenter(String(i + 1), x + (sw >> 1), sy + 27, sel ? 4 : 14, 'g7');
+      if (sel) { gx.hline(x, sy - 2, sw, 4); gx.hline(x, sy + 37, sw, 4); gx.vline(x - 2, sy, 36, 4); gx.vline(x + sw + 1, sy, 36, 4); }
+      if (h.over) U.tip([{ t: sp ? G.nm('sp', sp.id) : G.T('plain_die'), f: 'g11b', c: sp ? RAR_COL[sp.rar] : 12 }].concat(sp ? [{ t: G.spText(sp.eff, C.spVal(s, sp.id)), c: 13 }] : []), x, sy);
+      if (h.clicked) { A.selSlot = i; if (sp) A.selSp = sp.id; G.audio.play('tab'); }
     });
-    var cy = y + s.dice.length * 18 + 4;
-    U.groove(X0, cy, W0);
-    cy += 6;
-    if (!fu) F.draw(C.chalRule(s, 'noMove') ? G.nm('chal', 'c1', 1) : G.T('forge_lock'), X0 + 2, cy + 4, 15, 'g11');
-    else {
-      var msg = !(s.moves >= 1) ? G.T('no_moves') : (sel ? G.T('pick_to') : G.T('pick_face'));
-      var room = W0 - 8 - (sel ? 64 : F.measure(G.T('moves_left', s.moves), 'g9'));
-      F.draw(msg, X0 + 2, cy + 4, sel ? 4 : 15, F.measure(msg, 'g11') > room ? 'g9' : 'g11');
-      if (sel) { if (U.button('fcancel', X0 + W0 - 62, cy + 1, 60, 18, G.T('b_cancel'), { font: 'g11b' })) A.selFace = null; }
+    // 보관함 격자 (그림만, 수치는 고른 칸 설명에서)
+    var gy = sy + 44;
+    U.groove(X0, gy - 3, W0);
+    F.draw(G.T('coll_title', owned, G.SPDICE.length), X0 + 2, gy + 1, 15, 'g9');
+    G.SPDICE.forEach(function (sp, i) {
+      var x = X0 + (i % 8) * 26, yy = gy + 13 + Math.floor(i / 8) * 28;
+      var lv = s.coll[sp.id] || 0, sel = A.selSp === sp.id;
+      var slot = -1; s.dice.forEach(function (d, k) { if (d.sp === sp.id) slot = k; });
+      var h = U.hitArea('sp' + sp.id, x, yy, 24, 26);
+      gx.rect(x + 1, yy + 1, 22, 24, lv ? 21 : 23);
+      gx.hline(x + 1, yy, 22, lv ? RAR_COL[sp.rar] : 14); gx.hline(x + 1, yy + 25, 22, 12); gx.vline(x, yy + 1, 24, 12); gx.vline(x + 23, yy + 1, 24, 12);
+      var ic = dieIcon('d6', 'sp_' + sp.id, 0.82);
+      gx.setClip(x + 1, yy + 1, 22, 20); gx.blit(ic, x + 12 - (ic.w >> 1), yy + 11 - (ic.h >> 1), false, lv ? null : SIL); gx.resetClip();
+      if (lv) for (var k = 0; k < lv; k++) gx.rect(x + 3 + k * 4, yy + 21, 2, 2, 3);
+      if (slot >= 0) F.draw(String(slot + 1), x + 17, yy + 17, 4, 'g7');
+      if (sp.rar === 3 && lv && Math.floor(A.t * 3 + i) % 5 === 0) { gx.pset(x + 5, yy + 4, 4); gx.pset(x + 18, yy + 15, 4); }
+      if (sel) { gx.hline(x - 1, yy - 2, 26, 4); gx.hline(x - 1, yy + 27, 26, 4); gx.vline(x - 2, yy - 1, 28, 4); gx.vline(x + 25, yy - 1, 28, 4); }
+      if (h.clicked) { A.selSp = sp.id; G.audio.play('tab'); }
+    });
+    // 고른 주사위
+    var iy = gy + 72;
+    U.groove(X0, iy - 3, W0);
+    var cur = A.selSp ? C.spById(A.selSp) : null;
+    if (cur) {
+      var lv2 = s.coll[cur.id] || 0;
+      F.draw(lv2 ? G.nm('sp', cur.id) : '???', X0 + 2, iy + 2, lv2 ? RAR_COL[cur.rar] : 14, 'g11b', 12);
+      F.drawRight(G.T('rar' + cur.rar), X0 + W0 - 2, iy + 3, RAR_COL[cur.rar], 'g9');
+      stars(X0 + 2, iy + 17, lv2, G.DATA.starMax);
+      var v = lv2 ? C.spVal(s, cur.id) : cur.v;
+      F.draw(G.spText(cur.eff, v), X0 + 36, iy + 16, lv2 ? 8 : 14, 'g9');
+      var inSel = s.dice[A.selSlot] && s.dice[A.selSlot].sp === cur.id;
+      if (!lv2) F.draw(G.T('not_owned'), X0 + 2, iy + 31, 14, 'g9');
       else {
-        var ml = G.T('moves_left', s.moves);
-        F.drawRight(ml, X0 + W0 - 2, cy + 5, s.moves >= 1 ? 3 : 9, 'g9');
-        if (U.over(X0 + W0 - F.measure(ml, 'g9') - 4, cy + 2, F.measure(ml, 'g9') + 4, 14)) U.tip([{ t: G.T('moves_left', s.moves), f: 'g11b', c: 12 }, { t: G.T('tip_moves', G.DATA.moveGain), c: 13 }, { t: G.T('tip_forge'), c: 11 }], U.inp.x, U.inp.y);
+        var where = -1; s.dice.forEach(function (d, k) { if (d.sp === cur.id) where = k; });
+        if (where >= 0) F.draw(G.T('equipped_in', where + 1), X0 + 2, iy + 31, 15, 'g9');
+        var lab = inSel ? G.T('b_unequip') : G.T('b_equip');
+        if (U.button('eq', X0 + W0 - 84, iy + 28, 82, 17, lab + (inSel ? '' : ' ' + (A.selSlot + 1)), { font: 'g9' })) { C.equip(s, A.selSlot, inSel ? null : cur.id); refreshTray2(); G.audio.play('forge'); }
       }
-    }
-    if (preview) d = previewDerive(s, preview[0], preview[1], preview[2]);
-    cy += 26;
+    } else F.draw(G.T('pick_slot'), X0 + 2, iy + 4, 15, 'g9');
+    // 상자
+    var by = iy + 52;
+    U.groove(X0, by - 3, W0);
+    gx.blitScaled(G.spr.box, X0 + 4, by + 3, 2);
+    if (s.box > 0 && Math.floor(A.t * 2) % 2) { gx.pset(X0 + 2, by + 4, 4); gx.pset(X0 + 28, by + 2, 4); }
+    F.draw(G.T('box_n', G.fmt(s.box)), X0 + 34, by + 4, s.box > 0 ? 4 : 15, 'g11b', 12);
+    F.draw(s.box > 0 || (s.stats.boxes || 0) ? G.T('box_odds') : G.T('box_none'), X0 + 34, by + 18, 15, 'g7');
+    if (U.button('obox', X0 + W0 - 84, by + 1, 82, 17, G.T('b_open'), { enabled: s.box > 0, font: 'g11b', sfx: 'tap' })) { var res = C.openBox(s); if (res) { A.boxRes = res; A.boxT = 0; A.overlay = 'box'; A.selSp = res.id; refreshTray2(); } }
+    // 모양 바꾸기 (특이점 연구 후)
     var shapes = Object.keys(s.shapes).filter(function (k) { return s.shapes[k]; });
-    var ly = shapes.length > 1 ? Y0 + 250 : Y0 + 284;
-    histogram(s, d, X0, cy, W0, Math.max(20, ly - cy - 28), true);
-    gx.rect(X0 + 2, ly + 2, 5, 6, preview ? 7 : 2); F.draw(preview ? G.T('dist_after') : G.T('dist_now'), X0 + 11, ly, preview ? 7 : 8, 'g9');
-    gx.hline(X0 + 92, ly + 4, 6, 15); F.draw(G.T('std_dist'), X0 + 101, ly, 8, 'g9');
-    // 모양 바꾸기
     if (shapes.length > 1) {
-      var sy = Y0 + 266;
-      U.groove(X0, sy - 3, W0);
-      var di2 = A.selFace ? A.selFace[0] : -1;
-      F.draw(G.T('shape_title') + ' · ' + G.T('tray_cap', C.trayUsed(s.dice), G.DATA.trayCapacity), X0 + 2, sy + 2, 15, 'g9');
-      if (di2 < 0) F.draw(G.T('pick_die'), X0 + 2, sy + 17, 8, 'g11');
+      var shy = by + 34;
+      U.groove(X0, shy - 3, W0);
+      F.draw(G.T('shape_title') + ' · ' + G.T('tray_cap', C.trayUsed(s.dice), G.DATA.trayCapacity), X0 + 2, shy + 1, 15, 'g9');
+      var di2 = A.selSlot;
       ['d4', 'd6', 'd8', 'd12'].forEach(function (sh, k) {
         if (!s.shapes[sh]) return;
-        if (di2 < 0) return;
-        var cur = s.dice[di2] && s.dice[di2].shape === sh;
+        var curS = s.dice[di2] && s.dice[di2].shape === sh;
         var nd = s.dice.slice(); nd[di2] = { faces: new Array(C.SHAPE_FACES[sh]) };
         var fits = C.trayUsed(nd) <= G.DATA.trayCapacity;
-        if (U.button('sh' + sh, X0 + 2 + k * 52, sy + 14, 48, 18, sh, { enabled: !cur && fits, font: 'g11b' })) { C.setShape(s, di2, sh); A.selFace = null; A.shapeDie = null; G.audio.play('forge'); refreshTray(); }
+        if (U.button('sh' + sh, X0 + 2 + k * 52, shy + 13, 48, 17, sh + ' ' + (di2 + 1), { enabled: !curS && fits, font: 'g9' })) { C.setShape(s, di2, sh); G.audio.play('forge'); refreshTray(); }
       });
     }
   }
@@ -425,9 +470,11 @@
 
   // ── 기록 ───────────────────────────────────────
   function records(s) {
-    A.sub.rec = U.tabs('rsub', X0 + 2, Y0 + 2, [{ key: 'ach', label: G.T('ach') }, { key: 'stats', label: G.T('stats') }], A.sub.rec, { gap: 14 });
+    A.sub.rec = U.tabs('rsub', X0 + 2, Y0 + 2, [{ key: 'ach', label: G.T('rec_ach') }, { key: 'dex', label: G.T('rec_dex') }, { key: 'log', label: G.T('rec_log') }, { key: 'stats', label: G.T('rec_stats') }], A.sub.rec, { gap: 14 });
     U.groove(X0, Y0 + 19, W0);
     if (A.sub.rec === 'stats') return stats(s, Y0 + 26);
+    if (A.sub.rec === 'dex') return dexPanel(s, Y0 + 26);
+    if (A.sub.rec === 'log') return logPanel(s, Y0 + 26);
     var y = Y0 + 26;
     G.ACH.forEach(function (a, i) {
       var x = X0 + (i % 8) * 26, yy = y + Math.floor(i / 8) * 28;
@@ -441,6 +488,39 @@
     });
     var n = Object.keys(s.ach).length;
     F.drawRight(n + '/' + G.ACH.length, X0 + W0 - 2, y + 146, 15, 'g9');
+  }
+  // 천체 도감: 단계(가로 10) × 갈래(세로 3) 그림 격자
+  function dexPanel(s, y) {
+    var n = C.dexCount(s);
+    F.draw(G.T('dex_title', n), X0 + 2, y, 4, 'g11b', 12);
+    F.drawRight(G.T('dex_bonus', Math.round(n * C.dexPer(s) * 100)), X0 + W0 - 2, y + 1, 3, 'g9');
+    var cw = 20, ch = 24, gx0 = X0 + 4, gy0 = y + 30;
+    for (var c = 0; c < 3; c++) F.draw(G.T('dex_cls' + c), X0 + 2, gy0 + c * (ch + 18) - 11, [7, 15, 19][c], 'g9');
+    for (var c2 = 0; c2 < 3; c2++) for (var t = 1; t <= 10; t++) {
+      var x = gx0 + (t - 1) * cw, yy = gy0 + c2 * (ch + 18), key = t + '_' + c2, got = !!s.dex[key];
+      var h = U.hitArea('dx' + key, x, yy, cw - 1, ch);
+      gx.rect(x, yy, cw - 1, ch, got ? 23 : 13);
+      gx.hline(x, yy + ch - 1, cw - 1, got ? [7, 15, 19][c2] : 21);
+      var spr = G.planets.bodySprite(t, 11 + t * 3, 0, 6, c2);
+      gx.setClip(x, yy, cw - 1, ch - 1);
+      gx.blit(spr, x + ((cw - 1) >> 1) - (spr.w >> 1), yy + (ch >> 1) - (spr.h >> 1), false, got ? null : SIL);
+      gx.resetClip();
+      if (h.over) U.tip([{ t: got ? G.dexName(key) : G.T('dex_unknown'), f: 'g11b', c: 12 }, { t: G.T('dex_where' + c2), c: 13 }], x, yy);
+    }
+  }
+  // 일지: 지금까지 나온 대사 (최근이 위)
+  function logPanel(s, y) {
+    var ls = G.story.seen(s).slice().reverse();
+    if (!ls.length) { F.draw(G.T('log_empty'), X0 + 2, y + 4, 15, 'g11'); return; }
+    var yy = y, maxY = Y0 + 296;
+    for (var i = 0; i < ls.length && yy < maxY - 20; i++) {
+      var l = ls[i];
+      F.draw(G.story.who(l), X0 + 2, yy, G.story.color(l), 'g9');
+      var lines = F.wrap(G.story.text(l), W0 - 6, 'g9');
+      lines.forEach(function (t, k) { if (yy + 11 + k * 10 < maxY) F.draw(t, X0 + 4, yy + 11 + k * 10, i === 0 ? 4 : 8, 'g9'); });
+      yy += 15 + lines.length * 10;
+      if (yy < maxY) U.groove(X0, yy - 3, W0);
+    }
   }
   function stats(s, y) {
     var st = s.stats;
@@ -460,6 +540,7 @@
   // ── 탭 틀 ──────────────────────────────────────
   function dotFor(s, key) {
     if (key === 'upg') return G.UPGRADES.some(function (u) { return !s.up[u.id] && C.upgradeVisible(s, u) && s.dust >= u.cost; });
+    if (key === 'dice') return s.box > 0;
     if (key === 'nova') return C.canNova(s) || G.RESEARCH.some(function (r) { return C.researchAvail(s, r) && s.cores >= r.cost; });
     if (key === 'col') return C.canCollapse(s) || G.SRESEARCH.some(function (r) { return C.sresAvail(s, r) && s.sing >= r.cost && (r.eff !== 'ending' || C.endingReady(s)); });
     return false;

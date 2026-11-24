@@ -611,6 +611,39 @@
   function embossMeasure(str, k, font) { return G.font.measure(str, font || 'g11b') * k; }
 
   S.parse = parse;
+
+  // 관측 의뢰서 (말린 종이 + 붉은 봉인)
+  S.icScroll = parse([
+    '................',
+    '..kkkkkkkkkkk...',
+    '.kwwwwwwwwwwpk..',
+    '.kpkkkkkkkkkpk..',
+    '..kwwwwwwwwwk...',
+    '..kwmmmmmmmwk...',
+    '..kwwwwwwwwwk...',
+    '..kwmmmmmwwwk...',
+    '..kwwwwwwwwwk...',
+    '..kwmmmmmmwwk...',
+    '..kwwwwwwRRwk...',
+    '..kwwwwwRoRRk...',
+    '.kpkkkkkkRRkpk..',
+    '.kwwwwwwwwwwpk..',
+    '..kkkkkkkkkkk...',
+    '................']);
+  // 주사위 상자 (나무 + 놋쇠 모서리)
+  S.box = parse([
+    '.kkkkkkkkkk.',
+    'kHooooooooHk',
+    'kossssssssok',
+    'kkkkkHHkkkkk',
+    'koossHwsssok',
+    'kossssHsssBk',
+    'kossssssssBk',
+    'kossssssssBk',
+    'kHBBBBBBBBHk',
+    '.kkkkkkkkkk.']);
+  S.star = parse(['..H..', '.HwH.', 'HHHHH', '.HHH.', '.H.H.']);
+  S.starOff = parse(['..m..', '.mKm.', 'mmmmm', '.mmm.', '.m.m.']);
   G.spr = S;
   G.nine = nine;
   G.embossText = embossText;

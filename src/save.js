@@ -19,7 +19,7 @@
   function sanitize(s) {
     var CAP = 1e300;
     ['dust', 'dustRun', 'dustAll', 'cores', 'coresLayer', 'coresAll', 'sing', 'singAll', 't'].forEach(function (k) { s[k] = num(s[k], 0, CAP, 0); });
-    ['novas', 'collapses', 'forges'].forEach(function (k) { s[k] = int(s[k], 0, 1e9, 0); });
+    ['novas', 'collapses', 'box'].forEach(function (k) { s[k] = int(s[k], 0, 1e9, 0); });
     s.lv = { power: int(s.lv && s.lv.power, 0, 3000, 0), wind: int(s.lv && s.lv.wind, 0, 2000, 0), refine: int(s.lv && s.lv.refine, 0, 500, 0), compress: int(s.lv && s.lv.compress, 0, 500, 0) };
     s.lastSave = num(s.lastSave, 0, 1e15, Date.now());
     s.autoT = num(s.autoT, 0, 100, 0); s.manualCd = 0;
@@ -28,17 +28,27 @@
     var dice = s.dice.filter(function (d) { return d && typeof d === 'object'; }).slice(0, 6).map(function (d) {
       var shape = SF[d.shape] ? d.shape : 'd6';
       var n = SF[shape], base = G.core.newDie(shape).faces;
-      var faces = Array.isArray(d.faces) && d.faces.length === n ? d.faces.map(function (f, i) { return int(f, 0, Math.max(9, n), base[i]); }) : base;
-      return { shape: shape, faces: faces };
+      // 눈은 언제나 표준값 (옛 저장의 옮긴 눈은 되돌림)
+      var o = { shape: shape, faces: base };
+      if (typeof d.sp === 'string' && G.core.spById(d.sp)) o.sp = d.sp;
+      return o;
     });
     while (dice.length < 2) dice.push(G.core.newDie('d6'));
     var used = 0; dice = dice.filter(function (d) { used += d.faces.length; return used <= G.DATA.trayCapacity; });
-    var maxD = s.sres && s.sres.q6 ? 6 : 5, maxF = s.research && s.research.g6 ? 9 : 6;
+    var maxD = s.sres && s.sres.q6 ? 6 : 5;
     dice = dice.slice(0, maxD);
-    dice.forEach(function (d) { var mx = Math.max(maxF, G.core.SHAPE_FACES[d.shape]); d.faces = d.faces.map(function (f) { return Math.min(f, mx); }); G.core.fixTotal(d, mx); });
     s.dice = dice;
-    s.moves = int(s.moves, 0, 1e4, G.DATA.moveStart);
-    var rt = {}; Object.keys(s.runTiers || {}).forEach(function (k) { var t = int(k, 2, 10, 0); if (t) rt[t] = 1; }); s.runTiers = rt;
+    delete s.moves; delete s.runTiers; delete s.forges;
+    // 보관함·도감·의뢰
+    var co = {}; G.SPDICE.forEach(function (x) { var v = s.coll && s.coll[x.id]; if (v) co[x.id] = int(v, 0, G.DATA.starMax, 0); }); s.coll = co;
+    var seenSp = {}; s.dice.forEach(function (d) { if (d.sp && (!co[d.sp] || seenSp[d.sp])) delete d.sp; else if (d.sp) seenSp[d.sp] = 1; });
+    var dx = {}; Object.keys(s.dex || {}).forEach(function (k) { if (/^(10|[1-9])_[012]$/.test(k)) dx[k] = 1; }); s.dex = dx;
+    var K = s.con || {}; s.con = { cur: null, wait: num(K.wait, 0, 60, G.DATA.contract.first), rcd: num(K.rcd, 0, 60, 0) };
+    if (K.cur && typeof K.cur === 'object' && ['orbit', 'align', 'event', 'dust'].indexOf(K.cur.type) >= 0) {
+      var c = K.cur; s.con.cur = { type: c.type, sum: int(c.sum, 0, 80, 7), tier: int(c.tier, 2, 10, 2), n: num(c.n, 0, CAP, 1), time: num(c.time, 1, 600, 180), left: num(c.left, 0, 600, 0), base: num(c.base, 0, CAP, 0) };
+    }
+    var so = {}; Object.keys(s.story || {}).forEach(function (k) { if (/^[a-z0-9_]{1,20}$/.test(k)) so[k] = 1; }); s.story = so;
+    s.boxEpic = s.boxEpic ? 1 : 0;
     var fa = s.fate || {}; s.fate = { c: num(fa.c, 0, 1e15, 0), n: int(fa.n, 0, G.DATA.fate.max, 0) };
     var pp = {}; Object.keys(s.pairPref || {}).forEach(function (k) { var id = s.pairPref[k]; if (G.UPGRADES.some(function (u) { return u.id === id && u.pair === k; })) pp[k] = id; }); s.pairPref = pp;
     // 천체

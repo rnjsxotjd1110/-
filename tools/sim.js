@@ -23,7 +23,7 @@ function pickPair(s, u, kind, R) {
   return s._pairPick[u.pair + s.novas] === u.id ? u : o;
 }
 const PAIRS = {};
-const MS = ['firstBuy', 'wind', 'lens1', 'dice3', 'forge', 'tier4', 'tier6', 'dice4', 'nova1', 'nova2', 'nova5', 'chal1', 'dice5', 'tier9', 'chalAll', 'collapse1', 'collapse3', 'ending'];
+const MS = ['firstBuy', 'wind', 'lens1', 'dice3', 'box1', 'con5', 'tier4', 'tier6', 'dice4', 'nova1', 'nova2', 'nova5', 'chal1', 'dice5', 'tier9', 'chalAll', 'collapse1', 'collapse3', 'ending'];
 
 function run(kind, seed) {
   const R = mulberry(seed * 9973 + kind.length);
@@ -35,7 +35,7 @@ function run(kind, seed) {
   let lastBuyT = 0, maxGap = 0, maxGapAt = 0;
   const gapEnd = 3600 * 30;
   const dt = 0.5;
-  const P = { opt: { click: 3, clickUntil: 3600, catch: 1, react: 1 }, normal: { click: 1, clickUntil: 600, catch: 0.6, react: 8 }, random: { click: 0.5, clickUntil: 120, catch: 0.3, react: 20 }, idle: { click: 1, clickUntil: 60, catch: 0, react: 30 }, noforge: { click: 1, clickUntil: 600, catch: 0.6, react: 8 } }[kind];
+  const P = { opt: { click: 3, clickUntil: 3600, catch: 1, react: 1 }, normal: { click: 1, clickUntil: 600, catch: 0.6, react: 8 }, random: { click: 0.5, clickUntil: 120, catch: 0.3, react: 20 }, idle: { click: 1, clickUntil: 60, catch: 0, react: 30 }, nodice: { click: 1, clickUntil: 600, catch: 0.6, react: 8 } }[kind];
   let nextAct = 0; const runs = []; const cols = []; const CH = { start: 0, quit: [], done: [] }; const FAIL = {};
   const bought = () => { if (s.t > 30) { const g = s.t - lastBuyT; if (g > maxGap && s.t < 3600 * 6) { maxGap = g; maxGapAt = s.t; if (process.env.GAPDBG) console.log('gap', Math.round(g), (s.t/3600).toFixed(2), 'runT', Math.round((s.t - s.stats.runStart)/60), 'tier', C.maxTier(s), 'dust', s.dust.toExponential(2), 'cp', C.costPower(s).toExponential(2), 'prod', C.production(s).toExponential(2), 'cores', s.cores, 'col', s.collapses, 'chal', s.chal); } } lastBuyT = s.t; };
   while (s.t < MAXH * 3600) {
@@ -60,7 +60,7 @@ function run(kind, seed) {
         if (s.dust >= C.costWind(s)) opts.push(() => C.buyWind(s));
         if (s.dust >= C.costDie(s)) opts.push(() => C.buyDie(s));
         G.UPGRADES.forEach(u => { if (!s.up[u.id] && C.upgradeVisible(s, u) && s.dust >= u.cost) opts.push(() => C.buyUpgrade(s, u.id)); });
-        if (C.forgeUnlocked(s) && s.moves >= 1) opts.push(() => { const di = Math.floor(R() * s.dice.length), n = s.dice[di].faces.length; return C.movePip(s, di, Math.floor(R() * n), Math.floor(R() * n)); });
+        if (s.box > 0) opts.push(() => { const r = C.openBox(s); if (r && R() < 0.5) C.equip(s, Math.floor(R() * s.dice.length), r.id); return !!r; });
         if (opts.length && R() < 0.85) { did = opts[Math.floor(R() * opts.length)](); if (did) bought(); }
       } else {
         // 개량: 싼 것부터
@@ -69,10 +69,11 @@ function run(kind, seed) {
         if (s.dust >= C.costDie(s)) { C.buyDie(s); did = true; bought(); continue; }
         // 다음 주사위를 위해 저축 (opt): 주사위 값의 20% 이하 지출만
         const save = kind === 'opt' && isFinite(C.costDie(s)) && C.costDie(s) < s.dust * 8 ? 0.25 : 1e9;
-        if (kind !== 'noforge' && C.forgeUnlocked(s) && s.moves >= 1 && (kind !== 'idle' || s.t - (s._mvT || 0) > 600)) {
-          const b = C.bestMove(s);
-          if (b && C.movePip(s, b.di, b.from, b.to)) { s._mvT = s.t; did = true; continue; }
+        // 주사위 상자: 바로 열고 좋은 순서로 끼우기 (방치형은 30분마다)
+        if (kind !== 'nodice' && s.box > 0 && (kind !== 'idle' || s.t - (s._boxT || 0) > 1800)) {
+          while (s.box > 0) C.openBox(s); C.autoEquip(s); s._boxT = s.t; did = true; continue;
         }
+        if (kind !== 'nodice' && s._eqN !== s.dice.length && Object.keys(s.coll).length) { s._eqN = s.dice.length; C.autoEquip(s); }
         const cp = C.costPower(s), cw = C.costWind(s);
         const windUseful = C.derive(s).interval === 0 || C.derive(s).interval > 0.06;
         if (windUseful && s.dust >= cw && cw <= cp * 1.5) { C.buyWind(s); did = true; bought(); continue; }
@@ -119,7 +120,8 @@ function run(kind, seed) {
     if (s.lv.wind > 0) mark('wind');
     if (s.up.lens1) mark('lens1');
     if (s.dice.length >= 3) mark('dice3');
-    if (s.forges > 0) mark('forge');
+    if ((s.stats.boxes || 0) > 0) mark('box1');
+    if ((s.stats.cons || 0) >= 5) mark('con5');
     if (C.maxTier(s) >= 4) mark('tier4');
     if (C.maxTier(s) >= 6) mark('tier6');
     if (s.dice.length >= 4) mark('dice4');
@@ -129,7 +131,7 @@ function run(kind, seed) {
     const runT = s.t - s.stats.runStart;
     if (C.canNova(s)) {
       const g = C.novaGain(s);
-      const want = s.chal ? false : kind === 'opt' ? (g >= Math.max(1, s.coresLayer * 0.6) || runT > 1800) : (kind === 'normal' || kind === 'idle' || kind === 'noforge') ? (g >= Math.max(1, s.coresLayer * 0.35) || runT > 2400) : (R() < 0.05);
+      const want = s.chal ? false : kind === 'opt' ? (g >= Math.max(1, s.coresLayer * 0.6) || runT > 1800) : (kind === 'normal' || kind === 'idle' || kind === 'nodice') ? (g >= Math.max(1, s.coresLayer * 0.35) || runT > 2400) : (R() < 0.05);
       const colWait = C.canCollapse(s) && (C.collapseGain(s) >= Math.max(1, s.singAll * (kind === 'opt' ? 0.6 : 0.4)));
       if (want && !colWait) {
         bought(); runs.push(Math.round(runT/60)+'m+'+C.novaGain(s)+(s.chal?'c':'')); C.nova(s); mark('nova1'); if (s.novas >= 2) mark('nova2'); if (s.novas >= 5) mark('nova5');
@@ -145,7 +147,7 @@ function run(kind, seed) {
     if (s._chalLast !== JSON.stringify(s.chalDone)) { s._chalLast = JSON.stringify(s.chalDone); CH.done.push((s.t / 3600).toFixed(1) + 'h:' + Object.keys(s.chalDone).map(k => k + '=' + s.chalDone[k]).join(',')); }
     if (C.canCollapse(s) && (kind === 'random' ? R() < 0.1 : (C.collapseGain(s) >= Math.max(1, s.singAll * (kind === 'opt' ? 0.6 : 0.4)) || s.t - (s._lastCol || 0) > 5400))) { s._lastCol = s.t; cols.push((s.t/3600).toFixed(1)+'h+'+C.collapseGain(s)); C.collapse(s); mark('collapse1'); if (s.collapses >= 3) mark('collapse3'); }
   }
-  return { ms, CH, maxGap, maxGapAt, runs, cols, final: { t: s.t, novas: s.novas, col: s.collapses, chal: Object.keys(s.chalDone).length, tier: C.maxTier(s), dust: s.dust } };
+  return { ms, CH, maxGap, maxGapAt, runs, cols, final: { t: s.t, cons: s.stats.cons, boxes: s.stats.boxes, dex: C.dexCount(s), coll: JSON.stringify(s.coll), novas: s.novas, col: s.collapses, chal: Object.keys(s.chalDone).length, tier: C.maxTier(s), dust: s.dust } };
 }
 
 function fmt(t) { if (t === undefined) return '   -   '; if (t < 3600) return (t / 60).toFixed(1).padStart(5) + 'm'; return (t / 3600).toFixed(2).padStart(5) + 'h'; }

@@ -84,8 +84,28 @@
     function drawBody(it) {
       var tierB = (it.b.t || it.b.tier);
       var lb = tierB >= 8 ? -1 : (Math.round(Math.atan2(CY - it.p.y, CX - it.p.x) / (Math.PI * 2) * 16) + 16) % 16;
-      var spr = G.planets.bodySprite(tierB, it.b.seed, (frame + it.b.seed) % 32, lb);
+      var cls = st.clsOf ? st.clsOf(it.s) : 1;
+      var spr = G.planets.bodySprite(tierB, it.b.seed, (frame + it.b.seed) % 32, lb, cls);
+      // 큰 천체 빛 테: 갈색 왜성 이상은 둘레에 은은한 테, 별(8단계 이상)은 도는 빛줄기
+      if (tierB >= 7) {
+        var hr = { 7: 7, 8: 8, 9: 6, 10: 6 }[tierB] + (tierB === 8 ? Math.round(Math.sin(t * 2 + it.s)) : 0);
+        var hc = cls === 2 ? 6 : (tierB >= 9 ? 18 : 10);
+        var npt = hr * 6, ph = Math.floor(t * 3) % 2;
+        for (var hi = 0; hi < npt; hi++) {
+          if ((hi + ph) % 2) continue;
+          var ha = hi / npt * Math.PI * 2;
+          gx.pset(it.p.x + Math.round(Math.cos(ha) * hr), it.p.y + Math.round(Math.sin(ha) * hr), hc);
+        }
+      }
       gx.blit(spr, it.p.x - (spr.w >> 1), it.p.y - (spr.h >> 1));
+      if (tierB === 8) {
+        var ra = Math.floor(t * 1.5 + it.s) % 2 ? Math.PI / 4 : 0, rl = (spr.w >> 1) + 3 + (Math.floor(t * 4 + it.s) % 3);
+        var rc = cls === 2 ? 19 : 4;
+        for (var rq = 0; rq < 4; rq++) {
+          var aa = ra + rq * Math.PI / 2, cxx = Math.cos(aa), syy = Math.sin(aa);
+          for (var rr = (spr.w >> 1) + 1; rr <= rl; rr++) gx.pset(it.p.x + Math.round(cxx * rr), it.p.y + Math.round(syy * rr), rr > rl - 1 ? (cls === 2 ? 16 : 3) : rc);
+        }
+      }
       it.b._x = it.p.x; it.b._y = it.p.y;
     }
     list.forEach(function (it) { if (it.p.back) drawBody(it); });
@@ -101,12 +121,14 @@
     // 단계 상승 고리
     rings.forEach(function (r) {
       var b = st.bodies[r.s]; if (!b || b._x === undefined) return;
-      var rad = Math.round(4 + (1 - r.life) * 12);
-      var col = r.life > 0.6 ? 4 : (r.life > 0.3 ? 3 : 2);
-      for (var i = 0; i < 24; i++) {
-        var a2 = i / 24 * Math.PI * 2;
-        if ((i + Math.floor(r.life * 8)) % 2) continue;
+      // 충격파 두 겹: 빠른 밝은 고리 + 느린 넓은 고리
+      var e1 = 1 - r.life, rad = Math.round(4 + e1 * 16), rad2 = Math.round(3 + e1 * e1 * 26);
+      var col = r.life > 0.6 ? 4 : (r.life > 0.3 ? 3 : 2), col2 = r.life > 0.5 ? 7 : 5;
+      var np = Math.max(24, rad * 6);
+      for (var i = 0; i < np; i++) {
+        var a2 = i / np * Math.PI * 2;
         gx.pset(b._x + Math.round(Math.cos(a2) * rad), b._y + Math.round(Math.sin(a2) * rad * 0.8), col);
+        if (i % 3 === 0) gx.pset(b._x + Math.round(Math.cos(a2) * rad2), b._y + Math.round(Math.sin(a2) * rad2 * 0.8), col2);
       }
     });
     // 빛줄기

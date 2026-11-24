@@ -18,9 +18,10 @@ G.DATA = {
   power: { cost0: 10, costK: 1.8, grow: 1.075 },  // 굴림 힘: P = (1+lv/2)·grow^lv
   wind: { cost0: 30, costK: 2.2, int0: 3.0, intK: 0.92, intMin: 0.05 },
   diceCost: { 3: 1.2e5, 4: 1.5e7, 5: 5e9, 6: 1e14 },
-  forge: { unlock: 3 },          // 눈 옮기기: 주사위 3개부터
-  moveStart: 3, moveGain: 2,     // 판 시작 옮기기 횟수, 처음 보는 천체 단계마다 +
-  maxFaceBase: 6, maxFaceOver: 9,
+  dexPer: 0.02,                  // 천체 도감 한 종마다 생산 +3% (연구로 +6%)
+  box: { odds: [0.6, 0.28, 0.1, 0.02], eventChance: 0.08, novaBox: 1, novaMinRun: 300, colBox: 3 }, // 주사위 상자 등급 확률
+  starStep: 0.3, starMax: 5,     // 특수 주사위 별: 효과 ×(1 + 0.5 × (별−1))
+  contract: { gap: 75, reroll: 60, first: 8, etaMin: 70, etaMax: 220, time: 300 }, // 관측 의뢰: 끝난 뒤 다음 의뢰까지, 다른 의뢰 받기 간격
   outerCap: 4,                   // 표준 범위 밖 궤도 희소도 상한 (특이점 연구로 8, 16)
   rareMin: 4,                    // 묶음 굴림에서도 실제로 추첨하는 희소도
   fate: { sec: 150, min: 40, max: 3, massSec: 20 }, // 운명 굴림: 약 sec초치 태엽 굴림마다 1회, 최대 max, 질량 = massSec초치 굴림
@@ -89,11 +90,11 @@ G.RESEARCH = [
   { id: 'g3', br: 0, cost: 4, eff: 'startTier', v: 2 },
   { id: 'g4', br: 0, cost: 10, eff: 'coreMass', v: 0.6 },
   { id: 'g5', br: 0, cost: 25, eff: 'tierMult', v: 0.15 },
-  { id: 'g6', br: 0, cost: 60, eff: 'overflow', v: 9 },
+  { id: 'g6', br: 0, cost: 60, eff: 'dexX', v: 2 },
   { id: 'r1', br: 1, cost: 1, eff: 'startWind', v: 6 },
   { id: 'r2', br: 1, cost: 2, eff: 'startDice', v: 3 },
   { id: 'r3', br: 1, cost: 4, eff: 'interval', v: 0.75 },
-  { id: 'r4', br: 1, cost: 10, eff: 'moveStart', v: 3 },
+  { id: 'r4', br: 1, cost: 10, eff: 'fateRate', v: 1.5 },
   { id: 'r5', br: 1, cost: 25, eff: 'align', v: 3 },
   { id: 'r6', br: 1, cost: 60, eff: 'twin', v: 0.5 },
   { id: 's1', br: 2, cost: 1, eff: 'eventFreq', v: 0.6 },
@@ -107,7 +108,7 @@ G.RESEARCH = [
 // 관측 과제
 // 관측 과제: 단계마다 궤도 목표 [[궤도, 천체 단계], ...]. 1~2단계는 초신성 구간, 3~5단계는 붕괴 뒤.
 G.CHALLENGES = [
-  { id: 'c1', rule: 'noMove', reward: 'moveStart', v: 1, req: 3, goals: [[[8, 7]], [[5, 7], [11, 7]], [[13, 9]], [[4, 9], [16, 9]], [[3, 10]]] },
+  { id: 'c1', rule: 'noManual', reward: 'fateMass', v: 0.5, req: 3, goals: [[[8, 7]], [[5, 7], [11, 7]], [[13, 9]], [[4, 9], [16, 9]], [[3, 10]]] },
   { id: 'c2', rule: 'twoDice', reward: 'perDie', v: 0.03, req: 3, goals: [[[3, 7]], [[2, 7], [10, 7]], [[11, 9]], [[1, 9], [11, 9]], [[0, 10]]] },
   { id: 'c3', rule: 'oddOnly', reward: 'oddProd', v: 1.5, req: 4, goals: [[[9, 7]], [[7, 7], [13, 7]], [[11, 9]], [[5, 9], [15, 9]], [[3, 10]]] },
   { id: 'c4', rule: 'noHarmony', reward: 'harmonyX', v: 0.25, req: 5, goals: [[[10, 7]], [[6, 7], [14, 7]], [[12, 9]], [[8, 9], [16, 9]], [[4, 10]]] },
@@ -129,6 +130,26 @@ G.SRESEARCH = [
   { id: 'q10', cost: 55, eff: 'tierMult', v: 0.25, outer: 16 },
   { id: 'q11', cost: 89, eff: 'autoCollapse', v: 1 },
   { id: 'q12', cost: 1500, eff: 'ending', v: 1 }
+];
+
+// 특수 주사위 16종. rar: 0 보통, 1 드묾, 2 귀함, 3 전설. v: 1성 효과
+G.SPDICE = [
+  { id: 'copper', rar: 0, eff: 'mass', v: 0.15 },
+  { id: 'ivory', rar: 0, eff: 'interval', v: 0.04 },
+  { id: 'obsid', rar: 0, eff: 'align', v: 0.3 },
+  { id: 'coral', rar: 0, eff: 'oddMass', v: 0.3 },
+  { id: 'lapis', rar: 0, eff: 'evenMass', v: 0.3 },
+  { id: 'hour', rar: 0, eff: 'fate', v: 0.2 },
+  { id: 'glass', rar: 1, eff: 'rareMass', v: 0.4 },
+  { id: 'silver', rar: 1, eff: 'topFace', v: 1 },
+  { id: 'amber', rar: 1, eff: 'event', v: 0.4 },
+  { id: 'meteor', rar: 1, eff: 'threshold', v: 0.05 },
+  { id: 'pearl', rar: 1, eff: 'harmony', v: 0.06 },
+  { id: 'gold', rar: 2, eff: 'prod', v: 0.35 },
+  { id: 'starglass', rar: 2, eff: 'alignFate', v: 0.15 },
+  { id: 'comet', rar: 2, eff: 'twin', v: 0.06 },
+  { id: 'nebula', rar: 3, eff: 'massX', v: 0.5 },
+  { id: 'hole', rar: 3, eff: 'oneFace', v: 4 }
 ];
 
 G.EVENTS = ['comet', 'shower', 'flare', 'rogue', 'align', 'pulsar', 'meteor', 'moons'];

@@ -134,5 +134,54 @@
     if (U.button('cy', x + 12, y + h - 30, 120, 20, A.confirmYes || G.T('m_yes'), { font: 'g11b' })) { A.overlay = null; var f = A.confirmFn; A.confirmNo = null; A.confirmNoFn = null; if (f) f(); }
     else if (U.button('cn', x + w - 112, y + h - 30, 100, 20, A.confirmNo || G.T('m_no'), { font: 'g11b' }) || (U.inp.keysPressed.Escape && !A.confirmNoFn)) { A.overlay = null; var nf = A.confirmNoFn; A.confirmNo = null; A.confirmNoFn = null; if (nf) nf(); }
   }
-  G.overlays = { settings: settings, away: away, confirm: confirm, dim: dim };
+  // ── 주사위 상자 열기 ──────────────────────────
+  var RAR_COL = [15, 19, 7, 3], RAR_HI = [4, 4, 8, 4];
+  var boxSnd = 0;
+  function boxOpen(s) {
+    dim();
+    var r = A.boxRes; if (!r) { A.overlay = null; return; }
+    A.boxT = (A.boxT || 0) + (G.app.dt || 1 / 60);
+    var t = A.boxT, cx = 320, cy = 150, reduce = s.settings.reduce;
+    var sp = G.core.spById(r.id), col = RAR_COL[r.rar], hi = RAR_HI[r.rar];
+    if (t < 0.75) {
+      // 흔들리는 상자
+      var shk = reduce ? 0 : Math.round(Math.sin(t * 50) * (1 + t * 3));
+      G.gfx.blitScaled(G.spr.box, cx - 24 + shk, cy - 20, 4);
+      if (!reduce && Math.floor(t * 12) % 2) { G.gfx.pset(cx - 30 + Math.round(Math.random() * 60), cy - 26 + Math.round(Math.random() * 10), r.rar >= 2 ? col : 4); }
+      boxSnd = 0;
+      return;
+    }
+    if (!boxSnd) { boxSnd = 1; G.audio.play(r.rar >= 2 ? 'align' : 'unlock'); if (!reduce) { G.orrery.burst(cx, cy, 14 + r.rar * 10, [hi, col, 4], 50 + r.rar * 15); if (r.rar >= 3) A.shake = 0.4; } if (r.rar >= 2) A.edge = { t: 0.8, d: 0.8, c: [RAR_HI[r.rar], RAR_COL[r.rar]] }; }
+    // 회전하는 빛줄기 (등급 색)
+    var k = Math.min(1, (t - 0.75) / 0.3), a0 = t * 0.5, nr = 8 + r.rar * 4;
+    for (var i = 0; i < nr; i++) {
+      var a = a0 + i / nr * Math.PI * 2, L = (40 + r.rar * 14) * k;
+      for (var w = -1; w <= 1; w++) {
+        var ox = Math.round(-Math.sin(a) * w), oy = Math.round(Math.cos(a) * w * 0.7);
+        G.gfx.line(cx + Math.round(Math.cos(a) * 16) + ox, cy + Math.round(Math.sin(a) * 12) + oy, cx + Math.round(Math.cos(a) * (16 + L)) + ox, cy + Math.round(Math.sin(a) * (12 + L * 0.7)) + oy, w === 0 ? hi : col, i % 2 ? 2 : 0);
+      }
+    }
+    // 열린 상자와 튀어 오른 주사위
+    G.gfx.blitScaled(G.spr.box, cx - 24, cy + 18, 4);
+    var up = Math.min(1, (t - 0.75) / 0.35), bounce = Math.round(Math.abs(Math.sin(up * Math.PI)) * 10 * (1 - up));
+    var ic = G.dieIcon('d6', 'sp_' + r.id, 2.0);
+    G.gfx.blit(ic, cx - (ic.w >> 1), cy - 4 - (ic.h >> 1) - Math.round(up * 26) - bounce);
+    if (r.rar >= 3 && !reduce) { var tw = Math.floor(t * 8) % 4; G.gfx.blit(G.spr.twinkle[tw % 3], cx + 20, cy - 52); G.gfx.blit(G.spr.twinkle[(tw + 1) % 3], cx - 28, cy - 30); }
+    if (t < 1.1) return;
+    // 이름·등급·효과
+    var ty = 222;
+    G.nine(G.spr.panel, 170, ty - 6, 300, 104);
+    F.drawCenter(r.dust ? G.T('dup_dust', G.fmt(r.dust)) : (r.isNew ? G.T('new_die') : G.T('star_up', r.lv)), cx, ty, r.isNew ? 3 : 15, 'g9');
+    F.drawCenter(G.nm('sp', r.id), cx, ty + 11, col, 'g11b', 12);
+    F.drawCenter(G.T('rar' + r.rar), cx, ty + 27, col, 'g9');
+    G.drawStars(cx - 14, ty + 39, r.lv, G.DATA.starMax);
+    F.drawCenter(G.spText(sp.eff, G.core.spVal(s, r.id)), cx, ty + 49, 8, 'g9');
+    if (r.auto) F.drawCenter(G.T('equipped_in', s.dice.map(function (d) { return d.sp; }).indexOf(r.id) + 1), cx, ty + 60, 15, 'g9');
+    var again = s.box > 0;
+    if (U.button('boxok', again ? 186 : 260, ty + 72, 120, 20, G.T('b_box_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) { A.overlay = null; A.boxRes = null; }
+    else if (again && U.button('boxag', 334, ty + 72, 120, 20, G.T('b_open') + ' ' + s.box, { font: 'g11b', sfx: 'tap' })) {
+      var res = G.core.openBox(s); if (res) { A.boxRes = res; A.boxT = 0; A.selSp = res.id; var d = G.core.derive(s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; })); }
+    }
+  }
+  G.overlays = { settings: settings, away: away, confirm: confirm, dim: dim, boxOpen: boxOpen };
 })();

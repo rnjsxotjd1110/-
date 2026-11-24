@@ -96,7 +96,24 @@
     brass: { body: [3, 2, 11, 18, 21], pip: [12, 12], edge: 4, outline: 12 },
     clay: { body: [8, 7, 5, 10, 21], pip: [12, 23], edge: 4, outline: 12 },
     teal: { body: [19, 16, 6, 0, 0], pip: [4, 8], edge: 4, outline: 12 },
-    ember: { body: [7, 17, 20, 22, 23], pip: [4, 8], edge: 8, outline: 12 }
+    ember: { body: [7, 17, 20, 22, 23], pip: [4, 8], edge: 8, outline: 12 },
+    // 특수 주사위 재질
+    sp_copper: { body: [7, 5, 10, 21, 23], pip: [4, 8], edge: 8, outline: 12 },
+    sp_ivory: { body: [4, 8, 9, 14, 13], pip: [11, 18], edge: 4, outline: 12 },
+    sp_obsid: { body: [15, 14, 13, 12, 12], pip: [19, 16], edge: 15, outline: 23 },
+    sp_coral: { body: [8, 7, 17, 20, 22], pip: [4, 8], edge: 4, outline: 12 },
+    sp_lapis: { body: [19, 16, 6, 0, 12], pip: [3, 2], edge: 4, outline: 12 },
+    sp_hour: { body: [4, 8, 15, 14, 13], pip: [10, 21], edge: 4, outline: 12 },
+    sp_glass: { body: [4, 19, 16, 6, 0], pip: [3, 2], edge: 4, outline: 12 },
+    sp_silver: { body: [4, 15, 14, 13, 12], pip: [12, 13], edge: 4, outline: 12 },
+    sp_amber: { body: [3, 2, 5, 10, 21], pip: [4, 8], edge: 4, outline: 12 },
+    sp_meteor: { body: [14, 13, 21, 12, 12], pip: [7, 17], edge: 15, outline: 23 },
+    sp_pearl: { body: [4, 4, 8, 15, 14], pip: [16, 6], edge: 4, outline: 12 },
+    sp_gold: { body: [4, 3, 2, 11, 18], pip: [12, 21], edge: 4, outline: 12 },
+    sp_starglass: { body: [19, 4, 16, 6, 0], pip: [3, 4], edge: 4, outline: 12 },
+    sp_comet: { body: [8, 4, 19, 16, 6], pip: [7, 17], edge: 4, outline: 12 },
+    sp_nebula: { body: [17, 20, 22, 23, 23], pip: [19, 4], edge: 7, outline: 12 },
+    sp_hole: { body: [13, 12, 12, 12, 12], pip: [3, 7], edge: 14, outline: 3 }
   };
 
   function shadeIdx(l) { // 빛 세기 -> 0..4
