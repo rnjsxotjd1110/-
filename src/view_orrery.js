@@ -31,7 +31,7 @@
     for (var i = 0; i < n; i++) {
       var a = i / n * Math.PI * 2;
       var x = Math.round(CX + Math.cos(a) * o.rx), y = Math.round(CY + Math.sin(a) * o.ry);
-      var key = x + ',' + y;
+      var key = x * 4096 + y;
       if (key === last) continue;
       last = key;
       if (sparse ? ((i % 3) === 0) : (((i + dashPh) % 4) < 2)) G.gfx.pset(x, y, col);

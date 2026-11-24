@@ -547,17 +547,27 @@
   S.btnTeal = bevelFrame(2, 12, [12, 19, 16], [12, 6, 16], 16, null);
 
   // 9-slice 그리기 (가운데 채움 색이 13이면 가죽 결 무늬를 얹음)
+  // 같은 크기는 한 번만 만들어 두고 복사한다 (매 프레임 픽셀 계산 방지)
+  var nineCache = new Map(), nineN = 0, nineId = 0;
   function nine(s, x, y, w, h) {
-    var c = s.cut, n = s.w, gx = G.gfx;
-    var mid = n - 2 * c;
-    for (var j = 0; j < h; j++) {
-      var sy = j < c ? j : (j >= h - c ? n - (h - j) : c + ((j - c) % mid));
-      for (var i = 0; i < w; i++) {
-        var sx = i < c ? i : (i >= w - c ? n - (w - i) : c + ((i - c) % mid));
-        var v = s.d[sy * n + sx];
-        if (v !== 255) gx.pset(x + i, y + j, v);
+    w |= 0; h |= 0; if (w <= 0 || h <= 0) return;
+    if (!s._nid) s._nid = ++nineId;
+    var key = s._nid * 1e8 + w * 1e4 + h;
+    var spr = nineCache.get(key);
+    if (!spr) {
+      if (nineN > 600) { nineCache.clear(); nineN = 0; }
+      spr = G.gfx.makeSprite(w, h);
+      var c = s.cut, n = s.w, mid = n - 2 * c;
+      for (var j = 0; j < h; j++) {
+        var sy = j < c ? j : (j >= h - c ? n - (h - j) : c + ((j - c) % mid));
+        for (var i = 0; i < w; i++) {
+          var sx = i < c ? i : (i >= w - c ? n - (w - i) : c + ((i - c) % mid));
+          spr.d[j * w + i] = s.d[sy * n + sx];
+        }
       }
+      nineCache.set(key, spr); nineN++;
     }
+    G.gfx.blit(spr, x, y);
   }
 
   // 새겨진 큰 글자: 원본 글자 비트 하나를 k×k 블록으로, 블록 안에 1px 베벨을 찍는다.

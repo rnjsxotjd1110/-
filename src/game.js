@@ -178,10 +178,20 @@
 
   // ── 메인 루프 ───────────────────────────────────
   var last = 0, saveT = 0;
+  var lastDraw = 0;
   function frame(now) {
+    // 주사율이 높은 모니터(120·144Hz)에서도 초당 60번까지만 그린다
+    // 한 프레임 계산이 평균 10ms를 넘는 느린 컴퓨터에서는 초당 30번으로 낮춘다
+    if (now - lastDraw < (slowPc ? 31 : 15) && lastDraw) { requestAnimationFrame(frame); return; }
+    lastDraw = now;
+    var fs0 = performance.now();
     try { frameInner(now); } catch (e) { console.error(e && e.stack || e); try { G.gfx.resetClip(); G.gfx.setOffset(0, 0); G.ui.block(false); G.ui.endFrame(); } catch (e2) { } }
+    var cost = performance.now() - fs0;
+    costAvg = costAvg * 0.97 + Math.min(100, cost) * 0.03;
+    if (!slowPc && costAvg > 10) slowPc = true; else if (slowPc && costAvg < 4) slowPc = false;
     requestAnimationFrame(frame);
   }
+  var slowPc = false, costAvg = 0;
   function frameInner(now) {
     var raw = (now - last) / 1000 || 0;
     var dt = Math.min(0.1, raw); last = now;

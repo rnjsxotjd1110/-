@@ -46,13 +46,18 @@
   }
   // 스프라이트: {w,h,d:Uint8Array(255=투명)}
   function blit(s, x, y, flipX, map) {
-    x |= 0; y |= 0;
-    for (var j = 0; j < s.h; j++) {
-      for (var i = 0; i < s.w; i++) {
-        var c = s.d[j * s.w + (flipX ? s.w - 1 - i : i)];
+    x = ((x | 0) + ox) | 0; y = ((y | 0) + oy) | 0;
+    var sw = s.w, sd = s.d;
+    var ja = Math.max(0, clip.y0 - y), jb = Math.min(s.h, clip.y1 - y);
+    var ia = Math.max(0, clip.x0 - x), ib = Math.min(sw, clip.x1 - x);
+    if (ia >= ib || ja >= jb) return;
+    for (var j = ja; j < jb; j++) {
+      var so = j * sw, o = (y + j) * W + x;
+      for (var i = ia; i < ib; i++) {
+        var c = sd[so + (flipX ? sw - 1 - i : i)];
         if (c === 255) continue;
         if (map) { c = map[c]; if (c === undefined || c === 255) continue; }
-        pset(x + i, y + j, c);
+        buf[o + i] = c;
       }
     }
   }

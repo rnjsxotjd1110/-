@@ -109,7 +109,7 @@
 
   // die: {shape:'d6', faces:[...], mat:'ivory'}, q: 회전, size: 배율(1=기본)
   // 1) 2×2 과표본으로 윤곽·면을 구하고 2) 눈은 투영 위치에 정해진 픽셀 모양으로 찍는다.
-  function render(die, q, size, highlightFace) {
+  function render(die, q, size, highlightFace, fast) {
     var sh = SHAPES[die.shape];
     var k = sh.k * (size || 1);
     var R = Math.ceil(k * 1.9) + 2;
@@ -122,26 +122,32 @@
     var wn = planes.map(function (p) { return qrot(q, p.n); });
     var bev = 0.1;
     var faceOf = new Int16Array(w * h).fill(-1);
+    // 결과는 바깥 변수(cFi, cF2, cGap)에 담는다 — 픽셀마다 객체를 만들지 않음
+    var cFi = -1, cF2 = -1, cGap = 0;
+    var pn = planes.map(function (p) { return p.n; }), pdv = planes.map(function (p) { return p.d; });
+    var den = pn.map(function (n) { return n[0] * bD[0] + n[1] * bD[1] + n[2] * bD[2]; });
     function cast(sx, sy) {
       var O0 = bR[0] * sx - bU[0] * sy - bD[0] * 4, O1 = bR[1] * sx - bU[1] * sy - bD[1] * 4, O2 = bR[2] * sx - bU[2] * sy - bD[2] * 4;
       var tin = -1e9, tout = 1e9, fi = -1, t2 = -1e9, f2 = -1;
       for (var i = 0; i < np; i++) {
-        var p = planes[i], n = p.n;
-        var den = n[0] * bD[0] + n[1] * bD[1] + n[2] * bD[2];
-        var num = p.d - (n[0] * O0 + n[1] * O1 + n[2] * O2);
-        if (Math.abs(den) < 1e-9) { if (num < 0) return null; continue; }
-        var t = num / den;
-        if (den < 0) { if (t > tin) { t2 = tin; f2 = fi; tin = t; fi = i; } else if (t > t2) { t2 = t; f2 = i; } }
-        else if (t < tout) tout = t;
+        var n = pn[i], dn = den[i];
+        var num = pdv[i] - (n[0] * O0 + n[1] * O1 + n[2] * O2);
+        if (dn > -1e-9 && dn < 1e-9) { if (num < 0) return false; continue; }
+        var t = num / dn;
+        if (dn < 0) { if (t > tin) { t2 = tin; f2 = fi; tin = t; fi = i; } else if (t > t2) { t2 = t; f2 = i; } }
+        else if (t < tout) { tout = t; if (tout < tin) return false; }
       }
-      if (tin > tout || fi < 0) return null;
-      return { fi: fi, f2: f2, gap: tin - t2, y: (O1 + bD[1] * tin) };
+      if (tin > tout || fi < 0) return false;
+      cFi = fi; cF2 = f2; cGap = tin - t2;
+      return true;
     }
     for (var py = 0; py < h; py++) {
       for (var px = 0; px < w; px++) {
         // 2×2 과표본: 2개 이상 맞으면 칠함
         var hits = 0;
-        for (var ss = 0; ss < 4; ss++) {
+        // 구르는 중(fast)에는 가운데 한 점만 본다 — 움직임 속에서는 차이가 보이지 않음
+        if (fast) hits = cast((px - R) / k, (py - R) / k) ? 4 : 0;
+        else for (var ss = 0; ss < 4; ss++) {
           var hx = (px - R + (ss & 1 ? 0.25 : -0.25)) / k, hy = (py - R + (ss & 2 ? 0.25 : -0.25)) / k;
           if (cast(hx, hy)) hits++;
         }
@@ -149,6 +155,7 @@
         var c0 = cast((px - R) / k, (py - R) / k);
         if (!c0) c0 = cast((px - R + 0.25) / k, (py - R + 0.25) / k) || cast((px - R - 0.25) / k, (py - R - 0.25) / k);
         if (!c0) continue;
+        c0 = { fi: cFi, f2: cF2, gap: cGap };
         var n = wn[c0.fi];
         var l = dot(n, LT);
         var si = shadeIdx(l);
@@ -160,7 +167,6 @@
           c = le > 0.72 ? mat.edge : mat.body[Math.min(4, Math.max(si, shadeIdx(le)) + 1)];
         } else {
           // 바닥 쪽 접촉 음영 (세계 좌표 y가 낮을수록 한 단계 어둡게)
-          var wy = qrot(q, [0, 0, 0])[1];
           c = mat.body[si];
           faceOf[py * w + px] = c0.fi;
         }

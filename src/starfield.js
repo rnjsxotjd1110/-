@@ -42,6 +42,7 @@
     for (var c2 = 0; c2 < 14 + stage * 3; c2++) near.push({ x: R() * BW, y: R() * BH, p: R() * 6.28, sp: 0.6 + R() * 1.2 });
     if (stage >= 2) for (var g = 0; g < stage - 1; g++) galaxies.push({ x: 60 + R() * (BW - 120), y: 40 + R() * (BH - 80), f: R() < 0.5 });
     nebStage = stage;
+    regionCache = {}; regionN = 0;
   }
 
   // 먼 은하 (직접 찍은 9x5 나선)
@@ -60,6 +61,7 @@
 
   // camX, camY: 카메라 흔들림(작게), t: 시간(초)
   var nebSeed = 0;
+  var regionCache = {}, regionN = 0;
   function draw(stage, t, camX, camY, x0, y0, w, h, seedOff) {
     seedOff = seedOff || 0;
     if (stage !== nebStage || seedOff !== nebSeed) { nebSeed = seedOff; build(stage); }
@@ -68,20 +70,29 @@
     var ox = Math.floor(40 + camX * 0.15 + Math.sin(t * 0.004) * 38) % BW, oy = Math.floor(30 + camY * 0.15) % BH;
     var hole = arguments[9];
     var DARK = [0, 0, 11, 2, 8, 10, 0, 5, 9, 10, 21, 18, 12, 12, 13, 14, 6, 20, 21, 16, 22, 23, 23, 23];
-    for (var y = y0; y < y0 + h; y++) {
-      var sy = ((y + oy) % BH + BH) % BH;
-      var row = sy * BW;
-      var o = y * W;
-      for (var x = x0; x < x0 + w; x++) {
-        var sx = ((x + ox) % BW + BW) % BW;
-        var c = neb[row + sx];
-        if (hole) {
-          var ex = (x - hole[0]) / hole[2], ey = (y - hole[1]) / hole[3], e = ex * ex + ey * ey;
-          if (e < 1 && !(e > 0.9 && ((x + y) & 1))) { c = DARK[c]; if (e < 0.45 && !(e > 0.4 && ((x + y) & 1))) c = DARK[c]; }
+    // 성운은 위치가 1px 바뀔 때만 다시 만들고, 평소에는 줄 단위로 복사한다
+    var key = ox + ',' + oy + ',' + x0 + ',' + y0 + ',' + w + ',' + h + ',' + (hole ? hole.join(',') : '') + ',' + nebStage + ',' + nebSeed;
+    var ent = regionCache[key];
+    if (!ent) {
+      if (++regionN > 12) { regionCache = {}; regionN = 1; }
+      var rb = new Uint8Array(w * h);
+      for (var y = y0; y < y0 + h; y++) {
+        var sy = ((y + oy) % BH + BH) % BH;
+        var row = sy * BW;
+        var o = (y - y0) * w - x0;
+        for (var x = x0; x < x0 + w; x++) {
+          var sx = ((x + ox) % BW + BW) % BW;
+          var c = neb[row + sx];
+          if (hole) {
+            var ex = (x - hole[0]) / hole[2], ey = (y - hole[1]) / hole[3], e = ex * ex + ey * ey;
+            if (e < 1 && !(e > 0.9 && ((x + y) & 1))) { c = DARK[c]; if (e < 0.45 && !(e > 0.4 && ((x + y) & 1))) c = DARK[c]; }
+          }
+          rb[o + x] = c;
         }
-        buf[o + x] = c;
       }
+      ent = regionCache[key] = rb;
     }
+    for (var yy = 0; yy < h; yy++) { var ty = y0 + yy; if (ty < 0 || ty >= G.gfx.H) continue; buf.set(ent.subarray(yy * w, yy * w + w), ty * W + x0); }
     G.gfx.setClip(x0, y0, w, h);
     function layer(arr, f, fn) {
       var dx = camX * f + drift * f, dy = camY * f;

@@ -6,6 +6,7 @@
   var dice = [];    // 화면 주사위 상태
   var shakeT = 0, leverT = 0;
   var rollId = 0;
+  var feltSpr = null;
 
   function ease(t) { return 1 - Math.pow(1 - t, 3); }
 
@@ -70,11 +71,15 @@
     // 펠트 바닥 (홈 파인 칸)
     G.nine(G.spr.inset, IN.x - 2, IN.y - 2, IN.w + 4, IN.h + 4);
     // 펠트: 안쪽 가장자리 그늘 + 성긴 직물 결
-    for (var y = IN.y; y < IN.y + IN.h; y++) for (var x = IN.x; x < IN.x + IN.w; x++) {
-      var e = Math.min(x - IN.x, y - IN.y);
-      if (e < 3 && (e < 2 || ((x + y) & 1))) gx.pset(x, y, 23);
-      else if (((x + 2 * y) % 9 === 0) && ((y % 3) === 0)) gx.pset(x, y, 23);
+    if (!feltSpr) {
+      feltSpr = gx.makeSprite(IN.w, IN.h);
+      for (var y = 0; y < IN.h; y++) for (var x = 0; x < IN.w; x++) {
+        var X = x + IN.x, Y = y + IN.y, e = Math.min(x, y);
+        if (e < 3 && (e < 2 || ((X + Y) & 1))) feltSpr.d[y * IN.w + x] = 23;
+        else if (((X + 2 * Y) % 9 === 0) && ((Y % 3) === 0)) feltSpr.d[y * IN.w + x] = 23;
+      }
     }
+    gx.blit(feltSpr, IN.x, IN.y);
     var sh = shakeT > 0 && !opts.reduce ? 1 : 0;
     gx.setClip(IN.x, IN.y, IN.w, IN.h);
     var dsz = dice.length > 5 ? 1.45 : 1.75;
@@ -88,7 +93,10 @@
     });
     dice.forEach(function (d, i) {
       var p = diePose(d); if (!p.vis) return;
-      var spr = G.dice3d.render(d.spec, p.q, dsz * (d.spec.shape === 'd12' ? 0.95 : 1), d.spec.shape === 'd4' ? d.face : -1);
+      // 멈춘 주사위는 한 번 그린 그림을 다시 쓴다
+      var key = d.landed ? dsz + '|' + d.spec.shape + '|' + d.spec.mat + '|' + d.spec.faces.join(',') : null;
+      var spr = key && d._key === key ? d._spr : G.dice3d.render(d.spec, p.q, dsz * (d.spec.shape === 'd12' ? 0.95 : 1), d.spec.shape === 'd4' ? d.face : -1, !d.landed);
+      if (key) { d._key = key; d._spr = spr; }
       d._sx = p.x; d._sy = p.y - p.hop;
       gx.blit(spr, p.x - spr.R, p.y - spr.R - p.hop + sh);
     });
