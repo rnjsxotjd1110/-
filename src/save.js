@@ -79,7 +79,7 @@
     s.last = Array.isArray(s.last) ? s.last.filter(function (x) { return isFinite(+x); }).slice(0, 8).map(Number) : [];
     // 설정
     var se = s.settings || {};
-    s.settings = { sfx: num(se.sfx, 0, 1, 0.7), bgm: num(se.bgm, 0, 1, 0.5), muted: se.muted !== false, notation: ['ko', 'en', 'sci', 'eng'].indexOf(se.notation) >= 0 ? se.notation : 'ko', reduce: !!se.reduce, lang: se.lang === 'en' ? 'en' : 'ko', autoNova: !!se.autoNova, autoCollapse: !!se.autoCollapse };
+    s.settings = { sfx: num(se.sfx, 0, 1, 0.7), bgm: num(se.bgm, 0, 1, 0.5), muted: se.muted !== false, notation: ['ko', 'en', 'sci', 'eng'].indexOf(se.notation) >= 0 ? se.notation : 'ko', reduce: !!se.reduce, lang: se.lang === 'en' ? 'en' : 'ko', autoNova: !!se.autoNova, autoNovaPct: [10, 25, 50, 100].indexOf(+se.autoNovaPct) >= 0 ? +se.autoNovaPct : 25, autoCollapse: !!se.autoCollapse };
     s.seenTabs = (s.seenTabs && typeof s.seenTabs === 'object' && !Array.isArray(s.seenTabs)) ? s.seenTabs : { machine: 1, rec: 1, n_upg: 1, n_dice: 1, n_nova: 1, n_col: 1, n_chal: 1 };
     s.layerStart = num(s.layerStart, 0, s.t, 0);
     s.ended = !!s.ended && !!s.sres.q12;

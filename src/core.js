@@ -611,7 +611,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     return Math.pow(g / (D.coreGain.k * d.coreMult), 1 / D.coreGain.exp) * D.coreGain.div * thK;
   }
   // 자동 초신성 기준: 얻을 별핵이 지난 붕괴 뒤 모은 별핵의 25% 이상 (최소 1)
-  function autoNovaNeed(s) { return Math.max(1, Math.floor(s.coresLayer * D.autoNovaFrac)); }
+  function autoNovaNeed(s) { return Math.max(1, Math.floor(s.coresLayer * (s.settings.autoNovaPct || D.autoNovaFrac * 100) / 100)); }
   function resetRun(s) {
     var oldDice = s.dice;
     s.dust = 0; s.dustRun = 0; s.bodies = {}; s.up = {}; s.autoT = 0;
