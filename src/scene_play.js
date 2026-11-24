@@ -51,17 +51,19 @@
     gx.blit(G.spr.icDust, 5, 4);
     if (U.hitArea('dusttip', 2, 2, 140, 16).over) U.tip([{ t: G.T('tip_dust'), f: 'g11b', c: 12 }], 10, 10);
     var dl = F.draw(G.T('dust_lbl'), 16, 4, 8, 'g9', 12);
-    var w = F.draw(G.fmt(s.dust), 20 + dl, 3, 3, 'g11b', 12) + dl + 3;
+    // 숫자 자리 폭을 고정: 자릿수가 바뀌어도 뒤의 글자가 움직이지 않게
+    var DUST_W = 70, RATE_W = 76, VAL_W = 38;
+    F.draw(G.fmt(s.dust), 20 + dl, 3, 3, 'g11b', 12);
     var rate = C.production(s);
-    F.draw('+' + G.fmt(rate, true) + G.T('per_sec'), 21 + w, 4, 8, 'g9', 12);
-    var x = Math.max(150, 21 + w + F.measure('+' + G.fmt(rate, true) + G.T('per_sec'), 'g9') + 12);
+    F.draw('+' + G.fmt(rate, true) + G.T('per_sec'), 20 + dl + DUST_W, 4, 8, 'g9', 12);
+    var x = 20 + dl + DUST_W + RATE_W;
     // 재화: 아이콘 + 이름 + 값. 마우스를 올리면 얻는 곳·쓰는 곳
     function cur(icon, label, val, col, tip, key, onClick) {
       var x0 = x;
       gx.blit(icon, x, icon.h > 9 ? 5 : 4);
       var lw = F.draw(label, x + icon.w + 3, 4, 8, 'g9', 12);
-      var vw = F.draw(G.fmt(val), x + icon.w + 5 + lw, 3, col, 'g11b', 12);
-      x += icon.w + 5 + lw + vw + 12;
+      F.draw(G.fmt(val), x + icon.w + 5 + lw, 3, col, 'g11b', 12);
+      x += icon.w + 5 + lw + VAL_W;
       var h = U.hitArea('cur' + key, x0 - 2, 2, x - x0, 16);
       if (h.over) U.tip([{ t: label + ' ' + G.fmt(val), f: 'g11b', c: 12 }, { t: tip, c: 13 }], x0, 10);
       if (h.clicked && onClick) onClick();
@@ -71,12 +73,11 @@
     if (s.box > 0 || (s.stats.boxes || 0) > 0) cur(G.spr.box, G.T('cur_box'), s.box, s.box > 0 ? 4 : 15, G.T('tip_box'), 'b', function () { A.tab = 'dice'; A.seenTabs.dice = 1; });
     // 버프
     var B = s.ev.buffs, bx = Math.max(x, 300), d = C.derive(s);
-    if (x > 300) bx = x;
     var hm = C.harmony(s, d);
-    if (hm > 1.005) { var hw = F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 8, 'g9', 12); var hh = U.hitArea('harm', bx, 2, hw, 16); if (hh.over) U.tip([{ t: G.T('harmony', hm.toFixed(2)), f: 'g11b', c: 12 }, { t: G.T('tip_harmony'), c: 13 }, { t: G.effText('harmony', C.derive(s).harmonyPer), c: 13 }], bx, 10); bx += hw + 10; }
+    if (hm > 1.005) { var hw = F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 8, 'g9', 12); var hh = U.hitArea('harm', bx, 2, hw, 16); if (hh.over) U.tip([{ t: G.T('harmony', hm.toFixed(2)), f: 'g11b', c: 12 }, { t: G.T('tip_harmony'), c: 13 }, { t: G.effText('harmony', C.derive(s).harmonyPer), c: 13 }], bx, 10); bx += Math.max(hw, 66) + 10; }
     var hidden = 0;
-    [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0 && bx >= 470) hidden++; if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12) + 8; });
-    [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0 && bx >= 470) hidden++; if (b[1] > 0 && bx < 470) bx += F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12) + 8; });
+    [['flare', B.flare], ['pulsar', B.pulsar], ['rogue', B.rogue]].forEach(function (b) { if (b[1] > 0 && bx >= 470) hidden++; if (b[1] > 0 && bx < 470) bx += Math.max(F.draw(G.T('buff_' + b[0]) + ' ' + Math.ceil(b[1]) + (G.getLang() === 'en' ? 's' : '초'), bx, 4, 7, 'g9', 12), 56) + 8; });
+    [['shower', B.shower], ['align', B.align], ['moons', B.moons]].forEach(function (b) { if (b[1] > 0 && bx >= 470) hidden++; if (b[1] > 0 && bx < 470) bx += Math.max(F.draw(G.T('buff_' + b[0], Math.ceil(b[1])), bx, 4, 7, 'g9', 12), 56) + 8; });
     if (hidden) F.draw('+' + hidden, bx, 4, 7, 'g9', 12);
     if (s.chal) F.drawRight(G.nm('chal', s.chal), 592, 4, 17, 'g9', 12);
     // 소리, 설정
