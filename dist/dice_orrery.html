@@ -4055,7 +4055,9 @@ if (typeof module !== 'undefined') module.exports = G;
   };
   function updCut(dt) {
     var c = A.cut; if (!c) return;
-    c.t += dt;
+    // 연출을 빠르게 (초신성 약 1.9초, 붕괴 약 2.4초). 결과가 적용된 뒤에는 클릭·스페이스로 바로 넘김
+    c.t += dt * (c.kind === 'nova' ? 1.8 : 1.7);
+    if (c.done && c.t > (c.kind === 'nova' ? 1.4 : 2.0) && (G.ui.inp.released || G.ui.inp.keysPressed.Space)) { A.cut = null; G.ui.inp.released = false; G.ui.inp.keysPressed.Space = false; return; }
     var mid = c.kind === 'nova' ? 1.1 : 1.6;
     if (!c.done && c.t >= mid) {
       c.done = true;
