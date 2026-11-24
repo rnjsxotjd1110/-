@@ -497,8 +497,17 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var m = Infinity; g.forEach(function (q) { var b = s.bodies[q[0]]; if (!(b && b.t >= q[1])) m = Math.min(m, q[0]); });
     return m;
   }
-  // 과제 중 주사위 상한: 목표 궤도 번호의 절반 (주사위가 많으면 작은 합이 거의 안 나와서 못 깸)
-  function chalDiceCap(s) { var m = chalMinOrbit(s); return isFinite(m) ? Math.max(2, Math.floor((m + 1) / 2)) : Infinity; }
+  // 과제 중 주사위 상한: 목표 궤도가 합의 평균 근처에 오는 개수 (면 수에 맞춰 계산)
+  //  - 가장 작은 목표 ÷ 주사위 하나 평균(면 수+1)/2 → 반올림
+  //  - 가장 큰 목표가 나올 수 있게 큰 목표 ÷ 면 수 → 올림 이상
+  function chalDiceCap(s) {
+    var g = s.chal ? chalGoal(s, s.chal) : null; if (!g) return Infinity;
+    var lo = Infinity, hi = 0;
+    g.forEach(function (q) { var b = s.bodies[q[0]]; if (!(b && b.t >= q[1])) { lo = Math.min(lo, q[0]); hi = Math.max(hi, q[0]); } });
+    if (!isFinite(lo)) return Infinity;
+    var f = SHAPE_FACES[dieShape(s)];
+    return Math.max(2, Math.ceil(hi / f), Math.round(lo / ((f + 1) / 2)));
+  }
   function costDie(s) {
     var n = s.dice.length + 1;
     if (n > maxDice(s)) return Infinity;
