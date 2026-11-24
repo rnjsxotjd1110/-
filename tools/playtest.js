@@ -100,8 +100,8 @@ const path = require('path');
   const ch = await page.evaluate(() => { const s = G.app.s, C = G.core; s.novas = 3; C.startChallenge(s, 'c1'); const g = C.chalGoal(s, 'c1'); g.forEach(q => { s.bodies[q[0]] = { m: 1e12, t: q[1], seed: 1, a0: 0 }; }); C.tick(s, 0.1, {}); const r = C.chalStage(s, 'c1') === 1 && !s.chal; s.novas = 0; return r; });
   ok(ch, '관측 과제 1단계 완료');
   // 과제 중에는 목표 궤도를 막는 주사위를 사지 않음 (자동 구매 포함)
-  const cb = await page.evaluate(() => { const s = G.app.s, C = G.core; const keep = JSON.stringify(s); s.novas = 10; s.collapses = 1; s.chalDone = { c5: 4 }; s.chal = null; C.startChallenge(s, 'c5'); s.dust = 1e30; s.research.s5 = 1; C.tick(s, 0.1, {}); const r = s.dice.length === Math.min(3, C.chalMinOrbit(s)) && !C.buyDie(s); Object.assign(s, JSON.parse(keep)); C.invalidate(); return r; });
-  ok(cb, '과제 목표 궤도 3: 주사위가 3개를 넘지 않음');
+  const cb = await page.evaluate(() => { const s = G.app.s, C = G.core; const keep = JSON.stringify(s); s.novas = 10; s.collapses = 1; s.chalDone = { c5: 4 }; s.chal = null; C.startChallenge(s, 'c5'); s.dust = 1e30; s.research.s5 = 1; C.tick(s, 0.1, {}); const r = s.dice.length === 2 && !C.buyDie(s); Object.assign(s, JSON.parse(keep)); C.invalidate(); return r; });
+  ok(cb, '과제 목표 궤도 3: 주사위가 2개를 넘지 않음');
   // 관측 의뢰: 주사위가 늘어 목표 궤도가 안 나오면 의뢰를 바꿔 줌
   const sw = await page.evaluate(() => { const s = G.app.s, C = G.core; const keep = JSON.stringify(s); s.dice = [C.newDie(), C.newDie()]; s.lv.wind = Math.max(1, s.lv.wind); s.con.cur = { type: 'orbit', sum: 2, tier: 9, time: 300, left: 300, base: 0 }; s.dice.push(C.newDie()); C.invalidate(); C.tick(s, 0.1, {}); const r = !(s.con.cur && s.con.cur.type === 'orbit' && s.con.cur.sum === 2); Object.assign(s, JSON.parse(keep)); C.invalidate(); return r; });
   ok(sw, '안 나오는 궤도 의뢰는 새 의뢰로 바뀜');

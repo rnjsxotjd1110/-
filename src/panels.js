@@ -35,7 +35,7 @@
     var cd = C.costDie(s), full = !isFinite(cd);
     var dk = Object.keys(d.dist).map(Number).filter(function (k) { return d.dist[k] > 0; });
     var orb = [Math.min.apply(null, dk), Math.max.apply(null, dk)];
-    var chalBlock = full && s.dice.length < C.maxDice(s) && s.dice.length + 1 > C.chalMinOrbit(s);
+    var chalBlock = full && s.dice.length < C.maxDice(s) && s.dice.length + 1 > C.chalDiceCap(s);
     plate(2, G.spr.icDie, G.T('dice'), G.T('n_dice', s.dice.length), chalBlock ? G.T('dice_chal', C.chalMinOrbit(s)) : (full ? G.T('dice_max') : G.T('dice_eff', orb[0], orb[orb.length - 1])),
       full ? null : cd, s.dust >= cd, G.T('b_dice'), !full && s.dust >= cd, function () { if (C.buyDie(s)) G.audio.play('unlock'); });
     contractCard(s, X0 + 106, Y0 + 92, 102, 86);

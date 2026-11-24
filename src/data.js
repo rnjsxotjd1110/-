@@ -38,9 +38,9 @@ G.DATA = {
   coreGain: { k: 3, div: 6e6, exp: 0.5 },
   // 중력 붕괴
   collapseTier: 10,
-  collapseHeavy: 2.6, collapseHeavyLate: 1.25, collapseHeavyN: 6, // 붕괴마다 문턱 ×2.6, N번 뒤로는 ×1.25
+  collapseHeavy: 3.6, collapseHeavyLate: 1.25, collapseHeavyN: 6, // 붕괴마다 문턱 ×2.6, N번 뒤로는 ×1.25
   singMassExp: 0.7,             // 특이점 누적에 따른 질량 배율 (1+특이점)^exp             // 붕괴할 때마다 단계 문턱 배율
-  singGain: { k: 1, div: 40, exp: 0.45 },
+  singGain: { k: 1, div: 120, exp: 0.45 },
   trayCapacity: 36,
   perDieMass: 1.15,              // 주사위 하나당 질량 배율
   // 면 수가 많을수록 무조건 유리: 주사위 하나당 굴림 질량 배율, 정렬 배율은 (면 수/6)^alignExp
@@ -130,7 +130,7 @@ G.SRESEARCH = [
   { id: 'q9', cost: 34, eff: 'coreX', v: 5 },
   { id: 'q10', cost: 55, eff: 'tierMult', v: 0.25, outer: 16 },
   { id: 'q11', cost: 89, eff: 'autoCollapse', v: 1 },
-  { id: 'q12', cost: 4000, eff: 'ending', v: 1 }
+  { id: 'q12', cost: 15000, eff: 'ending', v: 1 }
 ];
 
 // 특수 주사위 16종. rar: 0 보통, 1 드묾, 2 귀함, 3 전설. v: 1성 효과

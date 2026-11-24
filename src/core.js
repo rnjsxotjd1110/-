@@ -454,7 +454,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var freq = resV(s, 'eventFreq') * (has(s, 'net') ? 0.7 : 1);
     s.ev.next = (D.eventGap[0] + rng() * (D.eventGap[1] - D.eventGap[0])) * freq;
     var types = G.EVENTS.slice();
-    if (s.dice.length >= (sres(s, 'q6') ? 6 : 5) || chalRule(s, 'twoDice') || s.dice.length + 1 > chalMinOrbit(s)) types = types.filter(function (t) { return t !== 'rogue'; });
+    if (s.dice.length >= (sres(s, 'q6') ? 6 : 5) || chalRule(s, 'twoDice') || s.dice.length + 1 > chalDiceCap(s)) types = types.filter(function (t) { return t !== 'rogue'; });
     var type = types[Math.floor(rng() * types.length)];
     if (!s.ev.seenFirst) { type = 'comet'; s.ev.seenFirst = true; }
     s.ev.cur = { type: type, life: D.eventLife, y: 0.2 + rng() * 0.6, dir: rng() < 0.5 ? 1 : -1 };
@@ -497,10 +497,12 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var m = Infinity; g.forEach(function (q) { var b = s.bodies[q[0]]; if (!(b && b.t >= q[1])) m = Math.min(m, q[0]); });
     return m;
   }
+  // 과제 중 주사위 상한: 목표 궤도 번호의 절반 (주사위가 많으면 작은 합이 거의 안 나와서 못 깸)
+  function chalDiceCap(s) { var m = chalMinOrbit(s); return isFinite(m) ? Math.max(2, Math.floor((m + 1) / 2)) : Infinity; }
   function costDie(s) {
     var n = s.dice.length + 1;
     if (n > maxDice(s)) return Infinity;
-    if (n > chalMinOrbit(s)) return Infinity; // 목표 궤도를 막는 주사위는 사지 않음 (자동 구매 포함)
+    if (n > chalDiceCap(s)) return Infinity; // 목표 궤도를 막는 주사위는 사지 않음 (자동 구매 포함)
     return (D.diceCost[n] || Infinity) * chalReward(s, 'diceCost');
   }
   // 지금 주사위 면 수: 주형 연구로 d6 → d8 → d12
@@ -617,9 +619,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var oldDice = s.dice;
     s.dust = 0; s.dustRun = 0; s.bodies = {}; s.up = {}; s.autoT = 0;
     s.lv = { power: 0, wind: res(s, 'r1') ? 6 : 0, refine: s.lv.refine || 0, compress: s.lv.compress || 0 };
+    if (chalRule(s, 'noManual') && s.lv.wind < 1) s.lv.wind = 1; // 손 굴림 금지 과제: 자동 굴림 없이 시작하면 아무것도 굴릴 수 없음
     var nd = res(s, 'r2') ? 3 : 2;
     if (chalRule(s, 'twoDice')) nd = 2;
-    nd = Math.max(2, Math.min(nd, chalMinOrbit(s)));
+    nd = Math.max(2, Math.min(nd, chalDiceCap(s)));
     s.dice = [];
     for (var i = 0; i < nd; i++) {
       var od = oldDice[i];
@@ -889,7 +892,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     spById: spById, spVal: spVal, openBox: openBox, equip: equip, autoEquip: autoEquip, conUnlocked: conUnlocked, conProgress: conProgress, rerollContract: rerollContract, newContract: newContract, conQueue: conQueue, dexQueue: dexQueue, dexCount: dexCount, dexPer: dexPer, orbitClass: orbitClass,
     buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible, pairOf: pairOf, pairBlocked: pairBlocked,
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
-    autoNovaNeed: autoNovaNeed, orbitPossible: orbitPossible, dieShape: dieShape, chalMinOrbit: chalMinOrbit, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
+    autoNovaNeed: autoNovaNeed, orbitPossible: orbitPossible, dieShape: dieShape, chalMinOrbit: chalMinOrbit, chalDiceCap: chalDiceCap, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
     chalUnlocked: chalUnlocked, chalGoal: chalGoal, chalStage: chalStage, chalMet: chalMet, endingReady: endingReady, outerCap: outerCap,
     fateUnlocked: fateUnlocked, fateNeed: fateNeed, fateRoll: fateRoll, poisson: poisson, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, layerBonus: layerBonus, collapseGain: collapseGain, collapse: collapse,

@@ -85,7 +85,7 @@
     s.ended = !!s.ended && !!s.sres.q12;
     s.sres.q12 = s.sres.q12;  s.endSeen = !!s.endSeen && s.ended;
     // 과제 중인데 주사위가 목표 궤도보다 많아 목표를 못 채우는 저장: 남는 주사위를 뺀다
-    if (s.chal) { var mo = G.core.chalMinOrbit(s); if (s.dice.length > mo) s.dice.length = Math.max(2, mo); }
+    if (s.chal) { var mo = G.core.chalDiceCap(s); if (s.dice.length > mo) s.dice.length = mo; }
     if (st.alignDice > s.dice.length) st.alignDice = 0;
     return s;
   }
