@@ -45,7 +45,9 @@
 
   function spec(d, i) {
     var mat = { d4: 'clay', d6: 'ivory', d8: 'brass', d12: 'teal' }[d.shape] || 'ivory';
-    if (d.sp && A.s && A.s.coll[d.sp]) mat = 'sp_' + d.sp;
+    var sp = d.sp;
+    if (A.overlay === 'box' && A.boxPrev && !A.boxRevealed && A.s && A.s.dice.indexOf(d) >= 0) sp = A.boxPrev.slots[A.s.dice.indexOf(d)]; // 상자 결과를 미리 보여 주지 않음
+    if (sp && A.s && A.s.coll[sp]) mat = 'sp_' + sp;
     if (A.s && i >= A.s.dice.length) mat = 'ember';
     return { shape: d.shape, faces: d.faces, mat: mat };
   }

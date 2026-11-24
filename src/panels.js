@@ -217,17 +217,21 @@
   function refreshTray2() { var d = C.derive(A.s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; })); }
   function dicePanel(s) {
     var y = Y0 + 2;
+    // 상자를 여는 중에는 열기 전 보관함을 보여 준다 (결과를 미리 보여 주지 않음)
+    var hideBox = A.overlay === 'box' && A.boxPrev && !A.boxRevealed;
+    var coll = hideBox ? A.boxPrev.coll : s.coll;
     if (A.selSlot === undefined || A.selSlot >= s.dice.length) A.selSlot = 0;
     F.draw(G.T('tray_slots'), X0 + 2, y + 2, 15, 'g9');
-    var owned = G.SPDICE.filter(function (x) { return s.coll[x.id]; }).length;
+    var owned = G.SPDICE.filter(function (x) { return coll[x.id]; }).length;
     if (U.button('autoeq', X0 + W0 - 96, y - 1, 94, 15, G.T('b_auto'), { enabled: owned > 0, font: 'g9' })) { C.autoEquip(s); refreshTray2(); G.audio.play('forge'); }
     // 쟁반 칸
     var sw = Math.min(34, Math.floor((W0 + 2) / Math.max(1, s.dice.length)) - 2), sy = y + 16;
     s.dice.forEach(function (die, i) {
       var x = X0 + i * (sw + 2), sel = A.selSlot === i;
       var h = U.hitArea('slot' + i, x, sy, sw, 36);
-      G.nine(die.sp ? G.spr.tileOwn : G.spr.tile, x, sy, sw, 36);
-      var sp = die.sp && s.coll[die.sp] ? C.spById(die.sp) : null;
+      G.nine(sp ? G.spr.tileOwn : G.spr.tile, x, sy, sw, 36);
+      var dsp = hideBox ? A.boxPrev.slots[i] : die.sp;
+      var sp = dsp && coll[dsp] ? C.spById(dsp) : null;
       var ic = dieIcon(die.shape, sp ? 'sp_' + sp.id : A.spec(die, 0).mat, 1.0);
       gx.blit(ic, x + (sw >> 1) - (ic.w >> 1), sy + 17 - (ic.h >> 1));
       if (sp) gx.rect(x + 2, sy + 2, sw - 4, 2, RAR_COL[sp.rar]);
@@ -242,8 +246,8 @@
     F.draw(G.T('coll_title', owned, G.SPDICE.length), X0 + 2, gy + 1, 15, 'g9');
     G.SPDICE.forEach(function (sp, i) {
       var x = X0 + (i % 8) * 26, yy = gy + 13 + Math.floor(i / 8) * 28;
-      var lv = s.coll[sp.id] || 0, sel = A.selSp === sp.id;
-      var slot = -1; s.dice.forEach(function (d, k) { if (d.sp === sp.id) slot = k; });
+      var lv = coll[sp.id] || 0, sel = A.selSp === sp.id;
+      var slot = -1; s.dice.forEach(function (d, k) { if ((hideBox ? A.boxPrev.slots[k] : d.sp) === sp.id) slot = k; });
       var h = U.hitArea('sp' + sp.id, x, yy, 24, 26);
       gx.rect(x + 1, yy + 1, 22, 24, lv ? 21 : 23);
       gx.hline(x + 1, yy, 22, lv ? RAR_COL[sp.rar] : 14); gx.hline(x + 1, yy + 25, 22, 12); gx.vline(x, yy + 1, 24, 12); gx.vline(x + 23, yy + 1, 24, 12);
@@ -260,7 +264,7 @@
     U.groove(X0, iy - 3, W0);
     var cur = A.selSp ? C.spById(A.selSp) : null;
     if (cur) {
-      var lv2 = s.coll[cur.id] || 0;
+      var lv2 = coll[cur.id] || 0;
       F.draw(lv2 ? G.nm('sp', cur.id) : '???', X0 + 2, iy + 2, lv2 ? RAR_COL[cur.rar] : 14, 'g11b', 12);
       F.drawRight(G.T('rar' + cur.rar), X0 + W0 - 2, iy + 3, RAR_COL[cur.rar], 'g9');
       stars(X0 + 2, iy + 17, lv2, G.DATA.starMax);
@@ -280,24 +284,54 @@
     U.groove(X0, by - 3, W0);
     gx.blitScaled(G.spr.box, X0 + 4, by + 3, 2);
     if (s.box > 0 && Math.floor(A.t * 2) % 2) { gx.pset(X0 + 2, by + 4, 4); gx.pset(X0 + 28, by + 2, 4); }
-    F.draw(G.T('box_n', G.fmt(s.box)), X0 + 34, by + 4, s.box > 0 ? 4 : 15, 'g11b', 12);
-    F.draw(s.box > 0 || (s.stats.boxes || 0) ? G.T('box_odds') : G.T('box_none'), X0 + 34, by + 18, 15, 'g7');
-    if (U.button('obox', X0 + W0 - 84, by + 1, 82, 17, G.T('b_open'), { enabled: s.box > 0, font: 'g11b', sfx: 'tap' })) { var res = C.openBox(s); if (res) { A.boxRes = res; A.boxT = 0; A.overlay = 'box'; A.selSp = res.id; refreshTray2(); } }
-    // 모양 바꾸기 (특이점 연구 후)
+    F.draw('×' + G.fmt(s.box), X0 + 32, by + 4, s.box > 0 ? 4 : 15, 'g11b', 12);
+    F.draw(s.box > 0 || (s.stats.boxes || 0) ? G.T('box_odds') : G.T('box_none'), X0 + 34, by + 20, 15, 'g7');
+    if (U.button('obox', X0 + W0 - 132, by + 1, 62, 17, G.T('b_open1'), { enabled: s.box > 0, font: 'g9', sfx: 'tap' })) G.openBoxesUi(s, 1);
+    if (U.button('oboxall', X0 + W0 - 66, by + 1, 64, 17, G.T('b_open_all'), { enabled: s.box > 1, font: 'g9', sfx: 'tap' })) G.openBoxesUi(s, s.box);
+    // 모양 바꾸기 (특이점 연구 후): 버튼에 마우스를 올리면 지금 → 바꾸면 비교
     var shapes = Object.keys(s.shapes).filter(function (k) { return s.shapes[k]; });
     if (shapes.length > 1) {
-      var shy = by + 34;
+      var shy = by + 34, di2 = A.selSlot, curShape = s.dice[di2] ? s.dice[di2].shape : 'd6';
       U.groove(X0, shy - 3, W0);
-      F.draw(G.T('shape_title') + ' · ' + G.T('tray_cap', C.trayUsed(s.dice), G.DATA.trayCapacity), X0 + 2, shy + 1, 15, 'g9');
-      var di2 = A.selSlot;
+      F.draw(G.T('shape_pick', di2 + 1), X0 + 2, shy + 1, 15, 'g9');
+      F.drawRight(G.T('tray_cap', C.trayUsed(s.dice), G.DATA.trayCapacity), X0 + W0 - 2, shy + 1, 15, 'g9');
+      var hov = null;
       ['d4', 'd6', 'd8', 'd12'].forEach(function (sh, k) {
         if (!s.shapes[sh]) return;
-        var curS = s.dice[di2] && s.dice[di2].shape === sh;
+        var curS = curShape === sh;
         var nd = s.dice.slice(); nd[di2] = { faces: new Array(C.SHAPE_FACES[sh]) };
         var fits = C.trayUsed(nd) <= G.DATA.trayCapacity;
-        if (U.button('sh' + sh, X0 + 2 + k * 52, shy + 13, 48, 17, sh + ' ' + (di2 + 1), { enabled: !curS && fits, font: 'g9' })) { C.setShape(s, di2, sh); G.audio.play('forge'); refreshTray(); }
+        var bx2 = X0 + 2 + k * 52;
+        if (U.over(bx2, shy + 13, 48, 17)) hov = { sh: sh, fits: fits, cur: curS, used: C.trayUsed(nd) };
+        if (curS) { G.nine(G.spr.tileOwn, bx2, shy + 13, 48, 17); F.drawCenter(sh, bx2 + 24, shy + 16, 4, 'g11b'); return; }
+        if (U.button('sh' + sh, bx2, shy + 13, 48, 17, sh, { enabled: fits, font: 'g11b' })) { C.setShape(s, di2, sh); G.audio.play('forge'); refreshTray(); }
       });
+      var info = hov || { sh: curShape, cur: true };
+      F.draw(G.T('shape_' + info.sh), X0 + 2, shy + 34, info.cur ? 15 : 4, 'g9');
+      if (hov && !hov.cur) {
+        if (!hov.fits) F.draw(G.T('shape_full', hov.used, G.DATA.trayCapacity), X0 + 2, shy + 46, 17, 'g9');
+        else {
+          var a0 = shapeStats(s), old = s.dice[di2];
+          s.dice[di2] = C.newDie(hov.sh); s.dice[di2].sp = old.sp; C.invalidate();
+          var a1 = shapeStats(s); s.dice[di2] = old; C.invalidate();
+          var rows = [[G.T('shape_mass'), '×' + G.fmt(a0.mass, true), '×' + G.fmt(a1.mass, true), a1.mass / a0.mass],
+            [G.T('shape_orb'), a0.orb, a1.orb, 1], [G.T('shape_al'), G.pct(a0.al), G.pct(a1.al), a1.al / Math.max(1e-12, a0.al)]];
+          rows.forEach(function (r, i) {
+            var ry = shy + 46 + i * 10;
+            F.draw(r[0], X0 + 2, ry, 15, 'g9');
+            F.drawRight(r[1], X0 + 130, ry, 8, 'g9');
+            F.draw('→', X0 + 134, ry, 15, 'g9');
+            F.drawRight(r[2], X0 + W0 - 2, ry, r[3] > 1.001 ? 16 : (r[3] < 0.999 ? 17 : 4), 'g9');
+          });
+        }
+      }
     }
+  }
+  // 모양 비교용: 한 번 굴림의 기대 질량, 궤도 범위, 정렬 확률
+  function shapeStats(s) {
+    var d = C.derive(s), pa = 0; Object.keys(d.al).forEach(function (k) { pa += d.al[k]; });
+    var ks = Object.keys(d.dist).map(Number).filter(function (k) { return d.dist[k] > 0; });
+    return { mass: C.rollValue(s) * d.power * d.batchDieMult, orb: Math.min.apply(null, ks) + '~' + Math.max.apply(null, ks), al: pa };
   }
 
   // ── 초신성 ─────────────────────────────────────
@@ -406,7 +440,10 @@
       var g = Math.max(1, C.collapseGain(s));
       if (U.button('colbtn', X0, y, W0, 22, G.T('col_btn'), { style: 'teal', font: 'g11b', sfx: 'tap' })) { A.confirmText = G.T(C.sres(s, 'q4') ? 'col_confirm_keep' : 'col_confirm', G.fmt(g)); A.confirmYes = G.T('col_btn'); A.confirmFn = A.startCollapse; A.overlay = 'confirm'; }
       F.draw(G.T('col_gain', G.fmt(g)), X0 + 2, y + 27, 19, 'g11b', 12);
-      F.drawRight(G.T('layer_bonus', C.layerBonus(s).toFixed(2)).split(' (')[0], X0 + W0 - 2, y + 29, 8, 'g9');
+      // 붕괴 사이 시간에 따른 특이점 몫: 40%에서 시작해 50분이면 100%
+      var lb = C.layerBonus(s), lbt = G.T('layer_pct', Math.round(lb * 100));
+      F.drawRight(lbt, X0 + W0 - 2, y + 29, lb >= 1 ? 16 : 8, 'g9');
+      if (U.over(X0 + W0 - F.measure(lbt, 'g9') - 4, y + 26, F.measure(lbt, 'g9') + 4, 13)) U.tip([{ t: lbt, f: 'g11b', c: 12 }, { t: G.T('tip_layer'), c: 13 }], U.inp.x, U.inp.y);
     } else {
       var cn = s.chal ? G.nm('chal', s.chal) : G.T('col_need');
       F.draw(cn, X0 + 2, y + 2, 8, F.measure(cn, 'g11') > W0 - 4 ? 'g9' : 'g11');

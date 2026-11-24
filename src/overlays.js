@@ -135,41 +135,69 @@
     if (U.button('cy', x + 12, y + h - 30, 120, 20, A.confirmYes || G.T('m_yes'), { font: 'g11b' })) { A.overlay = null; var f = A.confirmFn; A.confirmNo = null; A.confirmNoFn = null; if (f) f(); }
     else if (U.button('cn', x + w - 112, y + h - 30, 100, 20, A.confirmNo || G.T('m_no'), { font: 'g11b' }) || (U.inp.keysPressed.Escape && !A.confirmNoFn)) { A.overlay = null; var nf = A.confirmNoFn; A.confirmNo = null; A.confirmNoFn = null; if (nf) nf(); }
   }
-  // ── 주사위 상자 열기 ──────────────────────────
+  // ── 주사위 상자 열기 (하나 / 모두) ──────────────
   var RAR_COL = [15, 19, 7, 3], RAR_HI = [4, 4, 8, 4];
-  var boxSnd = 0;
-  function boxOpen(s) {
-    dim();
-    var r = A.boxRes; if (!r) { A.overlay = null; return; }
-    A.boxT = (A.boxT || 0) + (G.app.dt || 1 / 60);
-    var t = A.boxT, cx = 320, cy = 150, reduce = s.settings.reduce;
-    var sp = G.core.spById(r.id), col = RAR_COL[r.rar], hi = RAR_HI[r.rar];
-    if (t < 0.75) {
-      // 흔들리는 상자
-      var shk = reduce ? 0 : Math.round(Math.sin(t * 50) * (1 + t * 3));
-      G.gfx.blitScaled(G.spr.box, cx - 24 + shk, cy - 20, 4);
-      if (!reduce && Math.floor(t * 12) % 2) { G.gfx.pset(cx - 30 + Math.round(Math.random() * 60), cy - 26 + Math.round(Math.random() * 10), r.rar >= 2 ? col : 4); }
-      boxSnd = 0;
-      return;
+  var boxSnd = 0, revealN = 0;
+  // 열기 전 보관함·쟁반 칸을 기억해 두고 연다. 연출이 끝나기 전까지 화면은 열기 전 모습
+  G.openBoxesUi = function (s, n) {
+    n = Math.min(n, s.box); if (n < 1) return;
+    var prev = { coll: JSON.parse(JSON.stringify(s.coll)), slots: s.dice.map(function (d) { return d.sp; }) };
+    var list = [];
+    for (var i = 0; i < n; i++) { var r = G.core.openBox(s); if (r) list.push(r); }
+    if (!list.length) return;
+    A.boxPrev = prev; A.boxRevealed = false; A.boxT = 0; boxSnd = 0; revealN = 0;
+    if (list.length === 1) { A.boxRes = list[0]; A.boxList = null; }
+    else {
+      // 같은 주사위끼리 묶고, 좋은 등급이 마지막에 나오게
+      var g = {}, order = [];
+      list.forEach(function (r) { if (!g[r.id]) { g[r.id] = { id: r.id, rar: r.rar, n: 0, isNew: false, lv: 0, dust: 0 }; order.push(g[r.id]); } var e = g[r.id]; e.n++; e.isNew = e.isNew || r.isNew; e.lv = Math.max(e.lv, r.lv); e.dust += r.dust || 0; });
+      order.sort(function (a, b) { return a.rar - b.rar || a.n - b.n; });
+      A.boxList = { groups: order, n: list.length, news: order.filter(function (e) { return e.isNew; }).length, dust: order.reduce(function (t, e) { return t + e.dust; }, 0), best: order[order.length - 1].rar };
+      A.boxRes = null;
     }
-    if (!boxSnd) { boxSnd = 1; G.audio.play(r.rar >= 2 ? 'align' : 'unlock'); if (!reduce) { G.orrery.burst(cx, cy, 14 + r.rar * 10, [hi, col, 4], 50 + r.rar * 15); if (r.rar >= 3) A.shake = 0.4; } if (r.rar >= 2) A.edge = { t: 0.8, d: 0.8, c: [RAR_HI[r.rar], RAR_COL[r.rar]] }; }
-    // 회전하는 빛줄기 (등급 색)
-    var k = Math.min(1, (t - 0.75) / 0.3), a0 = t * 0.5, nr = 8 + r.rar * 4;
+    A.overlay = 'box';
+  };
+  function revealDone(s, selId) {
+    if (A.boxRevealed) return;
+    A.boxRevealed = true; if (selId) A.selSp = selId;
+    var d = G.core.derive(s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; }));
+  }
+  function closeBox() { A.overlay = null; A.boxRes = null; A.boxList = null; A.boxPrev = null; }
+  function shakeBox(t, cx, cy, reduce, col, big) {
+    var shk = reduce ? 0 : Math.round(Math.sin(t * 50) * (1 + t * 3));
+    if (big) { G.gfx.blitScaled(G.spr.box, cx - 46 + shk, cy - 6, 3); G.gfx.blitScaled(G.spr.box, cx + 10 - shk, cy - 6, 3); }
+    G.gfx.blitScaled(G.spr.box, cx - 24 + shk, cy - 20 - (big ? 12 : 0), 4);
+    if (!reduce && Math.floor(t * 12) % 2) G.gfx.pset(cx - 30 + Math.round(Math.random() * 60), cy - 26 + Math.round(Math.random() * 10), col);
+  }
+  function rays(t, cx, cy, rar, k) {
+    var col = RAR_COL[rar], hi = RAR_HI[rar], a0 = t * 0.5, nr = 8 + rar * 4;
     for (var i = 0; i < nr; i++) {
-      var a = a0 + i / nr * Math.PI * 2, L = (40 + r.rar * 14) * k;
+      var a = a0 + i / nr * Math.PI * 2, L = (40 + rar * 14) * k;
       for (var w = -1; w <= 1; w++) {
         var ox = Math.round(-Math.sin(a) * w), oy = Math.round(Math.cos(a) * w * 0.7);
         G.gfx.line(cx + Math.round(Math.cos(a) * 16) + ox, cy + Math.round(Math.sin(a) * 12) + oy, cx + Math.round(Math.cos(a) * (16 + L)) + ox, cy + Math.round(Math.sin(a) * (12 + L * 0.7)) + oy, w === 0 ? hi : col, i % 2 ? 2 : 0);
       }
     }
-    // 열린 상자와 튀어 오른 주사위
+  }
+  function boxOpen(s) {
+    dim();
+    if (!A.boxRes && !A.boxList) { closeBox(); return; }
+    A.boxT = (A.boxT || 0) + (G.app.dt || 1 / 60);
+    var t = A.boxT, cx = 320, cy = 150, reduce = s.settings.reduce;
+    var skip = U.inp.released && !A.boxRevealed && t > 0.15;
+    if (A.boxList) return boxMany(s, t, cx, cy, reduce, skip);
+    var r = A.boxRes, sp = G.core.spById(r.id), col = RAR_COL[r.rar], hi = RAR_HI[r.rar];
+    if (skip) { A.boxT = t = 1.2; }
+    if (t < 0.75) { shakeBox(t, cx, cy, reduce, r.rar >= 2 ? col : 4, false); return; }
+    if (!boxSnd) { boxSnd = 1; G.audio.play(r.rar >= 2 ? 'align' : 'unlock'); if (!reduce) { G.orrery.burst(cx, cy, 14 + r.rar * 10, [hi, col, 4], 50 + r.rar * 15); if (r.rar >= 3) A.shake = 0.4; } if (r.rar >= 2) A.edge = { t: 0.8, d: 0.8, c: [hi, col] }; }
+    rays(t, cx, cy, r.rar, Math.min(1, (t - 0.75) / 0.3));
     G.gfx.blitScaled(G.spr.box, cx - 24, cy + 18, 4);
     var up = Math.min(1, (t - 0.75) / 0.35), bounce = Math.round(Math.abs(Math.sin(up * Math.PI)) * 10 * (1 - up));
     var ic = G.dieIcon('d6', 'sp_' + r.id, 2.0);
     G.gfx.blit(ic, cx - (ic.w >> 1), cy - 4 - (ic.h >> 1) - Math.round(up * 26) - bounce);
     if (r.rar >= 3 && !reduce) { var tw = Math.floor(t * 8) % 4; G.gfx.blit(G.spr.twinkle[tw % 3], cx + 20, cy - 52); G.gfx.blit(G.spr.twinkle[(tw + 1) % 3], cx - 28, cy - 30); }
     if (t < 1.1) return;
-    // 이름·등급·효과
+    revealDone(s, r.id);
     var ty = 222;
     G.nine(G.spr.panel, 170, ty - 6, 300, 104);
     F.drawCenter(r.dust ? G.T('dup_dust', G.fmt(r.dust)) : (r.isNew ? G.T('new_die') : G.T('star_up', r.lv)), cx, ty, r.isNew ? 3 : 15, 'g9');
@@ -178,11 +206,46 @@
     G.drawStars(cx - 14, ty + 39, r.lv, G.DATA.starMax);
     F.drawCenter(G.spText(sp.eff, G.core.spVal(s, r.id)), cx, ty + 49, 8, 'g9');
     if (r.auto) F.drawCenter(G.T('equipped_in', s.dice.map(function (d) { return d.sp; }).indexOf(r.id) + 1), cx, ty + 60, 15, 'g9');
-    var again = s.box > 0;
-    if (U.button('boxok', again ? 186 : 260, ty + 72, 120, 20, G.T('b_box_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) { A.overlay = null; A.boxRes = null; }
-    else if (again && U.button('boxag', 334, ty + 72, 120, 20, G.T('b_open') + ' ' + s.box, { font: 'g11b', sfx: 'tap' })) {
-      var res = G.core.openBox(s); if (res) { A.boxRes = res; A.boxT = 0; A.selSp = res.id; var d = G.core.derive(s); G.tray.place(d.dice.map(A.spec), d.dice.map(function () { return 0; })); }
+    boxButtons(s, ty + 72);
+  }
+  function boxButtons(s, y) {
+    var more = s.box > 0;
+    if (U.button('boxok', more ? 186 : 260, y, 120, 20, G.T('b_box_close'), { font: 'g11b' }) || U.inp.keysPressed.Escape) closeBox();
+    else if (more && U.button('boxag', 334, y, 120, 20, (s.box > 1 ? G.T('b_open_all') : G.T('b_open1')) + ' ' + s.box, { font: 'g11b', sfx: 'tap' })) G.openBoxesUi(s, s.box);
+  }
+  // 여러 개: 큰 상자 더미가 흔들리다 터지고, 주사위가 한 칸씩 굴러 나온다
+  function boxMany(s, t, cx, cy, reduce, skip) {
+    var L = A.boxList, G2 = L.groups, n = G2.length;
+    var step = Math.min(0.16, 1.8 / n), endT = 0.85 + step * n;
+    if (skip) { A.boxT = t = endT + 0.01; }
+    if (t < 0.85) { shakeBox(t, cx, cy + 10, reduce, L.best >= 2 ? RAR_COL[L.best] : 4, true); F.drawCenter('×' + L.n, cx, cy + 40, 4, 'g11b', 12); return; }
+    if (!boxSnd) { boxSnd = 1; G.audio.play('unlock'); if (!reduce) G.orrery.burst(cx, cy - 20, 30, [4, 3, 8], 60); }
+    var shown = Math.min(n, Math.floor((t - 0.85) / step) + 1);
+    if (shown > revealN) {
+      var e = G2[shown - 1]; revealN = shown;
+      if (e.rar >= 2) { G.audio.play('align'); A.edge = { t: 0.6, d: 0.6, c: [RAR_HI[e.rar], RAR_COL[e.rar]] }; if (e.rar >= 3 && !reduce) A.shake = 0.35; }
+      else G.audio.play('tap');
     }
+    if (t < endT) rays(t, cx, cy - 40, G2[shown - 1].rar, Math.min(1, (t - 0.85) / 0.3) * 0.7);
+    // 격자: 8칸 × 2줄
+    var pw = 8 * 44 + 24, ph = 2 * 52 + 78, px = cx - (pw >> 1), py = 112;
+    G.nine(G.spr.panel, px, py, pw, ph);
+    for (var i = 0; i < shown; i++) {
+      var e2 = G2[i], x = px + 12 + (i % 8) * 44, y = py + 10 + Math.floor(i / 8) * 52;
+      var age = t - 0.85 - i * step, pop = Math.min(1, age / 0.12);
+      gx.rect(x, y, 40, 48, 23); gx.rect(x, y, 40, 2, RAR_COL[e2.rar]);
+      var ic = G.dieIcon('d6', 'sp_' + e2.id, 1.15);
+      gx.blit(ic, x + 20 - (ic.w >> 1), y + 20 - (ic.h >> 1) - Math.round((1 - pop) * 8));
+      if (e2.n > 1) F.drawRight('×' + e2.n, x + 38, y + 4, 4, 'g7');
+      if (e2.isNew) F.draw(G.T('tag_new'), x + 2, y + 4, 3, 'g7');
+      for (var k = 0; k < e2.lv; k++) gx.rect(x + 6 + k * 6, y + 42, 4, 2, 3);
+      if (U.over(x, y, 40, 48)) U.tip([{ t: G.nm('sp', e2.id), f: 'g11b', c: RAR_COL[e2.rar] }, { t: G.T('rar' + e2.rar) + ' · ' + G.T('star_up', e2.lv), c: 13 }, { t: G.spText(G.core.spById(e2.id).eff, G.core.spVal(s, e2.id)), c: 13 }], x, y);
+    }
+    if (t < endT) { F.drawCenter(G.T('skip_hint'), cx, py + ph - 20, 14, 'g9'); return; }
+    revealDone(s, G2[n - 1].id);
+    F.drawCenter(G.T('box_sum', L.n, L.news), cx, py + ph - 62, 4, 'g11b', 12);
+    if (L.dust > 0) F.drawCenter(G.T('box_dust', G.fmt(L.dust)), cx, py + ph - 46, 15, 'g9');
+    boxButtons(s, py + ph - 30);
   }
   G.overlays = { settings: settings, away: away, confirm: confirm, dim: dim, boxOpen: boxOpen };
 })();

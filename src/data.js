@@ -43,7 +43,7 @@ G.DATA = {
   singGain: { k: 1, div: 20, exp: 0.45 },
   trayCapacity: 36,
   perDieMass: 1.15,              // 주사위 하나당 질량 배율
-  shapeBonus: { d4: 0.2, d8: 0.12, d12: 1.4 }, // d4 정렬 +20%/개, d8 희소도 지수 +, d12 질량 ×/개
+  shapeBonus: { d4: 0.35, d8: 0.12, d12: 1.5 }, // d4 정렬 질량 +35%/개, d8 희소도 지수 +0.12/개(2개까지), d12 굴림 질량 ×1.5/개
   endChalStage: 3,              // 엔딩에 필요한 관측 과제 단계
   refine: { cost0: 60, costK: 3, v: 1.5 },     // 별핵 정제: 질량 ×1.5 반복
   compress: { cost0: 10, costK: 2, v: 2 }     // 특이점 압축: 질량 ×2 반복

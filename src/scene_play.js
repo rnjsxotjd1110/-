@@ -55,10 +55,23 @@
     var rate = C.production(s);
     F.draw('+' + G.fmt(rate, true) + G.T('per_sec'), 21 + w, 4, 8, 'g9', 12);
     var x = Math.max(150, 21 + w + F.measure('+' + G.fmt(rate, true) + G.T('per_sec'), 'g9') + 12);
-    if (s.coresAll > 0 || s.novas > 0) { gx.blit(G.spr.icCore, x, 4); x += F.draw(G.fmt(s.cores), x + 12, 3, 7, 'g11b', 12) + 22; }
-    if (s.singAll > 0 || s.collapses > 0) { gx.blit(G.spr.icSing, x, 4); x += F.draw(G.fmt(s.sing), x + 12, 3, 19, 'g11b', 12) + 22; }
+    // 재화: 아이콘 + 이름 + 값. 마우스를 올리면 얻는 곳·쓰는 곳
+    function cur(icon, label, val, col, tip, key, onClick) {
+      var x0 = x;
+      gx.blit(icon, x, icon.h > 9 ? 5 : 4);
+      var lw = F.draw(label, x + icon.w + 3, 4, 8, 'g9', 12);
+      var vw = F.draw(G.fmt(val), x + icon.w + 5 + lw, 3, col, 'g11b', 12);
+      x += icon.w + 5 + lw + vw + 12;
+      var h = U.hitArea('cur' + key, x0 - 2, 2, x - x0, 16);
+      if (h.over) U.tip([{ t: label + ' ' + G.fmt(val), f: 'g11b', c: 12 }, { t: tip, c: 13 }], x0, 10);
+      if (h.clicked && onClick) onClick();
+    }
+    if (s.coresAll > 0 || s.novas > 0) cur(G.spr.icCore, G.T('cur_core'), s.cores, 7, G.T('tip_core'), 'c', function () { A.tab = 'nova'; });
+    if (s.singAll > 0 || s.collapses > 0) cur(G.spr.icSing, G.T('cur_sing'), s.sing, 19, G.T('tip_sing'), 's', function () { A.tab = 'col'; });
+    if (s.box > 0 || (s.stats.boxes || 0) > 0) cur(G.spr.box, G.T('cur_box'), s.box, s.box > 0 ? 4 : 15, G.T('tip_box'), 'b', function () { A.tab = 'dice'; A.seenTabs.dice = 1; });
     // 버프
     var B = s.ev.buffs, bx = Math.max(x, 300), d = C.derive(s);
+    if (x > 300) bx = x;
     var hm = C.harmony(s, d);
     if (hm > 1.005) { var hw = F.draw(G.T('harmony', hm.toFixed(2)), bx, 4, 8, 'g9', 12); var hh = U.hitArea('harm', bx, 2, hw, 16); if (hh.over) U.tip([{ t: G.T('harmony', hm.toFixed(2)), f: 'g11b', c: 12 }, { t: G.T('tip_harmony'), c: 13 }, { t: G.effText('harmony', C.derive(s).harmonyPer), c: 13 }], bx, 10); bx += hw + 10; }
     var hidden = 0;

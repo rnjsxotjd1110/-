@@ -53,7 +53,7 @@ const path = require('path');
   // 주사위 상자: 보관함 탭에서 '상자 열기' 버튼을 눌러 연다
   await page.evaluate(() => { const s = G.app.s; s.box = 2; G.app.tab = 'dice'; G.app.overlay = null; });
   await page.waitForTimeout(150);
-  await click(590, 245);
+  await click(530, 245);
   await page.waitForTimeout(200);
   const bx = await page.evaluate(() => ({ ov: G.app.overlay, box: G.app.s.box, n: Object.keys(G.app.s.coll).length, eq: G.app.s.dice.filter(d => d.sp).length }));
   ok(bx.ov === 'box' && bx.box === 1 && bx.n === 1, '상자 열기 (남은 ' + bx.box + ', 보관함 ' + bx.n + ')');
@@ -61,6 +61,16 @@ const path = require('path');
   await page.waitForTimeout(1400);
   await page.keyboard.press('Escape'); await page.waitForTimeout(100);
   ok(await page.evaluate(() => G.app.overlay === null), '상자 창 닫힘');
+  // 모두 열기 + 연출 중에는 보관함에 결과가 미리 보이지 않음
+  await page.evaluate(() => { const s = G.app.s; s.box = 5; G.app.tab = 'dice'; });
+  await page.waitForTimeout(120);
+  const before = await page.evaluate(() => JSON.stringify(G.app.s.coll));
+  await click(595, 245); await page.waitForTimeout(250);
+  const mid = await page.evaluate(() => ({ ov: G.app.overlay, box: G.app.s.box, hidden: JSON.stringify(G.app.boxPrev && G.app.boxPrev.coll), rev: G.app.boxRevealed, n: G.app.boxList && G.app.boxList.n }));
+  ok(mid.ov === 'box' && mid.box === 0 && mid.n === 5 && mid.hidden === before && !mid.rev, '모두 열기 5개, 연출 중엔 열기 전 보관함 표시');
+  await page.waitForTimeout(2600);
+  ok(await page.evaluate(() => G.app.boxRevealed === true), '연출 뒤 결과 공개');
+  await page.keyboard.press('Escape'); await page.waitForTimeout(100);
   // 끼우기·빼기: 같은 주사위는 한 칸에만
   const eqt = await page.evaluate(() => { const s = G.app.s, C = G.core; const id = Object.keys(s.coll)[0]; C.equip(s, 1, id); const one = s.dice.filter(d => d.sp === id).length === 1 && s.dice[1].sp === id; C.equip(s, 1, null); return one && !s.dice[1].sp; });
   ok(eqt, '끼우기·빼기');
