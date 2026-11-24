@@ -64,6 +64,7 @@
     G.tray.roll(specs, r.idx, dur, function () { landed(r); });
   }
   function landed(r) {
+    if (r.fate) A.fateBusy = 0;
     A.shownSum = r.sum;
     var sp = G.tray.sumPos();
     var big = r.align || r.rarity >= 8 || r.fate;
@@ -88,7 +89,8 @@
       if (reduce) n = Math.min(n, 6);
       G.orrery.flash(target, 1);
       G.orrery.burst(p.x, p.y, n, r.align ? [4, 3, 8, 7] : (r.rarity >= 4 ? [4, 3, 8] : [8, 3]), 26 + Math.min(40, r.rarity * 2));
-      G.orrery.pop(p.x, p.y - 10, '+' + G.fmt(r.mass), r.rarity >= 4 ? 3 : 8, 'g9', false, null, 'm' + target);
+      if (r.fate) G.orrery.pop(p.x, p.y - 14, G.T('fate_res', target, G.fmt(r.mass), G.fmt(r.fateX, true)), 4, 'g11b', false, null, 'fate');
+      else G.orrery.pop(p.x, p.y - 10, '+' + G.fmt(r.mass), r.rarity >= 4 ? 3 : 8, 'g9', false, null, 'm' + target);
       var tu = (r.tierUps || []).concat(r.batchTierUps || []);
       tu.slice(-2).forEach(function (u) {
         G.orrery.ring(u[0]);
@@ -101,15 +103,15 @@
     });
   }
   A.doFateRoll = function () {
-    if (A.cut || G.tray.rolling()) return;
+    if (A.cut || A.fateBusy > A.t) return; // 자동 굴림 중에도 바로 굴린다
     var r = C.fateRoll(A.s);
     if (!r) return;
     if (G.audio) G.audio.play('fate');
-    A.pendingRoll = null;
+    A.pendingRoll = null; A.fateBusy = A.t + 3; // 운명 연출이 끝날 때까지 다른 굴림은 쟁반에 안 보임 (최대 3초)
     showRoll(r);
   };
   A.doManualRoll = function () {
-    if (A.cut) return;
+    if (A.cut || A.fateBusy > A.t) return;
     var r = C.manualRoll(A.s);
     if (!r) return;
     if (G.audio) G.audio.play('lever');
@@ -224,11 +226,11 @@
             var r = rolled[rolled.length - 1];
             if (rolled.length > 1) r.batch = (r.batch || 1) + rolled.length - 1;
             if (A.pendingRoll) { r.batchTierUps = (r.batchTierUps || []).concat(A.pendingRoll.tierUps || [], A.pendingRoll.batchTierUps || []); }
-            if (!G.tray.rolling() || r.batch) { showRoll(r); A.pendingRoll = null; }
+            if ((!G.tray.rolling() || r.batch) && !(A.fateBusy > A.t)) { showRoll(r); A.pendingRoll = null; }
             else A.pendingRoll = r;
           }
         }
-        if (A.pendingRoll && !G.tray.rolling()) { showRoll(A.pendingRoll); A.pendingRoll = null; }
+        if (A.pendingRoll && !G.tray.rolling() && !(A.fateBusy > A.t)) { showRoll(A.pendingRoll); A.pendingRoll = null; }
         while (C.chalQueue.length) { var cid = C.chalQueue.shift(); A.notify([G.T('chal_clear'), G.nm('chal', cid)], 'ach'); if (G.audio) G.audio.play('chal'); }
         while (C.achQueue.length) { var id = C.achQueue.shift(); A.notify([G.T('ach_get'), G.nm('ach', id)], 'ach'); }
         if (A.s.ended && !A.s.endSeen && A.scene !== 'ending') { A.scene = 'ending'; A.endT = 0; if (G.audio) G.audio.play('ending'); }
@@ -243,7 +245,7 @@
         while (C.dexQueue.length) { var dk = C.dexQueue.shift(); A.notify([G.T('dex_new'), G.dexName(dk)], 'dex', dk); }
         A.storyT = (A.storyT || 0) + dt;
         if (A.storyT > 1 && !A.cut) { A.storyT = 0; var ln = G.story.check(A.s); if (ln) A.line = { l: ln, t: 0 }; }
-        if (A.lastFate !== undefined && A.s.fate.n > A.lastFate && G.audio) G.audio.play('fateready');
+        if (A.lastFate !== undefined && A.s.fate.n > A.lastFate) { if (G.audio) G.audio.play('fateready'); if (!A.s.stats.fates && !A.fateHinted) { A.fateHinted = 1; A.notify([G.T('fate_ready'), G.T('fate_ready2')], 'unlock'); } }
         A.lastFate = A.s.fate.n;
         if (A.lastNovas !== undefined && (A.s.novas !== A.lastNovas || A.s.collapses !== A.lastCols) && !A.cut) { var dd = C.derive(A.s); G.tray.place(dd.dice.map(spec), dd.dice.map(function () { return 0; })); G.orrery.clearFx(); A.shownSum = undefined; if (A.s.collapses !== A.lastCols) G.audio.startBgm(1); }
         if (A.lastDiceN !== undefined && A.s.dice.length !== A.lastDiceN && !G.tray.rolling()) { var d2 = C.derive(A.s); G.tray.place(d2.dice.map(spec), d2.dice.map(function () { return 0; })); }

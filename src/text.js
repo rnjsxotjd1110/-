@@ -40,7 +40,7 @@
     // 궤도 정보
     orb: '궤도 {0}', orb_empty: '아직 비어 있어요', orb_dead: '지금 주사위로는 나오지 않아요', mass: '질량', prod: '생산', chance: '확률', next_tier: '다음 단계',
     align_pop: '정렬!', tier_up: '{0} 탄생', jack_align: '정렬 ×{0}', jack_rare: '드문 합 ×{0}', move_pop: '옮기기 +{0}',
-    fate: '운명', fate_title: '운명 굴림', tip_fate: '굴려서 나온 합의 궤도에 큰 질량이 붙어요. 드문 합일수록 커요.', tip_fate2: '자동 굴림이 굴릴수록 차올라요 · 최대 {0}번', fate_pop: '운명!',
+    fate: '운명', fate_title: '운명 굴림', tip_fate: '누르면 주사위를 한 번 크게 굴려요. 나온 궤도에 자동 굴림 약 {0}초치 질량이 한 번에 붙어요.', tip_fate2: '드문 합일수록 더 커요. 지금 가장 큰 천체보다 한 단계 위까지 키워요.', tip_fate3: '다음 보석까지 약 {0}초 · 최대 {1}개 모아 둬요', fate_n: '운명 굴림 {0}/{1}', fate_res: '궤도 {0} +{1} · 보통 굴림의 ×{2}', fate_ready: '운명 굴림이 찼어요', fate_ready2: '쟁반 왼쪽 보석을 누르면 크게 한 번 굴려요', fate_pop: '운명!',
     pair_or: '또는', pair_taken: '이번 판 선택: {0}', tip_pair: '둘 중 하나만 살 수 있어요. 초신성 뒤 다시 고를 수 있어요.',
     harmony: '조화 ×{0}', buff_flare: '플레어', buff_pulsar: '펄서', buff_rogue: '주사위 +1', buff_shower: '유성우 {0}번', buff_align: '정렬 {0}번', buff_moons: '달 {0}번', n_rolls: '{0}번', sum_lbl: '합',
     // 연출 문구
@@ -57,6 +57,7 @@
     refine: '별핵 정제', compress: '특이점 압축', b_refine: '정제하기', b_compress: '압축하기',
     sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요. 별핵·연구·업적은 남아요.', col_confirm: '특이점 {0}개를 얻어요. 별핵·연구·별핵 정제가 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '천체가 많고 단계가 높을수록 모든 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '자동 굴림 간격',
     h_orbit_rule: '합 = 궤도',
+    auto_nova_at: '별핵 +{0}부터', tip_auto_nova: '얻을 별핵이 지난 붕괴 뒤 모은 별핵({1})의 {0}% 이상이 되면 자동으로 초신성을 일으켜요.', auto_nova_now: '지금 별핵 +{0} / 필요 +{1}',
     dice_chal: '더 사면 목표 궤도 {0}이 안 나와요',
     b_open1: '하나 열기', b_open_all: '모두 열기', box_sum: '상자 {0}개 · 새 주사위 {1}종', box_dust: '별이 가득 찬 주사위 몫 별가루 +{0}', tag_new: '새로', skip_hint: '누르면 바로 보여요',
     layer_pct: '특이점 획득 {0}%', tip_layer: '지난 붕괴 뒤로 오래 키울수록 늘어요. 40%에서 시작해 50분이 지나면 100%예요.',
@@ -104,7 +105,7 @@
     evr_comet: 'Stardust +{0}', evr_shower: 'Next {0} rolls mass ×3', evr_flare: 'Output ×4 for {0}s', evr_rogue: '+1 die for {0}s', evr_align: 'Next {0} rolls align', evr_pulsar: 'Roller ×3 for {0}s', evr_meteor: 'Orbit {0} mass +{1}', evr_moons: 'Next {0} rolls also hit neighbors',
     orb: 'Orbit {0}', orb_empty: 'Still empty', orb_dead: 'Your dice cannot roll this sum now', mass: 'Mass', prod: 'Output', chance: 'Odds', next_tier: 'Next stage',
     align_pop: 'Aligned!', tier_up: '{0} born', jack_align: 'Aligned ×{0}', jack_rare: 'Rare sum ×{0}', move_pop: 'Moves +{0}',
-    fate: 'Fate', fate_title: 'Fate roll', tip_fate: 'The orbit you roll gains a large chunk of mass. Rarer sums gain more.', tip_fate2: 'Fills as the roller rolls · holds up to {0}', fate_pop: 'Fate!',
+    fate: 'Fate', fate_title: 'Fate roll', tip_fate: 'Click for one big roll. The orbit it lands on gains about {0}s of auto-rolling mass at once.', tip_fate2: 'Rarer sums gain more. Grows a body up to one stage above your largest.', tip_fate3: 'Next gem in about {0}s · holds up to {1}', fate_n: 'Fate roll {0}/{1}', fate_res: 'Orbit {0} +{1} · ×{2} a normal roll', fate_ready: 'Fate roll ready', fate_ready2: 'Click the gem left of the tray for one big roll', fate_pop: 'Fate!',
     pair_or: 'or', pair_taken: 'This run: {0}', tip_pair: 'Only one of the two. Pick again after a supernova.',
     harmony: 'Harmony ×{0}', buff_flare: 'Flare', buff_pulsar: 'Pulsar', buff_rogue: 'Rogue', buff_shower: 'Shower {0}', buff_align: 'Parade {0}', buff_moons: 'Moons {0}', n_rolls: '×{0}', sum_lbl: 'Sum',
     nova_title: 'Supernova', col_title: 'Collapse', new_unlock: 'Unlocked',
@@ -118,6 +119,7 @@
     refine: 'Core refining', compress: 'Compression', b_refine: 'Refine', b_compress: 'Compress',
     sound_on: 'Sound on', sound_off: 'Sound off', upg_next: 'Next part at {0} stardust this run', nova_confirm: 'Gain {0} cores and restart this run. Cores, research and feats stay.', col_confirm: 'Gain {0} singularities. Cores, research and refining reset.', tip_align: 'All dice show the same face: an alignment. That roll gains much more mass.', tip_rarity: 'Rarer sums add more mass per hit.', tip_harmony: 'Output grows with the total stage of all bodies.', tip_dust: 'Stardust', ev_appear: '{0} passing by', n_rolls2: '{0} rolls', save_broken: 'Could not load the save', save_broken2: 'The original was kept aside', away_cap: 'Stores up to {0}h', fullscreen: 'Fullscreen', chal_confirm_start: 'Starting a trial restarts this run.', chal_confirm_quit: 'Giving up restarts this run.', b_start_chal: 'Start', b_quit_chal: 'Give up', roller_s: 'Roll gap',
     h_orbit_rule: 'Sum = orbit',
+    auto_nova_at: 'at +{0} cores', tip_auto_nova: 'Goes supernova by itself once the cores you would gain reach {0}% of the cores gathered since the last collapse ({1}).', auto_nova_now: 'Now +{0} cores / need +{1}',
     dice_chal: 'More dice would block goal orbit {0}',
     b_open1: 'Open one', b_open_all: 'Open all', box_sum: '{0} boxes · {1} new dice', box_dust: 'Stardust from full dice +{0}', tag_new: 'New', skip_hint: 'Click to skip',
     layer_pct: 'Singularity gain {0}%', tip_layer: 'Grows the longer you build after the last collapse. Starts at 40%, full at 50 minutes.',

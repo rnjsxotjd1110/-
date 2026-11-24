@@ -323,10 +323,12 @@
       F.drawRight(G.fmt(best) + ' / ' + G.fmt(need), X0 + W0 - 2, y + 29, 8, 'g9');
     }
     if (C.res(s, 's6')) {
-      var lab = G.T('auto_nova') + ' ' + (s.settings.autoNova ? G.T('on') : G.T('off'));
+      var an = C.autoNovaNeed(s), ag = C.novaGain(s);
+      var lab = G.T('auto_nova') + ' ' + (s.settings.autoNova ? G.T('on') + ' · ' + G.T('auto_nova_at', G.fmt(an)) : G.T('off'));
       var ay = C.canNova(s) ? y + 28 : y + 41;
       var h = U.hitArea('autonova', X0 + W0 - F.measure(lab, 'g9') - 4, ay - 1, F.measure(lab, 'g9') + 4, 11);
       F.drawRight(lab, X0 + W0 - 2, ay, s.settings.autoNova ? 3 : 15, 'g9');
+      if (h.over) U.tip([{ t: G.T('auto_nova') + ' · ' + G.T('auto_nova_at', G.fmt(an)), f: 'g11b', c: 12 }, { t: G.T('tip_auto_nova', Math.round(G.DATA.autoNovaFrac * 100), G.fmt(s.coresLayer)), c: 13 }, { t: G.T('auto_nova_now', G.fmt(ag), G.fmt(an)), c: ag >= an ? 16 : 11 }], U.inp.x - 160, U.inp.y + 12);
       if (h.clicked) { s.settings.autoNova = !s.settings.autoNova; G.audio.play('tab'); }
     }
   }

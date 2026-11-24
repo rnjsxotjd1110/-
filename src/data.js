@@ -34,7 +34,7 @@ G.DATA = {
   offlineCapH: 12, offlineEff: 0.5,
 
   // 초신성
-  novaTier: 8,
+  novaTier: 8, autoNovaFrac: 0.25,  // 자동 초신성: 얻을 별핵 ≥ 이번 붕괴 뒤 모은 별핵 × 0.25
   coreGain: { k: 3, div: 6e6, exp: 0.5 },
   // 중력 붕괴
   collapseTier: 10,

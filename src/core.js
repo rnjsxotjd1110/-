@@ -369,7 +369,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var allow = Math.max(capM * 1.001 - b0, unit * mult * 0.05);
     if (unit * mult > allow) mult = allow / unit;
     var r = applyRoll(s, d, idx, vals, false, mult);
-    r.fate = true;
+    r.fate = true; r.fateX = mult;
     s.stats.fates = (s.stats.fates || 0) + 1;
     checkAch(s);
     return r;
@@ -425,7 +425,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (s.chal && chalMet(s)) { s.chalDone[s.chal] = chalStage(s, s.chal) + 1; chalQueue.push(s.chal); s.chal = null; invalidate(); }
     if (res(s, 's5')) autoBuy(s);
     if (res(s, 's4')) autoUpgrade(s);
-    if (res(s, 's6') && s.settings.autoNova && canNova(s) && novaGain(s) >= Math.max(1, Math.floor(s.coresLayer * 0.25))) nova(s);
+    if (res(s, 's6') && s.settings.autoNova && canNova(s) && novaGain(s) >= autoNovaNeed(s)) nova(s);
     if (sres(s, 'q11') && s.settings.autoCollapse && canCollapse(s)) collapse(s);
     checkAch(s);
     return rolled;
@@ -610,6 +610,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var g = novaGain(s) + 1;
     return Math.pow(g / (D.coreGain.k * d.coreMult), 1 / D.coreGain.exp) * D.coreGain.div * thK;
   }
+  // 자동 초신성 기준: 얻을 별핵이 지난 붕괴 뒤 모은 별핵의 25% 이상 (최소 1)
+  function autoNovaNeed(s) { return Math.max(1, Math.floor(s.coresLayer * D.autoNovaFrac)); }
   function resetRun(s) {
     var oldDice = s.dice;
     s.dust = 0; s.dustRun = 0; s.bodies = {}; s.up = {}; s.autoT = 0;
@@ -879,7 +881,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     spById: spById, spVal: spVal, openBox: openBox, equip: equip, autoEquip: autoEquip, conUnlocked: conUnlocked, conProgress: conProgress, rerollContract: rerollContract, newContract: newContract, conQueue: conQueue, dexQueue: dexQueue, dexCount: dexCount, dexPer: dexPer, orbitClass: orbitClass,
     buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible, pairOf: pairOf, pairBlocked: pairBlocked,
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
-    dieShape: dieShape, chalMinOrbit: chalMinOrbit, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
+    autoNovaNeed: autoNovaNeed, dieShape: dieShape, chalMinOrbit: chalMinOrbit, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
     chalUnlocked: chalUnlocked, chalGoal: chalGoal, chalStage: chalStage, chalMet: chalMet, endingReady: endingReady, outerCap: outerCap,
     fateUnlocked: fateUnlocked, fateNeed: fateNeed, fateRoll: fateRoll, poisson: poisson, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, layerBonus: layerBonus, collapseGain: collapseGain, collapse: collapse,

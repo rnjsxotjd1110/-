@@ -203,7 +203,7 @@
       if (p.life < 0.25) p.c = p.c2 || 11;
       if (p.life <= 0) parts.splice(j, 1);
     }
-    for (var k2 = pops.length - 1; k2 >= 0; k2--) { pops[k2].life -= dt * (pops[k2].big ? 0.55 : 0.9); if (pops[k2].life <= 0) pops.splice(k2, 1); }
+    for (var k2 = pops.length - 1; k2 >= 0; k2--) { pops[k2].life -= dt * (pops[k2].big ? 0.55 : (pops[k2].tag === 'fate' ? 0.3 : 0.9)); if (pops[k2].life <= 0) pops.splice(k2, 1); }
     for (var r = rings.length - 1; r >= 0; r--) { rings[r].life -= dt * 1.2; if (rings[r].life <= 0) rings.splice(r, 1); }
   }
 

@@ -193,7 +193,7 @@
         if (rows > 0) { gx.setClip(gxp, gy + 9 - rows, 11, rows); gx.blit(G.spr.fateGem, gxp, gy, false, GEM_DIM); gx.resetClip(); }
       }
     }
-    if (h.over) U.tip([{ t: G.T('fate_title'), f: 'g11b', c: 12 }, { t: G.T('tip_fate'), c: 13 }, { t: G.T('tip_fate2', max), c: 11 }], FATE.x + 30, FATE.y);
+    if (h.over) { var rps = C.derive(s).rollsPerSec || 0.33, left = Math.max(0, need - F2.c) / rps; U.tip([{ t: G.T('fate_n', F2.n, max), f: 'g11b', c: 12 }, { t: G.T('tip_fate', G.DATA.fate.massSec), c: 13 }, { t: G.T('tip_fate2'), c: 13 }, { t: F2.n >= max ? G.T('fate_ready') : G.T('tip_fate3', Math.ceil(left), max), c: 11 }], FATE.x + 30, FATE.y); }
     if (h.clicked) { if (F2.n >= 1) A.doFateRoll(); else G.audio.play('deny'); }
     return h;
   }
