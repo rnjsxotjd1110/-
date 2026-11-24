@@ -425,7 +425,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     if (s.chal && chalMet(s)) { s.chalDone[s.chal] = chalStage(s, s.chal) + 1; chalQueue.push(s.chal); s.chal = null; invalidate(); }
     if (res(s, 's5')) autoBuy(s);
     if (res(s, 's4')) autoUpgrade(s);
-    if (res(s, 's6') && s.settings.autoNova && canNova(s) && novaGain(s) >= autoNovaNeed(s)) nova(s);
+    // 관측 과제 중에는 자동 초신성을 멈춘다 (목표가 적색 왜성보다 큰 천체라서 판이 리셋되면 못 깸)
+    if (res(s, 's6') && s.settings.autoNova && !s.chal && canNova(s) && novaGain(s) >= autoNovaNeed(s)) nova(s);
     if (sres(s, 'q11') && s.settings.autoCollapse && canCollapse(s)) collapse(s);
     checkAch(s);
     return rolled;

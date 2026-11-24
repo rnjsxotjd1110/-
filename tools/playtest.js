@@ -105,6 +105,9 @@ const path = require('path');
   // 관측 의뢰: 주사위가 늘어 목표 궤도가 안 나오면 의뢰를 바꿔 줌
   const sw = await page.evaluate(() => { const s = G.app.s, C = G.core; const keep = JSON.stringify(s); s.dice = [C.newDie(), C.newDie()]; s.lv.wind = Math.max(1, s.lv.wind); s.con.cur = { type: 'orbit', sum: 2, tier: 9, time: 300, left: 300, base: 0 }; s.dice.push(C.newDie()); C.invalidate(); C.tick(s, 0.1, {}); const r = !(s.con.cur && s.con.cur.type === 'orbit' && s.con.cur.sum === 2); Object.assign(s, JSON.parse(keep)); C.invalidate(); return r; });
   ok(sw, '안 나오는 궤도 의뢰는 새 의뢰로 바뀜');
+  // 관측 과제 중에는 자동 초신성이 멈춤
+  const an = await page.evaluate(() => { const s = G.app.s, C = G.core; const keep = JSON.stringify(s); s.novas = 10; s.chalDone = {}; s.chal = null; C.startChallenge(s, 'c3'); s.research.s6 = 1; s.settings.autoNova = true; s.bodies[9] = { m: 1e30, t: 8, seed: 1, a0: 0 }; const n0 = s.novas; C.tick(s, 0.1, {}); const r = s.novas === n0 && s.chal === 'c3'; Object.assign(s, JSON.parse(keep)); C.invalidate(); return r; });
+  ok(an, '과제 중 자동 초신성 멈춤');
   // 일지: 첫 굴림 뒤 관장의 첫 줄이 나옴
   ok(await page.evaluate(() => !!G.app.s.story.hello), '관측소 일지 첫 줄');
   // 저장 후 마지막 저장 시각을 2시간 전으로 바꿔 다시 열기

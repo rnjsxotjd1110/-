@@ -308,7 +308,7 @@
     var y = Y0 + 2;
     if (C.canNova(s)) {
       var g = C.novaGain(s);
-      if (U.button('novabtn', X0, y, W0, 22, G.T('nova_btn'), { style: 'core', font: 'g11b', sfx: 'tap' })) { A.confirmText = G.T('nova_confirm', G.fmt(g)); A.confirmYes = G.T('nova_btn'); A.confirmFn = A.startNova; A.overlay = 'confirm'; }
+      if (U.button('novabtn', X0, y, W0, 22, G.T('nova_btn'), { style: 'core', font: 'g11b', sfx: 'tap' })) { A.confirmText = G.T('nova_confirm', G.fmt(g)) + (s.chal ? ' ' + G.T('nova_chal_warn') : ''); A.confirmYes = G.T('nova_btn'); A.confirmFn = A.startNova; A.overlay = 'confirm'; }
       F.draw(G.T('nova_gain', G.fmt(g)), X0 + 2, y + 27, 7, 'g11b', 12);
       F.draw(G.T('total_mass', G.fmt(C.totalMass(s)), G.fmt(C.novaNext(s))), X0 + 2, y + 41, 8, 'g9');
     } else {
@@ -326,7 +326,7 @@
       // 자동 초신성: [자동 켜짐/꺼짐] [기준 25%] — 기준은 눌러서 10·25·50·100% 순으로 바꿈
       var an = C.autoNovaNeed(s), ag = C.novaGain(s), pct = s.settings.autoNovaPct || 25;
       var ay = C.canNova(s) ? y + 28 : y + 41;
-      var l2 = G.T('auto_nova_pct', pct), l1 = G.T('auto_nova_s') + ' ' + (s.settings.autoNova ? G.T('on') : G.T('off'));
+      var l2 = G.T('auto_nova_pct', pct), l1 = G.T('auto_nova_s') + ' ' + (s.chal && s.settings.autoNova ? G.T('auto_nova_paused') : (s.settings.autoNova ? G.T('on') : G.T('off')));
       var w2 = F.measure(l2, 'g9'), w1 = F.measure(l1, 'g9');
       var x2 = X0 + W0 - 2 - w2, x1 = x2 - 10 - w1;
       var h1 = U.hitArea('autonova', x1 - 2, ay - 2, w1 + 4, 13), h2 = U.hitArea('autonovapct', x2 - 2, ay - 2, w2 + 4, 13);
