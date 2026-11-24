@@ -720,6 +720,8 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   }
 
   // ── 관측 의뢰 ───────────────────────────────────
+  // 지금 쟁반 주사위로 이 합이 나올 수 있는지 (떠돌이 주사위 같은 잠깐의 변화는 빼고)
+  function orbitPossible(s, sum) { var lo = 0, hi = 0; s.dice.forEach(function (d) { lo += Math.min.apply(null, d.faces); hi += Math.max.apply(null, d.faces); }); return sum >= lo && sum <= hi; }
   function conUnlocked(s) { return s.lv.wind > 0 || s.novas > 0 || s.collapses > 0; }
   // 한 궤도가 목표 단계까지 걸리는 예상 시간(초)
   function orbitEta(s, d, sum, target) {
@@ -734,6 +736,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var cands = [];
     d.orbits.forEach(function (sum) {
       if (!(d.dist[sum] > 0)) return;
+      if (sum <= s.dice.length && s.dice.length < maxDice(s)) return; // 주사위를 더 사면 사라질 궤도는 피함
       var ct = s.bodies[sum] ? s.bodies[sum].t : 0;
       for (var t = Math.max(2, ct + 1); t <= Math.min(mt, ct + 3, 10); t++) {
         var eta = orbitEta(s, d, sum, t);
@@ -767,6 +770,10 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     K.rcd = Math.max(0, (K.rcd || 0) - dt);
     if (!K.cur) { K.wait -= dt; if (K.wait <= 0) { K.cur = newContract(s); K.wait = D.contract.gap; if (K.cur) conQueue.push({ kind: 'new', c: K.cur }); } return; }
     var c = K.cur;
+    // 주사위가 늘어 목표 궤도가 더는 안 나오면 (합의 최솟값 = 주사위 수) 의뢰를 새로 바꿔 준다
+    if (c.type === 'orbit' && !orbitPossible(s, c.sum) && !(conProgress(s, c) >= 1)) {
+      var nc = newContract(s); conQueue.push({ kind: 'swap', c: nc }); K.cur = nc; if (!nc) K.wait = D.contract.gap; return;
+    }
     if (conProgress(s, c) >= 1) {
       s.box++; s.stats.cons = (s.stats.cons || 0) + 1;
       var fate = c.type === 'align' || c.type === 'event';
@@ -881,7 +888,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     spById: spById, spVal: spVal, openBox: openBox, equip: equip, autoEquip: autoEquip, conUnlocked: conUnlocked, conProgress: conProgress, rerollContract: rerollContract, newContract: newContract, conQueue: conQueue, dexQueue: dexQueue, dexCount: dexCount, dexPer: dexPer, orbitClass: orbitClass,
     buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible, pairOf: pairOf, pairBlocked: pairBlocked,
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
-    autoNovaNeed: autoNovaNeed, dieShape: dieShape, chalMinOrbit: chalMinOrbit, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
+    autoNovaNeed: autoNovaNeed, orbitPossible: orbitPossible, dieShape: dieShape, chalMinOrbit: chalMinOrbit, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
     chalUnlocked: chalUnlocked, chalGoal: chalGoal, chalStage: chalStage, chalMet: chalMet, endingReady: endingReady, outerCap: outerCap,
     fateUnlocked: fateUnlocked, fateNeed: fateNeed, fateRoll: fateRoll, poisson: poisson, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, layerBonus: layerBonus, collapseGain: collapseGain, collapse: collapse,

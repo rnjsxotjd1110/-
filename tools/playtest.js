@@ -102,6 +102,9 @@ const path = require('path');
   // 과제 중에는 목표 궤도를 막는 주사위를 사지 않음 (자동 구매 포함)
   const cb = await page.evaluate(() => { const s = G.app.s, C = G.core; const keep = JSON.stringify(s); s.novas = 10; s.collapses = 1; s.chalDone = { c5: 4 }; s.chal = null; C.startChallenge(s, 'c5'); s.dust = 1e30; s.research.s5 = 1; C.tick(s, 0.1, {}); const r = s.dice.length === Math.min(3, C.chalMinOrbit(s)) && !C.buyDie(s); Object.assign(s, JSON.parse(keep)); C.invalidate(); return r; });
   ok(cb, '과제 목표 궤도 3: 주사위가 3개를 넘지 않음');
+  // 관측 의뢰: 주사위가 늘어 목표 궤도가 안 나오면 의뢰를 바꿔 줌
+  const sw = await page.evaluate(() => { const s = G.app.s, C = G.core; const keep = JSON.stringify(s); s.dice = [C.newDie(), C.newDie()]; s.lv.wind = Math.max(1, s.lv.wind); s.con.cur = { type: 'orbit', sum: 2, tier: 9, time: 300, left: 300, base: 0 }; s.dice.push(C.newDie()); C.invalidate(); C.tick(s, 0.1, {}); const r = !(s.con.cur && s.con.cur.type === 'orbit' && s.con.cur.sum === 2); Object.assign(s, JSON.parse(keep)); C.invalidate(); return r; });
+  ok(sw, '안 나오는 궤도 의뢰는 새 의뢰로 바뀜');
   // 일지: 첫 굴림 뒤 관장의 첫 줄이 나옴
   ok(await page.evaluate(() => !!G.app.s.story.hello), '관측소 일지 첫 줄');
   // 저장 후 마지막 저장 시각을 2시간 전으로 바꿔 다시 열기

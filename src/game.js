@@ -243,6 +243,7 @@
           if (cq.kind === 'ok') { A.notify([G.T('con_ok'), cq.fate ? G.T('con_reward2') : G.T('con_reward')], 'ach'); if (G.audio) G.audio.play('chal'); A.conFlash = 1; }
           else if (cq.kind === 'fail') A.notify([G.T('con_fail')], 'info');
           else if (cq.kind === 'new') A.conFlash = 0.6;
+          else if (cq.kind === 'swap') { A.notify([G.T('con_swap'), G.T('con_swap2')], 'info'); A.conFlash = 1; }
         }
         while (C.dexQueue.length) { var dk = C.dexQueue.shift(); A.notify([G.T('dex_new'), G.dexName(dk)], 'dex', dk); }
         A.storyT = (A.storyT || 0) + dt;

@@ -30,8 +30,9 @@
     v.goalOrbits = cg ? cg.map(function (q) { return q[0]; }) : null;
     if (cg) {
       var met = cg.filter(function (q) { return s.bodies[q[0]] && s.bodies[q[0]].t >= q[1]; }).length;
-      v.goal = [G.T('chal_goal_t', G.goalShort(cg)), met + '/' + cg.length];
-      v.goalTip = [G.nm('chal', s.chal), G.nm('chal', s.chal, 1)];
+      var dead = cg.filter(function (q) { return !(s.bodies[q[0]] && s.bodies[q[0]].t >= q[1]) && !C.orbitPossible(s, q[0]); });
+      v.goal = [G.T('chal_goal_t', G.goalShort(cg)), dead.length ? G.T('goal_dead', dead[0][0]) : met + '/' + cg.length];
+      v.goalTip = [G.nm('chal', s.chal), dead.length ? G.T('goal_dead_tip', dead[0][0]) : G.nm('chal', s.chal, 1)];
       A.view = v; return v;
     }
     var cc = s.con && s.con.cur;
