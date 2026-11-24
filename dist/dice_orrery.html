@@ -169,10 +169,10 @@ G.RESEARCH = [
 // 관측 과제: 단계마다 궤도 목표 [[궤도, 천체 단계], ...]. 1~2단계는 초신성 구간, 3~5단계는 붕괴 뒤.
 G.CHALLENGES = [
   { id: 'c1', rule: 'noManual', reward: 'fateMass', v: 0.5, req: 3, goals: [[[8, 7]], [[5, 7], [11, 7]], [[13, 9]], [[4, 9], [16, 9]], [[3, 10]]] },
-  { id: 'c2', rule: 'twoDice', reward: 'perDie', v: 0.03, req: 3, goals: [[[3, 7]], [[2, 7], [10, 7]], [[11, 9]], [[1, 9], [11, 9]], [[0, 10]]] },
+  { id: 'c2', rule: 'twoDice', reward: 'perDie', v: 0.03, req: 3, goals: [[[3, 7]], [[2, 7], [10, 7]], [[11, 9]], [[2, 9], [12, 9]], [[2, 10]]] },
   { id: 'c3', rule: 'oddOnly', reward: 'oddProd', v: 1.5, req: 4, goals: [[[9, 7]], [[7, 7], [13, 7]], [[11, 9]], [[5, 9], [15, 9]], [[3, 10]]] },
   { id: 'c4', rule: 'noHarmony', reward: 'harmonyX', v: 0.25, req: 5, goals: [[[10, 7]], [[6, 7], [14, 7]], [[12, 9]], [[8, 9], [16, 9]], [[4, 10]]] },
-  { id: 'c5', rule: 'slowWind', reward: 'interval', v: 0.88, req: 6, goals: [[[7, 7]], [[6, 7], [8, 7]], [[9, 9]], [[5, 9], [13, 9]], [[2, 10]]] },
+  { id: 'c5', rule: 'slowWind', reward: 'interval', v: 0.88, req: 6, goals: [[[7, 7]], [[6, 7], [8, 7]], [[9, 9]], [[5, 9], [13, 9]], [[3, 10]]] },
   { id: 'c6', rule: 'heavySky', reward: 'threshold', v: 0.85, req: 8, goals: [[[10, 7]], [[9, 7], [11, 7]], [[10, 9]], [[8, 9], [12, 9]], [[14, 10]]] }
 ];
 
@@ -673,7 +673,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     var freq = resV(s, 'eventFreq') * (has(s, 'net') ? 0.7 : 1);
     s.ev.next = (D.eventGap[0] + rng() * (D.eventGap[1] - D.eventGap[0])) * freq;
     var types = G.EVENTS.slice();
-    if (s.dice.length >= (sres(s, 'q6') ? 6 : 5) || chalRule(s, 'twoDice')) types = types.filter(function (t) { return t !== 'rogue'; });
+    if (s.dice.length >= (sres(s, 'q6') ? 6 : 5) || chalRule(s, 'twoDice') || s.dice.length + 1 > chalMinOrbit(s)) types = types.filter(function (t) { return t !== 'rogue'; });
     var type = types[Math.floor(rng() * types.length)];
     if (!s.ev.seenFirst) { type = 'comet'; s.ev.seenFirst = true; }
     s.ev.cur = { type: type, life: D.eventLife, y: 0.2 + rng() * 0.6, dir: rng() < 0.5 ? 1 : -1 };
@@ -710,9 +710,16 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
   function costPower(s) { return D.power.cost0 * Math.pow(D.power.costK, s.lv.power); }
   function costWind(s) { return D.wind.cost0 * Math.pow(D.wind.costK, s.lv.wind); }
   function maxDice(s) { return chalRule(s, 'twoDice') ? 2 : (sres(s, 'q6') ? 6 : 5); }
+  // 과제 중: 아직 못 채운 목표 궤도 중 가장 작은 번호 (주사위가 그보다 많으면 그 궤도는 나올 수 없음)
+  function chalMinOrbit(s) {
+    var g = s.chal ? chalGoal(s, s.chal) : null; if (!g) return Infinity;
+    var m = Infinity; g.forEach(function (q) { var b = s.bodies[q[0]]; if (!(b && b.t >= q[1])) m = Math.min(m, q[0]); });
+    return m;
+  }
   function costDie(s) {
     var n = s.dice.length + 1;
     if (n > maxDice(s)) return Infinity;
+    if (n > chalMinOrbit(s)) return Infinity; // 목표 궤도를 막는 주사위는 사지 않음 (자동 구매 포함)
     return (D.diceCost[n] || Infinity) * chalReward(s, 'diceCost');
   }
   // 지금 주사위 면 수: 주형 연구로 d6 → d8 → d12
@@ -829,6 +836,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     s.lv = { power: 0, wind: res(s, 'r1') ? 6 : 0, refine: s.lv.refine || 0, compress: s.lv.compress || 0 };
     var nd = res(s, 'r2') ? 3 : 2;
     if (chalRule(s, 'twoDice')) nd = 2;
+    nd = Math.max(2, Math.min(nd, chalMinOrbit(s)));
     s.dice = [];
     for (var i = 0; i < nd; i++) {
       var od = oldDice[i];
@@ -1091,7 +1099,7 @@ if (typeof require !== 'undefined' && typeof G.DATA === 'undefined') { G = requi
     spById: spById, spVal: spVal, openBox: openBox, equip: equip, autoEquip: autoEquip, conUnlocked: conUnlocked, conProgress: conProgress, rerollContract: rerollContract, newContract: newContract, conQueue: conQueue, dexQueue: dexQueue, dexCount: dexCount, dexPer: dexPer, orbitClass: orbitClass,
     buyPower: buyPower, buyWind: buyWind, buyDie: buyDie, buyUpgrade: buyUpgrade, upgradeVisible: upgradeVisible, pairOf: pairOf, pairBlocked: pairBlocked,
     buyResearch: buyResearch, costRefine: costRefine, costCompress: costCompress, buyRefine: buyRefine, buyCompress: buyCompress, researchAvail: researchAvail, buySres: buySres, sresAvail: sresAvail, setShape: setShape, trayUsed: trayUsed,
-    dieShape: dieShape, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
+    dieShape: dieShape, chalMinOrbit: chalMinOrbit, upgradeDice: upgradeDice, canNova: canNova, novaGain: novaGain, novaNext: novaNext, nova: nova, maxTier: maxTier, totalMass: totalMass,
     chalUnlocked: chalUnlocked, chalGoal: chalGoal, chalStage: chalStage, chalMet: chalMet, endingReady: endingReady, outerCap: outerCap,
     fateUnlocked: fateUnlocked, fateNeed: fateNeed, fateRoll: fateRoll, poisson: poisson, startChallenge: startChallenge, quitChallenge: quitChallenge, chalRule: chalRule,
     canCollapse: canCollapse, layerBonus: layerBonus, collapseGain: collapseGain, collapse: collapse,
@@ -2854,6 +2862,7 @@ if (typeof module !== 'undefined') module.exports = G;
     refine: '별핵 정제', compress: '특이점 압축', b_refine: '정제하기', b_compress: '압축하기',
     sound_on: '소리 켜짐', sound_off: '소리 꺼짐', upg_next: '다음 개량: 이번 판 별가루 {0}', nova_confirm: '별핵 {0}개를 얻고 이번 판을 처음부터 다시 시작해요. 별핵·연구·업적은 남아요.', col_confirm: '특이점 {0}개를 얻어요. 별핵·연구·별핵 정제가 처음으로 돌아가요.', tip_align: '모든 주사위 눈이 같으면 정렬이에요. 그 굴림의 질량이 크게 늘어요.', tip_rarity: '자주 안 나오는 합일수록 한 번에 붙는 질량이 커요.', tip_harmony: '천체가 많고 단계가 높을수록 모든 생산이 늘어요.', tip_dust: '별가루', ev_appear: '하늘에 {0}', n_rolls2: '{0}번 굴림', save_broken: '저장을 불러오지 못했어요', save_broken2: '원본은 따로 보관해 두었어요', away_cap: '최대 {0}시간까지 쌓여요', fullscreen: '전체 화면', chal_confirm_start: '과제를 시작하면 이번 판이 처음부터 다시 시작돼요.', chal_confirm_quit: '과제를 포기하면 이번 판이 처음부터 다시 시작돼요.', b_start_chal: '시작하기', b_quit_chal: '포기하기', roller_s: '자동 굴림 간격',
     h_orbit_rule: '합 = 궤도',
+    dice_chal: '더 사면 목표 궤도 {0}이 안 나와요',
     b_open1: '하나 열기', b_open_all: '모두 열기', box_sum: '상자 {0}개 · 새 주사위 {1}종', box_dust: '별이 가득 찬 주사위 몫 별가루 +{0}', tag_new: '새로', skip_hint: '누르면 바로 보여요',
     layer_pct: '특이점 획득 {0}%', tip_layer: '지난 붕괴 뒤로 오래 키울수록 늘어요. 40%에서 시작해 50분이 지나면 100%예요.',
     shape_d4: '굴림 질량 ×0.85', shape_d6: '기본 주사위 · 쟁반 6칸', shape_d8: '굴림 질량 ×1.3 · 궤도 넓음 · 쟁반 8칸', shape_d12: '굴림 질량 ×1.75 · 궤도 가장 넓음 · 쟁반 12칸',
@@ -2914,6 +2923,7 @@ if (typeof module !== 'undefined') module.exports = G;
     refine: 'Core refining', compress: 'Compression', b_refine: 'Refine', b_compress: 'Compress',
     sound_on: 'Sound on', sound_off: 'Sound off', upg_next: 'Next part at {0} stardust this run', nova_confirm: 'Gain {0} cores and restart this run. Cores, research and feats stay.', col_confirm: 'Gain {0} singularities. Cores, research and refining reset.', tip_align: 'All dice show the same face: an alignment. That roll gains much more mass.', tip_rarity: 'Rarer sums add more mass per hit.', tip_harmony: 'Output grows with the total stage of all bodies.', tip_dust: 'Stardust', ev_appear: '{0} passing by', n_rolls2: '{0} rolls', save_broken: 'Could not load the save', save_broken2: 'The original was kept aside', away_cap: 'Stores up to {0}h', fullscreen: 'Fullscreen', chal_confirm_start: 'Starting a trial restarts this run.', chal_confirm_quit: 'Giving up restarts this run.', b_start_chal: 'Start', b_quit_chal: 'Give up', roller_s: 'Roll gap',
     h_orbit_rule: 'Sum = orbit',
+    dice_chal: 'More dice would block goal orbit {0}',
     b_open1: 'Open one', b_open_all: 'Open all', box_sum: '{0} boxes · {1} new dice', box_dust: 'Stardust from full dice +{0}', tag_new: 'New', skip_hint: 'Click to skip',
     layer_pct: 'Singularity gain {0}%', tip_layer: 'Grows the longer you build after the last collapse. Starts at 40%, full at 50 minutes.',
     shape_d4: 'Roll mass ×0.85', shape_d6: 'Standard die · 6 tray slots', shape_d8: 'Roll mass ×1.3 · wider orbits · 8 slots', shape_d12: 'Roll mass ×1.75 · widest orbits · 12 slots',
@@ -3398,6 +3408,8 @@ if (typeof module !== 'undefined') module.exports = G;
     s.layerStart = num(s.layerStart, 0, s.t, 0);
     s.ended = !!s.ended && !!s.sres.q12;
     s.sres.q12 = s.sres.q12;  s.endSeen = !!s.endSeen && s.ended;
+    // 과제 중인데 주사위가 목표 궤도보다 많아 목표를 못 채우는 저장: 남는 주사위를 뺀다
+    if (s.chal) { var mo = G.core.chalMinOrbit(s); if (s.dice.length > mo) s.dice.length = Math.max(2, mo); }
     if (st.alignDice > s.dice.length) st.alignDice = 0;
     return s;
   }
@@ -4195,7 +4207,8 @@ if (typeof module !== 'undefined') module.exports = G;
     var cd = C.costDie(s), full = !isFinite(cd);
     var dk = Object.keys(d.dist).map(Number).filter(function (k) { return d.dist[k] > 0; });
     var orb = [Math.min.apply(null, dk), Math.max.apply(null, dk)];
-    plate(2, G.spr.icDie, G.T('dice'), G.T('n_dice', s.dice.length), full ? G.T('dice_max') : G.T('dice_eff', orb[0], orb[orb.length - 1]),
+    var chalBlock = full && s.dice.length < C.maxDice(s) && s.dice.length + 1 > C.chalMinOrbit(s);
+    plate(2, G.spr.icDie, G.T('dice'), G.T('n_dice', s.dice.length), chalBlock ? G.T('dice_chal', C.chalMinOrbit(s)) : (full ? G.T('dice_max') : G.T('dice_eff', orb[0], orb[orb.length - 1])),
       full ? null : cd, s.dust >= cd, G.T('b_dice'), !full && s.dust >= cd, function () { if (C.buyDie(s)) G.audio.play('unlock'); });
     contractCard(s, X0 + 106, Y0 + 92, 102, 86);
     histogram(s, d, X0, Y0 + 186, W0, 46, false);

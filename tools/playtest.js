@@ -99,6 +99,9 @@ const path = require('path');
   // 관측 과제: 궤도 목표를 채우면 단계가 오름
   const ch = await page.evaluate(() => { const s = G.app.s, C = G.core; s.novas = 3; C.startChallenge(s, 'c1'); const g = C.chalGoal(s, 'c1'); g.forEach(q => { s.bodies[q[0]] = { m: 1e12, t: q[1], seed: 1, a0: 0 }; }); C.tick(s, 0.1, {}); const r = C.chalStage(s, 'c1') === 1 && !s.chal; s.novas = 0; return r; });
   ok(ch, '관측 과제 1단계 완료');
+  // 과제 중에는 목표 궤도를 막는 주사위를 사지 않음 (자동 구매 포함)
+  const cb = await page.evaluate(() => { const s = G.app.s, C = G.core; const keep = JSON.stringify(s); s.novas = 10; s.collapses = 1; s.chalDone = { c5: 4 }; s.chal = null; C.startChallenge(s, 'c5'); s.dust = 1e30; s.research.s5 = 1; C.tick(s, 0.1, {}); const r = s.dice.length === Math.min(3, C.chalMinOrbit(s)) && !C.buyDie(s); Object.assign(s, JSON.parse(keep)); C.invalidate(); return r; });
+  ok(cb, '과제 목표 궤도 3: 주사위가 3개를 넘지 않음');
   // 일지: 첫 굴림 뒤 관장의 첫 줄이 나옴
   ok(await page.evaluate(() => !!G.app.s.story.hello), '관측소 일지 첫 줄');
   // 저장 후 마지막 저장 시각을 2시간 전으로 바꿔 다시 열기
